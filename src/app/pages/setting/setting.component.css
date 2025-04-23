@@ -1,0 +1,38 @@
+.header-container{
+    font-size: calc(1.1rem + .12vw) !important;
+    font-weight: bold !important;
+}
+.header-description{
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #99A1B7;
+}
+.custom-btn {
+    background-color: #F1F1F4 !important;
+    color: #333;
+    font-size: 14.5px;
+    font-weight: 600;
+}
+
+.custom-btn-act {
+    background-color: #1B84FF !important;
+    color: #fff;
+    font-size: 14.5px;
+    font-weight: 600;
+    border: none;
+}
+.custom-btn-excel {
+    background-color: #17c653;
+    color: #fff;
+    font-size: 14.5px;
+    font-weight: 600;
+}
+.color-search {
+    color: #1B84FF;
+}
+
+.header-setting{
+    font-size: 1rem;
+    font-weight: bold;
+}
+

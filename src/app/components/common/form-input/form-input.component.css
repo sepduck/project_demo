@@ -1,0 +1,66 @@
+.custom-input {
+    background-color: #f9f9f9;
+    color: #4B5675;
+    border: none;
+    border-radius: 5px;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    font-size: 16px;
+    outline: none;
+    box-shadow: none;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.input-description {
+    font-size: 14px;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+.toggle-password {
+    position: absolute;
+    top: 40%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+    color: #4B5675;
+}
+
+.toggle-password:hover {
+    color: #333;
+}
+
+.custom-checkbox-wrapper {
+    margin-bottom: 1rem;
+}
+
+.custom-checkbox {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 0.25rem;
+    border: 2px solid #0d6efd;
+    margin-right: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.custom-checkbox:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.custom-label {
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.note-text {
+    font-size: 0.85rem;
+    margin-left: 2rem;
+    color: #666;
+}

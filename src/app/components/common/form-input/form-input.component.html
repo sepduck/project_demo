@@ -1,0 +1,51 @@
+<div class="mt-3" *ngIf="isInput === 'no-label'">
+    <input [type]="type" class="form-control custom-input" [placeholder]="placeholder" [value]="value"
+        [readOnly]="readOnly" (input)="onInputChange($event)">
+    <div class="text-danger" style="font-size: 0.9rem; font-weight: 600;" *ngIf="error">{{ error }} </div>
+</div>
+
+<div class="mt-3 position-relative" *ngIf="isInput === 'no-label-password'">
+    <input [type]="isPasswordVisible ? 'text' : 'password'" class="form-control custom-input pe-5"
+        [placeholder]="placeholder" [value]="value" (input)="onInputChange($event)" />
+    <i class="bi toggle-password" [ngClass]="isPasswordVisible ? 'bi-eye' : 'bi-eye-slash'"
+        (click)="togglePasswordVisibility()"></i>
+    <p class="input-description" *ngIf="description">{{ descriptionLabel }}: <strong>{{ description }}</strong></p>
+    <div class="text-danger" style="font-size: 0.9rem; font-weight: 600;" *ngIf="error">{{ error }}</div>
+</div>
+
+<div *ngIf="isInput === 'checkbox'" class="mt-3">
+    <!-- <div class="d-flex align-items-center gap-2">
+        <p-checkbox [(ngModel)]="checked" [inputId]="checkboxId" (onChange)="onChangeEmit()"
+            (ngModelChange)="onNgModelChange()" [disabled]="disabled" binary="true"></p-checkbox>
+        <label [for]="checkboxId" class="ml-2">{{ label }}</label>
+    </div>
+
+    <i style="font-size: 0.75rem; margin-left: 1.5rem; color: gray;" *ngIf="note">
+        {{ note }}
+    </i> -->
+
+    <div class="form-check">
+        <input class="form-check-input giant-checkbox" type="checkbox" [id]="checkboxId" [(ngModel)]="checked"
+            (change)="onChangeEmit()" (ngModelChange)="onNgModelChange()" [disabled]="disabled"
+            (change)="onCheckboxChange($event)">
+        <label class="form-check-label" [for]="checkboxId"> {{label}}</label>
+    </div>
+    <i style="font-size: 0.75rem; margin-left: 25px; color: gray;" *ngIf="note">{{note}}</i>
+</div>
+
+<div class="form-group mt-3" *ngIf="isInput === 'label'">
+    <label for="numberLength">{{label}}</label>
+    <input [type]="type" class="form-control" [placeholder]="placeholder" [id]="value" [value]="value" 
+        (input)="onInputChange($event)" [disabled]="disabled">
+    <div class="text-danger" style="font-size: 0.9rem; font-weight: 600;" *ngIf="error">{{ error }} </div>
+</div>
+
+<div class="form-group mt-3 position-relative" *ngIf="isInput === 'label-password'">
+    <label for="password">{{label}}</label>
+    <input [type]="isPasswordVisible ? 'text' : 'password'" class="form-control" [id]="value"
+        [placeholder]="placeholder" (input)="onInputChange($event)" [value]="value" required>
+    <i class="fa" [ngClass]="isPasswordVisible ? 'fa-eye-slash' : 'fa-eye'" (click)="togglePasswordVisibility()"
+        style="position: absolute; top: 38px; right: 15px; cursor: pointer;">
+    </i>
+    <div class="text-danger" style="font-size: 0.9rem; font-weight: 600;" *ngIf="error">{{ error }} </div>
+</div>

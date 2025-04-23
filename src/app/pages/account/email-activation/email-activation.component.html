@@ -1,0 +1,8 @@
+<account-form [headerTitle]="'Kích hoạt email'">
+    <p class="mt-5">{{description}}</p>
+    <form-input placeholder="Email" [(value)]="email" isInput="no-label" [readOnly]="emailReadOnly"
+        [error]="errors.email!" />
+    <form-input placeholder="Mã kích hoạt" [(value)]="token" isInput="no-label" [error]="errors.token!" />
+
+    <form-button (backClick)="goToRegister()" (submitClick)="emailConfirm()" />
+</account-form>

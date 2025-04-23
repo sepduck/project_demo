@@ -1,0 +1,93 @@
+<div class="container mt-5">
+    <p class="header-container me-2">Nhật ký kiểm tra</p>
+    <p-panel styleClass="mt-3 mb-5">
+        <div class="mt-4 d-flex justify-content-end">
+            <p-button label="Làm tươi" icon="bi bi-arrow-repeat" severity="info" (click)="refreshData()"></p-button>
+        </div>
+        <div class="d-flex justify-content-center gap-2">
+            <div class="w-50">
+                <div class="flex-auto">
+                    <label class="font-bold block mb-2">Phạm vi ngày</label>
+                    <p-datepicker [(ngModel)]="rangeDates" selectionMode="range" styleClass="w-100"
+                        inputStyleClass="w-100" [readonlyInput]="true" (onSelect)="searchActivityLogByDateRange()" />
+                </div>
+
+            </div>
+            <div class="w-50">
+                <div class="flex-auto">
+                    <label class="font-bold block mb-2">Tên truy cập</label>
+                    <input pInputText class="w-100" type="search" (keyup.enter)="searchActivityLogByUsername()"
+                        [(ngModel)]="username" />
+                </div>
+            </div>
+        </div>
+        <div *ngIf="showAdvancedFilter">
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="flex-auto">
+                        <label class="font-bold block mb-2">Dịch vụ</label>
+                        <input pInputText class="w-100" type="text" (keyup.enter)="searchActivityLogByService()"
+                            [(ngModel)]="serviceName" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="flex-auto">
+                        <label class="font-bold block mb-2">Hoạt động</label>
+                        <input pInputText class="w-100" type="text" (keyup.enter)="searchActivityLogByActivity()"
+                            [(ngModel)]="activity" />
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="flex-auto">
+                        <label class="font-bold block mb-2">Trình duyệt</label>
+                        <input pInputText class="w-100" type="text" (keyup.enter)="searchActivityLogByBrowser()"
+                            [(ngModel)]="browser" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-link mt-3 text-secondary" (click)="toggleAdvancedFilter()">
+            {{ showAdvancedFilter ? 'Ẩn bộ lọc nâng cao' : 'Hiển thị bộ lọc nâng cao' }}
+        </button>
+
+        <div class="card mt-2">
+            <p-table [value]="activityLogs" [paginator]="true" [rows]="pageSize" [first]="(pageNumber - 1) * pageSize"
+                [totalRecords]="totalRecords" [lazy]="true" (onLazyLoad)="onPageChange($event)"
+                [rowsPerPageOptions]="[5, 10, 25, 50, 100, 250, 500]">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th></th>
+                        <th>Tên truy cập</th>
+                        <th>Dịch vụ</th>
+                        <th>Hoạt động</th>
+                        <th>Khoảng thời gian</th>
+                        <th>Khách hàng</th>
+                        <th>Trình duyệt</th>
+                        <th>Thời gian</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-activityLog>
+                    <tr>
+                        <td>
+                            <p-button icon="pi pi-search" [rounded]="true" severity="info" />
+                        </td>
+                        <td>{{activityLog.username}}</td>
+                        <td>{{activityLog.serviceName}}</td>
+                        <td>{{activityLog.activity}}</td>
+                        <td>{{activityLog.executionTime}} ms</td>
+                        <td>{{activityLog.ipAddress}}</td>
+                        <td class="browser-default">{{activityLog.browser}}</td>
+                        <td>{{ activityLog.createdAt | date:'HH:mm:ss dd/M/yyyy' }}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="paginatorleft">
+                    <div class="flex align-items-center justify-content-between w-full">
+                        <span>Page {{pageNumber}} of {{totalPages}}</span>
+                    </div>
+                </ng-template>
+            </p-table>
+        </div>
+    </p-panel>
+</div>

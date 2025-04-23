@@ -1,0 +1,139 @@
+<div class="container mt-5 ">
+    <div class="d-flex justify-content-between">
+        <div class="d-flex align-items-center">
+            <p class="header-container me-2">Người dùng</p>
+            <p class="header-description">Quản lý tài khoản người dùng và phân quyền.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <p-button label="Tạo tài khoản người dùng mới" [raised]="true" severity="info" icon="pi pi-plus"
+                *ngIf="authService.hasPermission('admin.role.create')" (onClick)="goToCreate()" />
+        </div>
+    </div>
+    <p-panel styleClass="mt-3 mb-5">
+        <p-inputGroup>
+            <input pInputText placeholder="Tìm kiếm ..." class="w-100" (keyup.enter)="searchUserByName()"
+                [(ngModel)]="name" type="search" />
+            <p-button label="Search" severity="info" (click)="searchUserByName()"></p-button>
+        </p-inputGroup>
+
+        <div *ngIf="showAdvancedFilter" class="mt-4">
+            <div class="d-flex justify-content-center gap-2">
+                <div class="w-50">
+                    <div class="card flex justify-center">
+                        <p-button label="Select Permissions" styleClass="w-max" severity="secondary"
+                            (click)="showDialog()" />
+                        <p-dialog header="Chọn Quyền" [(visible)]="visible" [modal]="true"
+                            [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }"
+                            [draggable]="false" [resizable]="false">
+                            <div class="card">
+                                <p-tree [value]="permissionTree" selectionMode="checkbox" styleClass="w-full md:w-full"
+                                    [(selection)]="selectedPermissions">
+                                </p-tree>
+                            </div>
+                            <ng-template pTemplate="footer">
+
+                                <div class="flex justify-content-end gap-2">
+                                    <p-button label="Hủy" icon="pi pi-times" styleClass="p-button-text"
+                                        (click)="visible = false"></p-button>
+                                    <p-button label="Áp dụng" icon="pi pi-check"
+                                        (click)="applyPermissionFilter()"></p-button>
+                                </div>
+                            </ng-template>
+                        </p-dialog>
+                    </div>
+                </div>
+                <div class="w-50">
+                    <p-inputGroup>
+                        <p-select [options]="rolesSelect" [(ngModel)]="selectedRoleId" optionLabel="name"
+                            optionValue="id" placeholder="Select a role" class="w-100 md:w-50" />
+                        <p-button label="Lọc" icon="bi bi-filter" severity="info"
+                            (click)="filterUserByRole()"></p-button>
+                    </p-inputGroup>
+                </div>
+            </div>
+            <div class="mt-4 d-flex justify-content-end">
+                <p-button label="Làm tươi" icon="bi bi-arrow-repeat" severity="info" (click)="refreshData()"></p-button>
+            </div>
+
+        </div>
+        <button class="btn btn-link mt-3 text-secondary" (click)="toggleAdvancedFilter()">
+            {{ showAdvancedFilter ? 'Ẩn bộ lọc nâng cao' : 'Hiển thị bộ lọc nâng cao' }}
+        </button>
+
+        <div class="card mt-2">
+            <p-table [value]="users" [paginator]="true" [rows]="pageSize" [first]="(pageNumber - 1) * pageSize"
+                [totalRecords]="totalRecords" [lazy]="true" (onLazyLoad)="onPageChange($event)"
+                [rowsPerPageOptions]="[5, 10, 25, 50, 100, 250, 500]">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Hoạt động</th>
+                        <th>Tên truy cập</th>
+                        <th>Tên</th>
+                        <th>Họ</th>
+                        <th>Vai trò</th>
+                        <th>Địa chỉ email</th>
+                        <th>Email xác nhận</th>
+                        <th>Kích hoạt</th>
+                        <th>Thời gian tạo mới</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-user>
+                    <tr>
+                        <td>
+                            <div class="dropdown">
+                                <p-button icon="pi pi-cog" label="Hành động" severity="info" id="dropdownMenuButton"
+                                    data-bs-toggle="dropdown" aria-expanded="false"></p-button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <li><button class="dropdown-item" (click)="loginAsUser(user.id)">
+                                            Đăng nhập tài khoản với tư cách người dùng này</button>
+                                    </li>
+                                    <li> <button class="dropdown-item" (click)="goToUpdate(user.id)">Chỉnh sửa</button>
+                                    </li>
+                                    <li> <button class="dropdown-item" (click)="deleteUser(user.id)">Xóa bỏ</button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <!-- <td class="text-center">
+                            <ng-container *ngIf="user.role ==='admin'; else reservedIcon">
+                                <div class="dropdown">
+                                    <p-button icon="pi pi-cog" label="Hành động" severity="info" id="dropdownMenuButton"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                    </p-button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <li>
+                                            <button class="dropdown-item" (click)="openEditModal(role.id)">Chỉnh
+                                                sửa</button>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item" (click)="deleteRole(role.id)">Xóa bỏ</button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </ng-container>
+
+                            <ng-template #reservedIcon>
+                                <i class="bi bi-lock-fill"></i>
+                            </ng-template>
+                        </td> -->
+                        <td>{{user.username}}</td>
+                        <td>{{user.lastName}}</td>
+                        <td>{{user.firstName}}</td>
+                        <td>{{user.role}}</td>
+                        <td>{{user.email}}</td>
+                        <td><p-badge [value]="user.verifyToken ? 'success' : 'failed'"
+                                [severity]="user.verifyToken ? 'success' : 'danger'"></p-badge></td>
+                        <td><p-badge [value]="user.isAction? 'success' : 'failed'"
+                                [severity]="user.isAction ? 'success' : 'danger'"></p-badge></td>
+                        <td>{{user.createdAt | date:'HH:mm:ss dd/M/yyyy'}}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="paginatorleft">
+                    <div class="flex align-items-center justify-content-between w-full">
+                        <span>Page {{pageNumber}} of {{totalPages}}</span>
+                    </div>
+                </ng-template>
+            </p-table>
+        </div>
+    </p-panel>
+</div>

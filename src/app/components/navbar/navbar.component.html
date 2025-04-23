@@ -1,0 +1,75 @@
+<nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid">
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <!-- User -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center justify-content-center" href="#"
+                        id="userDropdown" role="button" data-bs-toggle="dropdown">
+                        <img *ngIf="previewImageUrl; else defaultAvatar" [src]="previewImageUrl"
+                            style="width: 40px; border-radius: 20%; margin-left: 1rem;" class="me-2"
+                            alt="User Avatar" />
+
+                        <ng-template #defaultAvatar>
+                            <img [src]="defaultImageUrl" style="width: 40px; border-radius: 20%; margin-left: 1rem;"
+                                class="me-2" alt="Default Avatar" />
+                        </ng-template>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end me-3">
+                        <li class="nav-item dropdown d-flex align-items-center ">
+                            <img [src]="previewImageUrl || defaultImageUrl"
+                                style="width: 40px; border-radius: 20%; margin-left: 1rem;" class="me-2"
+                                alt="User Avatar" />
+                            <div class="user-info">
+                                <span style="white-space: nowrap; margin-right: 20px;"><strong>{{firstName}}
+                                        {{lastName}}</strong></span>
+                                <small class="d-block text-muted">{{ roleName }}</small>
+                            </div>
+                        </li>
+
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#changePassword">Đổi
+                                mật khẩu</button></li>
+                        <!-- <li><a class="dropdown-item" href="#">Cài đặt của tôi</a></li> -->
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><button class="dropdown-item" (click)="logout()">Đăng xuất</button></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<div class="modal fade" id="changePassword" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel" style="font-size: 1.1rem;">Đổi mật khẩu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-header">
+                <div class="w-100">
+                    <!-- Mật khẩu hiện tại -->
+                    <form-input label="Mật khẩu hiện tại" [(value)]="currentPassword" [error]="errors.currentPassword!"
+                        isInput="label-password" />
+                    <form-input label="Mật khẩu mới" [(value)]="newPassword" [error]="errors.newPassword!"
+                        isInput="label-password" />
+                    <form-input label="Nhập lại mật khẩu" [(value)]="confirmPassword" [error]="errors.confirmPassword!"
+                        isInput="label-password" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
+                <button type="button" class="btn btn-primary" (click)="changePassword()"><i
+                        class="bi bi-floppy-fill me-2"></i>Lưu thông tin
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

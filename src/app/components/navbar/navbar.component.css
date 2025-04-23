@@ -1,0 +1,62 @@
+.avatar-container {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+.avatar-icon {
+    font-size: 40px;
+    color: #6c757d;
+    position: absolute;
+    display: none;
+    /* Ẩn icon mặc định */
+}
+
+/* Nếu không có ảnh, hiển thị icon */
+.avatar-container img[src=""],
+.avatar-container img:not([src]) {
+    display: none;
+    /* Ẩn ảnh nếu không có */
+}
+
+.avatar-container img[src=""]+.avatar-icon,
+.avatar-container img:not([src])+.avatar-icon {
+    display: block;
+    /* Hiện icon */
+}
+
+.navbar {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+body,
+.container,
+.row {
+    background-color: transparent !important;
+}
+
+.toggle-password {
+    position: absolute;
+    top: 40%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+    color: #4B5675;
+}
+
+.toggle-password:hover {
+    color: #333;
+}

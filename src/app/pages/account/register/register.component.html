@@ -1,0 +1,11 @@
+<div *ngIf="selfRegister">
+    <account-form [headerTitle]="'Đăng ký'">
+        <form-input placeholder="Tên" [(value)]="firstName" [error]="errors.firstName!" isInput="no-label" />
+        <form-input placeholder="Họ" [(value)]="lastName" [error]="errors.lastName!" isInput="no-label" />
+        <form-input placeholder="Email" [(value)]="email" [error]="errors.email!" type="email" isInput="no-label" />
+        <form-input placeholder="Tên truy cập" [(value)]="username" [error]="errors.username!" isInput="no-label" />
+        <form-input placeholder="Mật khẩu" [(value)]="password" [error]="errors.password!" type="password"
+            isInput="no-label-password" />
+        <form-button (backClick)="goToLogin()" (submitClick)="register()" />
+    </account-form>
+</div>

@@ -1,0 +1,64 @@
+.custom-checkbox {
+    position: relative;
+    padding-left: 2.5rem;
+    /* khoảng cách từ checkbox đến text */
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    font-size: 1rem;
+}
+
+.custom-checkbox input[type="checkbox"] {
+    opacity: 0;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 1.5rem;
+    /* tăng vùng click */
+    width: 1.5rem;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.checkmark {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 1.5rem;
+    /* tăng kích thước box hiển thị */
+    width: 1.5rem;
+    background-color: #fff;
+    border: 2px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease-in-out;
+    z-index: 1;
+}
+
+.custom-checkbox input[type="checkbox"]:checked~.checkmark {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.checkmark::after {
+    content: '';
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.custom-checkbox input[type="checkbox"]:checked~.checkmark::after {
+    display: block;
+}
+
+.role-label-text {
+    margin-left: 0.5rem;
+}

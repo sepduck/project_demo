@@ -1,0 +1,52 @@
+.header-container {
+    font-size: calc(1.1rem + .12vw) !important;
+    font-weight: bold !important;
+}
+
+.header-description {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #99A1B7;
+}
+
+.custom-btn {
+    background-color: #F1F1F4 !important;
+    color: #333;
+    font-size: 14.5px;
+    font-weight: 600;
+}
+
+.custom-btn-act {
+    background-color: #1B84FF !important;
+    color: #fff;
+    font-size: 14.5px;
+    font-weight: 600;
+    border: none;
+}
+
+.custom-btn-excel {
+    color: #17c653;
+    font-size: 14.5px;
+    font-weight: 600;
+    border: 1px solid #17c653;
+}
+
+.color-search {
+    color: #1B84FF;
+}
+
+
+/* Match original color scheme if needed */
+.custom-header {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+:host ::ng-deep .w-max {
+    width: 100%;
+    display: block;
+}
+
+:host ::ng-deep .w-max button {
+    width: 100%;
+}

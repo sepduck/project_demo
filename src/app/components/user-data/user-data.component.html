@@ -1,0 +1,83 @@
+<div class="d-flex justify-content-center align-items-center">
+    <div style="width: 55vw; max-width: 800px; background-color: #fff; padding: 30px;">
+        <h5 style="font-size: 1.3rem;">{{ isEditMode ? 'Cập nhật thông tin ' + username : 'Tạo vai trò mới' }}</h5>
+        <ul class="nav nav-tabs mt-3">
+            <li class="nav-item">
+                <a class="nav-link" [class.active]="activeTab === 'tab1'" (click)="setActiveTab('tab1')">
+                    Thông tin người dùng</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" [class.active]="activeTab === 'tab2'" (click)="setActiveTab('tab2')">Vai
+                    trò</a>
+            </li>
+        </ul>
+
+        <div class="tab-content mt-3">
+            <div class="tab-pane fade show active container" *ngIf="activeTab === 'tab1'">
+                <div class="row g-0">
+                    <div class="col-sm-12 col-md-3 p-4">
+                        <div style="width: 100%; max-width: 200px; aspect-ratio: 1; border-radius: 5px; cursor: pointer;"
+                            (click)="onImageClick()">
+                            <img [src]="previewImageUrl || defaultImageUrl"
+                                style="width: 100%; height: 100%; object-fit: cover;" alt="profile image" />
+                        </div>
+                        <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" hidden />
+                    </div>
+
+                    <div class="col-sm-12 col-md-9">
+                        <form-input label="Họ" [(value)]="firstName" [error]="errors.firstName!" isInput="label" />
+                        <form-input label="Tên" [(value)]="lastName" [error]="errors.lastName!" isInput="label" />
+                    </div>
+                </div>
+
+                <form-input label="Địa chỉ Email" [(value)]="email" [error]="errors.email!" isInput="label"
+                    type="email" />
+                <form-input label="Số điện thoại" [(value)]="phoneNumber" isInput="label" type="phoneNumber" />
+                <form-input label="Tên truy cập" [(value)]="username" [error]="errors.username!" isInput="label" />
+
+                <div *ngIf="!isEditMode || showPasswordSection">
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" id="randomPassword"
+                            [(ngModel)]="isRandomPassword">
+                        <label class="form-check-label" for="randomPassword">Đặt mật khẩu ngẫu nhiên.</label>
+                    </div>
+                    <div *ngIf="!isRandomPassword">
+                        <form-input label="Mật khẩu" [(value)]="password" [error]="errors.password!"
+                            isInput="label-password" />
+                        <form-input label="Xác nhận mật khẩu" [(value)]="confirmPassword"
+                            [error]="errors.confirmPassword!" isInput="label-password" />
+                    </div>
+                </div>
+
+                <div *ngIf="errorMessage" class="alert alert-danger mt-3">
+                    {{ errorMessage }}
+                </div>
+                <form-input [(checked)]="verifyToken" [label]="'Kích hoạt'" isInput="checkbox" />
+                <form-input [(checked)]="mustChangePassword"
+                    [label]="'Cần thay đổi mật khẩu vào lần đăng nhập tiếp theo.'" isInput="checkbox" />
+                <form-input [(checked)]="isAction" [label]="'Gửi email kích hoạt.'" isInput="checkbox" />
+                <form-input [(checked)]="isLockedOut" [label]="'Khóa tài khoản'" isInput="checkbox" />
+            </div>
+
+            <div class="tab-pane fade show active container" [hidden]="activeTab !== 'tab2'">
+                <div class="row g-3">
+                    <label *ngFor="let role of rolesSelect" class="custom-checkbox col-sm-12 col-md-4">
+                        <input type="checkbox" [id]="'role-' + role.id" [value]="role.id" [(ngModel)]="role.isSelected"
+                            (change)="onRoleChange()" />
+                        <span class="checkmark"></span>
+                        <span class="role-label-text" style="color: #99a1b7;font-size: 1rem;">
+                            {{ role.name }}
+                        </span>
+                 
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-5">
+            <p-button [label]="'Hủy bỏ'" icon="pi pi-save" severity="secondary" (click)="cancel()" />
+            <p-button (click)="saveUser()" [label]="isSubmitting ? 'Đang xử lý...' : 'Lưu thông tin'"
+                [disabled]="isSubmitting" icon="pi pi-save" severity="info" />
+        </div>
+    </div>
+</div>

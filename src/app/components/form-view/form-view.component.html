@@ -1,0 +1,11 @@
+<div class="container mt-5">
+    <div class="d-flex justify-content-between">
+        <div class="d-flex align-items-center">
+            <p class="header-container me-2">{{headerTitle}}</p>
+            <p class="header-description">{{description}}</p>
+        </div>
+        <p-button label={{labelBtn}} [raised]="true" severity="info" icon="pi pi-plus"
+                *ngIf="hasPermission" (onClick)="onCreatePageEmit()" />
+    </div>
+    <ng-content></ng-content>
+</div>

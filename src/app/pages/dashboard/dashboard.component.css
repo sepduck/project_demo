@@ -1,0 +1,12 @@
+.custom-icon {
+    font-size: 2rem;
+    color: #d1d3e2;
+}
+
+.custom-card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08)
+}
+
+.card-header {
+    background-color: white;
+}
