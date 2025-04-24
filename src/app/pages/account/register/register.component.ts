@@ -9,6 +9,7 @@ import { FormInputComponent } from "../../../components/common/form-input/form-i
 import { FormButtonComponent } from '../../../components/common/form-button/form-button.component';
 import { AccountFormComponent } from '../../../components/account-form/account-form.component';
 import { validateEmail, validateFirstName, validateLastName, validatePassword, validateUsername } from '../../../utils/validators';
+import { AlertService } from '../../../services/alert.service';
 
 @Component({
   selector: 'app-register',
@@ -45,7 +46,7 @@ export class RegisterComponent implements OnInit {
   hasNumber: boolean = false;
   minPasswordLength: number = 0;
 
-  constructor(private authService: AuthService, private router: Router, private settingService: SettingServiceService) { }
+  constructor(private authService: AuthService, private router: Router, private settingService: SettingServiceService, private alertService: AlertService) { }
 
   ngOnInit(): void {
     this.settingService.getSetting().subscribe({
@@ -122,7 +123,7 @@ export class RegisterComponent implements OnInit {
     this.authService.register(this.firstName, this.lastName, this.email, this.username, this.password).subscribe({
       next: (res: { code: number, message: string }) => {
         if (res.code === 200) {
-          alert("Đăng ký thành công! Hãy đăng nhập.");
+          this.alertService.success("Đăng ký thành công! Hãy đăng nhập")
           this.router.navigate([`/account/email-validation/${this.email}`]);
         } else if (res.code === 4001) {
           this.errors.email = "Email đã tồn tại!"
@@ -133,10 +134,8 @@ export class RegisterComponent implements OnInit {
         } else if (res.code === 400) {
           this.errors.password = res.message;
         }
-
       },
       error: (error: any) => {
-
         this.errorMessage = error.error?.message || "Đã xảy ra lỗi!";
       }
     });

@@ -159,7 +159,6 @@ export class UserService {
   changePassword(currentPassword: string, newPassword: string) {
     const token = localStorage.getItem('jwtToken');
     const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    console.log(currentPassword, newPassword);
 
     return this.http.post<{ code: number, message: string }>(
       `${this.apiUrl}/change-password`, { currentPassword, newPassword }, { headers }
@@ -175,6 +174,18 @@ export class UserService {
       params = params.append('permissionIds', id)
     })
     return this.http.get<ApiResponse>(`${this.apiUrl}/permissions`, { headers, params })
+  }
+
+
+  searchUser(permissionIds: number[], name: string, roleId: number, pageNumber: number, pageSize: number): Observable<ApiResponse> {
+    const token = localStorage.getItem('jwtToken');
+    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
+
+    let params = new HttpParams().set('pageNumber', pageNumber).set('pageSize', pageSize)
+    permissionIds.forEach(id => {
+      params = params.append('permissionIds', id)
+    })
+    return this.http.get<ApiResponse>(`${this.apiUrl}/search?name=${name}&roleId=${roleId}&pageNumber=${pageNumber}&pageSize=${pageSize}`, { headers, params })
   }
 
 }

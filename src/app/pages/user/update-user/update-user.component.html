@@ -1,4 +1,4 @@
-<div class="d-flex justify-content-center align-items-center">
+<div class="d-flex justify-content-center align-items-center" *ngIf="!roles.includes(1) && authService.hasPermission('admin.user.create')" >
     <div style="width: 55vw; max-width: 800px; background-color: #fff; padding: 30px;">
         <h5 style="font-size: 1.3rem;">Cập nhật thông tin {{ username }}</h5>
         <ul class="nav nav-tabs mt-3">
@@ -11,7 +11,6 @@
                     trò</a>
             </li>
         </ul>
-
         <div class="tab-content mt-3">
             <div class="tab-pane container"
                 [ngClass]="{'show active': activeTab === 'tab1', 'fade': activeTab !== 'tab1'}">

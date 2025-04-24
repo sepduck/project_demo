@@ -62,3 +62,35 @@
 .role-label-text {
     margin-left: 0.5rem;
 }
+
+:host {
+    display: block;
+}
+
+.user-card {
+    width: 55vw;
+    max-width: 800px;
+    background-color: var(--card-background);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
+}
+
+.nav-tabs {
+    border-bottom-color: var(--border-color);
+}
+
+h5 {
+    font-size: 1.3rem;
+    color: var(--text-color);
+}
+
+.role-label-text {
+    color: var(--text-color) !important;
+}
+
+/* Overriding the inline styles */
+.role-label-text[style*="color: #99a1b7"] {
+    color: var(--text-color) !important;
+}

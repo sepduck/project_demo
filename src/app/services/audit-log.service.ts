@@ -67,4 +67,10 @@ export class AuditLogService {
     const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
     return this.http.get<ApiResponse>(`${this.apiUrl}/date?startDate=${startDate}&endDate=${endDate}&pageNumber=${pageNumber}&pageSize=${pageSize}`, { headers })
   }
+
+  searchActivityLogs(username: string, activity: string, browser: string, serviceName: string, startDate: string, endDate: string, pageNumber: number, pageSize: number): Observable<ApiResponse> {
+    const token = localStorage.getItem('jwtToken');
+    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
+    return this.http.get<ApiResponse>(`${this.apiUrl}/search?username=${username}&activity=${activity}&browser=${browser}&serviceName=${serviceName}&startDate=${startDate}&endDate=${endDate}&pageNumber=${pageNumber}&pageSize=${pageSize}`, { headers })
+  }
 }

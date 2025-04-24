@@ -62,20 +62,33 @@ export class SettingServiceService {
     const token = localStorage.getItem('jwtToken');
     const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
     return this.http.put<{ code: number, message: string }>(`${this.apiUrl}`, {
-      selfRegister, defaultUserActivation, useCaptchaOnRegister, useCaptchaOnResetPassword,
-      useCaptchaOnEmailActivation, useCaptchaOnLogin, cookieConsentEnabled, sessionTimeoutControlEnabled, emailConfirmationRequired, allowGravatar,
-      userDefaultSetting, hasLowercase, hasSpecialChar, hasUppercase, hasNumber, minPasswordLength
-    }, {headers})
+      selfRegister,
+      defaultUserActivation,
+      useCaptchaOnRegister,
+      useCaptchaOnResetPassword,
+      useCaptchaOnEmailActivation,
+      useCaptchaOnLogin,
+      cookieConsentEnabled,
+      sessionTimeoutControlEnabled,
+      emailConfirmationRequired,
+      allowGravatar,
+      userDefaultSetting,
+      hasLowercase,
+      hasSpecialChar,
+      hasUppercase,
+      hasNumber,
+      minPasswordLength
+    }, { headers })
   }
 
-  updateUser(
-    id: number,
-    firstName: string,
-    lastName: string, email: string, username: string, password: string, phoneNumber: string, verifyToken: boolean, thumbnail: string, isRandomPassword: boolean, roles: number[], mustChangePassword: boolean, activationToken: boolean, isLockedOut: boolean) {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.put<{ code: number, message: string }>(
-      `${this.apiUrl}/${id}`, { firstName, lastName, email, username, password, phoneNumber, verifyToken, thumbnail, isRandomPassword, roles, mustChangePassword, activationToken, isLockedOut }, { headers }
-    )
-  }
+  // updateUser(
+  //   id: number,
+  //   firstName: string,
+  //   lastName: string, email: string, username: string, password: string, phoneNumber: string, verifyToken: boolean, thumbnail: string, isRandomPassword: boolean, roles: number[], mustChangePassword: boolean, activationToken: boolean, isLockedOut: boolean) {
+  //   const token = localStorage.getItem('jwtToken');
+  //   const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
+  //   return this.http.put<{ code: number, message: string }>(
+  //     `${this.apiUrl}/${id}`, { firstName, lastName, email, username, password, phoneNumber, verifyToken, thumbnail, isRandomPassword, roles, mustChangePassword, activationToken, isLockedOut }, { headers }
+  //   )
+  // }
 }

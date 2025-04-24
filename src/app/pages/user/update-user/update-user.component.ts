@@ -8,6 +8,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormInputComponent } from '../../../components/common/form-input/form-input.component';
 import { UserService } from '../../../services/user.service';
 import { validateEmail, validateFirstName, validateLastName, validatePhoneNumber, validateUsername } from '../../../utils/validators';
+import { AlertService } from '../../../services/alert.service';
+import { AuthService } from '../../../services/auth.service';
 
 
 @Component({
@@ -22,7 +24,6 @@ export class UpdateUserComponent implements OnInit {
   rolesSelect: any[] = [];
   activeTab: string = 'tab1';
 
-  // Form fields
   firstName: string = '';
   lastName: string = '';
   email: string = '';
@@ -50,11 +51,10 @@ export class UpdateUserComponent implements OnInit {
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  constructor(
-    private userService: UserService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) { }
+  constructor(private userService: UserService, private router: Router, private route: ActivatedRoute, private alertService: AlertService, public authService: AuthService) { }
+  setActiveTab(tab: string): void {
+    this.activeTab = tab;
+  }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -68,16 +68,15 @@ export class UpdateUserComponent implements OnInit {
       }
     });
   }
-
-  setActiveTab(tab: string): void {
-    this.activeTab = tab;
-  }
-
+  
   loadRolesSelect(): void {
     this.userService.getRolesSelect().subscribe({
       next: (res) => {
         if (res.code === 200) {
           this.rolesSelect = res.result;
+          if (this.userId !== null) {
+            this.getUserDetail(this.userId);
+          }
         }
       },
       error: (err) => {
@@ -86,7 +85,11 @@ export class UpdateUserComponent implements OnInit {
     });
   }
 
+
+  
   getUserDetail(id: number): void {
+    if (id === null) return;
+
     this.userService.getFindUserById(id).subscribe({
       next: (res) => {
         if (res.code === 200) {
@@ -237,7 +240,7 @@ export class UpdateUserComponent implements OnInit {
     ).subscribe({
       next: (res) => {
         if (res.code === 200) {
-          alert('Cập nhật tài khoản thành công!');
+          this.alertService.success("Cập nhật tài khoản thành công!")
           this.router.navigate(['/app/admin/users']);
         } else {
           this.errorMessage = 'Cập nhật tài khoản thất bại!';

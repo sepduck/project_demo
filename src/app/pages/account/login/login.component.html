@@ -6,11 +6,11 @@
   <button (click)="login()" class="btn btn-primary w-100 mt-3 py-2 fs-6 fw-bold">
     Đăng nhập
   </button>
-  <div *ngIf="selfRegister">
+  <div>
     <div class="mt-3">
       Not a member yet?
     </div>
-    <a href="account/register" class="text-decoration-none">Tạo tài khoản</a> |
+    <a href="account/register" class="text-decoration-none" *ngIf="selfRegister">Tạo tài khoản</a> |
     <a href="account/email-validation" class="text-decoration-none">Kích hoạt email</a>
   </div>
 </account-form>

@@ -21,6 +21,7 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { PaginatorModule } from 'primeng/paginator';
 import { SelectModule } from 'primeng/select';
 import { Router } from '@angular/router';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
   selector: 'app-role',
@@ -56,7 +57,7 @@ export class RoleComponent {
   showDialog() {
     this.visible = true;
   }
-  constructor(private roleService: RoleService, public authService: AuthService, private router: Router) { }
+  constructor(private roleService: RoleService, public authService: AuthService, private router: Router, private alertService: AlertService) { }
 
   ngOnInit(): void {
     this.loadRole();
@@ -93,6 +94,58 @@ export class RoleComponent {
   }
 
   // Chuyển đổi dữ liệu permission sang định dạng TreeNode của PrimeNG
+  // buildPrimeNGTree(data: any[]): TreeNode[] {
+  //   let tree: TreeNode[] = [];
+
+  //   // Tạo map để lưu trữ các node dựa trên path
+  //   const nodeMap = new Map<string, TreeNode>();
+
+  //   data.forEach(item => {
+  //     let parts: string[] = item.name.split(".");
+  //     let slug: string = item.slug ? item.slug.trim() : "";
+  //     let id: number = item.id;
+  //     let path = '';
+
+  //     for (let i = 0; i < parts.length; i++) {
+  //       const part = parts[i];
+  //       const currentPath = path ? `${path}.${part}` : part;
+
+  //       if (!nodeMap.has(currentPath)) {
+  //         const isLeaf = i === parts.length - 1;
+  //         const newNode: TreeNode = {
+  //           key: isLeaf ? id.toString() : currentPath,
+  //           label: part,
+  //           data: {
+  //             id: isLeaf ? id : null,
+  //             slug: isLeaf ? slug : "",
+  //             fullPath: currentPath
+  //           },
+  //           selectable: isLeaf && slug !== "",
+  //           leaf: isLeaf && slug !== "",
+  //           children: []
+  //         };
+
+  //         if (path === '') {
+  //           // Nút gốc
+  //           tree.push(newNode);
+  //         } else {
+  //           // Nút con
+  //           const parentNode = nodeMap.get(path);
+  //           if (parentNode && parentNode.children) {
+  //             parentNode.children.push(newNode);
+  //           }
+  //         }
+
+  //         nodeMap.set(currentPath, newNode);
+  //       }
+
+  //       path = currentPath;
+  //     }
+  //   });
+
+  //   return tree;
+  // }
+
   buildPrimeNGTree(data: any[]): TreeNode[] {
     let tree: TreeNode[] = [];
 
@@ -119,7 +172,8 @@ export class RoleComponent {
               slug: isLeaf ? slug : "",
               fullPath: currentPath
             },
-            selectable: isLeaf && slug !== "",
+            // Thiết lập tất cả các nodes đều có thể chọn được
+            selectable: true,
             leaf: isLeaf && slug !== "",
             children: []
           };
@@ -144,7 +198,6 @@ export class RoleComponent {
 
     return tree;
   }
-
   setActiveTab(tab: string) {
     this.activeTab = tab;
 
@@ -166,18 +219,66 @@ export class RoleComponent {
   // Xử lý khi chọn một node
   nodeSelect(event: any) {
     const node = event.node;
+
+    // Nếu node là lá (có id) - thêm vào danh sách permissions
     if (node.data && node.data.id) {
       if (!this.newRole.permissions.includes(node.data.id)) {
         this.newRole.permissions.push(node.data.id);
       }
+    }
+    // Nếu node là nút cha - chọn tất cả con
+    else if (node.children && node.children.length > 0) {
+      this.selectAllChildren(node);
+    }
+  }
+
+  // Hàm đệ quy chọn tất cả node con
+  selectAllChildren(node: TreeNode): void {
+    if (node.children && node.children.length > 0) {
+      node.children.forEach(childNode => {
+        // Nếu node con là node lá có id
+        if (childNode.data && childNode.data.id) {
+          if (!this.newRole.permissions.includes(childNode.data.id)) {
+            this.newRole.permissions.push(childNode.data.id);
+          }
+          // Thêm node vào selectedPermissions nếu chưa có
+          if (!this.selectedPermissions.includes(childNode)) {
+            this.selectedPermissions.push(childNode);
+          }
+        }
+        // Nếu node con có các node con khác, tiếp tục đệ quy
+        this.selectAllChildren(childNode);
+      });
     }
   }
 
   // Xử lý khi bỏ chọn một node
   nodeUnselect(event: any) {
     const node = event.node;
+
+    // Nếu node là lá (có id) - xóa khỏi danh sách permissions
     if (node.data && node.data.id) {
       this.newRole.permissions = this.newRole.permissions.filter(id => id !== node.data.id);
+    }
+    // Nếu node là nút cha - bỏ chọn tất cả con
+    else if (node.children && node.children.length > 0) {
+      this.unselectAllChildren(node);
+    }
+  }
+
+  // Hàm đệ quy bỏ chọn tất cả node con
+  unselectAllChildren(node: TreeNode): void {
+    if (node.children && node.children.length > 0) {
+      node.children.forEach(childNode => {
+        // Nếu node con là node lá có id
+        if (childNode.data && childNode.data.id) {
+          this.newRole.permissions = this.newRole.permissions.filter(id => id !== childNode.data.id);
+          // Xóa node khỏi selectedPermissions
+          this.selectedPermissions = this.selectedPermissions.filter(p => p !== childNode);
+        }
+        // Nếu node con có các node con khác, tiếp tục đệ quy
+        this.unselectAllChildren(childNode);
+      });
     }
   }
 
@@ -193,11 +294,36 @@ export class RoleComponent {
 
         if (node.children && node.children.length > 0) {
           findAndSelectNodes(node.children);
+
+          // Kiểm tra xem tất cả các con đã được chọn chưa
+          // Nếu tất cả con đã được chọn, chọn luôn node cha
+          const allChildrenSelected = node.children.every(child =>
+            this.isNodeOrChildrenSelected(child)
+          );
+
+          if (allChildrenSelected) {
+            this.selectedPermissions.push(node);
+          }
         }
       }
     };
 
     findAndSelectNodes(this.permissionTree);
+  }
+
+  // Kiểm tra xem node hoặc tất cả các con của nó có được chọn không
+  isNodeOrChildrenSelected(node: TreeNode): boolean {
+    // Nếu node có id và được chọn
+    if (node.data && node.data.id && this.newRole.permissions.includes(node.data.id)) {
+      return true;
+    }
+
+    // Nếu có children, kiểm tra tất cả các con
+    if (node.children && node.children.length > 0) {
+      return node.children.every(child => this.isNodeOrChildrenSelected(child));
+    }
+
+    return false;
   }
 
   // Phương thức để mở modal tạo mới vai trò
@@ -225,7 +351,7 @@ export class RoleComponent {
     this.roleService.getRoleById(roleId).subscribe({
       next: (response) => {
         if (!response || !response.result) {
-          alert("Không thể lấy thông tin vai trò: Dữ liệu không hợp lệ");
+          this.alertService.error("Không thể lấy thông tin vai trò: Dữ liệu không hợp lệ")
           return;
         }
 
@@ -250,7 +376,6 @@ export class RoleComponent {
         }
       },
       error: (error) => {
-        console.error("Error detail:", error);
         let errorMessage = "Không xác định";
 
         if (error.error && error.error.message) {
@@ -260,13 +385,11 @@ export class RoleComponent {
         } else if (typeof error === 'string') {
           errorMessage = error;
         }
-
-        alert(`Không thể lấy thông tin vai trò: ${errorMessage}`);
+        this.alertService.error("Không thể lấy thông tin vai trò")
       }
     });
   }
 
-  // Phương thức để reset form
   resetForm(): void {
     this.newRole = {
       name: '',
@@ -283,7 +406,7 @@ export class RoleComponent {
     const roleData = {
       name: this.newRole.name,
       status: this.newRole.status,
-      permissions: this.newRole.permissions,
+      permissions: this.newRole.permissions.filter(id => id !== null && id !== undefined),
     };
 
     if (this.isEditMode && this.selectedRoleId) {
@@ -291,7 +414,7 @@ export class RoleComponent {
       this.roleService.updateRole(this.selectedRoleId, roleData).subscribe({
         next: (res) => {
           if (res.code === 200) {
-            alert("Vai trò đã được cập nhật thành công!");
+            this.alertService.success("Vai trò đã được cập nhật thành công!")
             this.loadRole();
             // Đóng modal
             const modalElement = document.getElementById('exampleModal');
@@ -305,19 +428,18 @@ export class RoleComponent {
             console.log(currentUser);
 
             if (currentUser?.role === roleData.name) {
-              alert('Vai trò hiện tại của bạn đã được thay đổi. Vui lòng đăng nhập lại để áp dụng quyền mới.');
+              this.alertService.warning("Vai trò hiện tại của bạn đã được thay đổi. Vui lòng đăng nhập lại để áp dụng quyền mới.")
               this.logout()
-             
+
             }
           } else if (res.code === 4012) {
-            alert('Vai trò không tồn tại');
+            this.alertService.error("Vai trò không tồn tại")
           } else if (res.code === 4016) {
-            alert('Không thể thực hiện với vai trò của hệ thống')
+            this.alertService.error("Không thể thực hiện với vai trò của hệ thống")
           }
         },
         error: (error) => {
-          console.error("Lỗi khi cập nhật vai trò:", error);
-          alert(`Lỗi khi cập nhật vai trò: ${error.error?.message || "Không xác định"}`);
+          this.alertService.error("Lỗi khi cập nhật vai trò")
         }
       });
     } else {
@@ -325,7 +447,7 @@ export class RoleComponent {
       this.roleService.createRole(roleData).subscribe({
         next: (res) => {
           if (res.code === 200) {
-            alert("Vai trò đã được tạo thành công!");
+            this.alertService.success("Vai trò đã được tạo thành công!")
             this.loadRole();
 
             // Đóng modal
@@ -336,13 +458,14 @@ export class RoleComponent {
                 bsModal.hide();
               }
             }
+
           } else if (res.code === 4015) {
             this.errors.name = "Tên người dùng đã tồn tại";
           }
         },
         error: (error) => {
-          console.error("Lỗi khi tạo vai trò:", error);
-          alert(`Lỗi khi tạo vai trò: ${error.error?.message || "Không xác định"}`);
+          this.alertService.error("Lỗi khi tạo vai trò")
+
         }
       });
     }
@@ -351,20 +474,29 @@ export class RoleComponent {
     const confirmDelete = confirm('Nếu xóa vai trò này thì tất cả người dùng có vai trò cũng bị xóa, bạn có muốn xóa không?');
     if (!confirmDelete) return;
 
+    const currentUser = this.authService.getCurrentUser();
+    const roleToDelete = this.roles.find(role => role.id === roleId);
+
+    if (currentUser && roleToDelete && currentUser.role === roleToDelete.name) {
+      this.alertService.error("Bạn không thể xóa vai trò của chính mình!");
+      return;
+    }
+
     this.roleService.deleteRole(roleId).subscribe({
       next: (res) => {
         if (res.code === 200) {
           this.loadRole();
-          alert('Xoá vai trò thành công thành công!');
+          this.alertService.success("Xoá vai trò thành công thành công!")
+
+
         } else if (res.code === 4012) {
-          alert('Vai trò không tồn tại');
+          this.alertService.error("Vai trò không tồn tại")
         } else if (res.code === 4016) {
-          alert('Không thể thực hiện với vai trò của hệ thống')
+          this.alertService.error("Không thể thực hiện với vai trò của hệ thống")
         }
       },
       error: (err) => {
-        console.error('Lỗi xoá người dùng:', err);
-        alert('Không thể xoá người dùng. Vui lòng thử lại sau.');
+        this.alertService.error("Không thể xoá người dùng. Vui lòng thử lại sau.")
       }
     });
   }
@@ -376,7 +508,6 @@ export class RoleComponent {
         this.router.navigate(['account/login'])
       },
       error: err => {
-        console.error('Logout failed:', err);
         localStorage.removeItem('token');
         this.router.navigate(['account/login']);
       }

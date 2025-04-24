@@ -8,11 +8,12 @@ import { AccountFormComponent } from "../../../components/account-form/account-f
 import { FormInputComponent } from '../../../components/common/form-input/form-input.component';
 import { validateEmail, validatePassword } from '../../../utils/validators';
 import { SettingServiceService } from '../../../services/setting-service.service';
-// import { AuthService } from './login.service';
+import { AlertService } from '../../../services/alert.service';
 export interface LoginResult {
   token: string;
   emailConfirmationRequired: boolean;
   useCaptchaOnLogin: boolean;
+  mustChangePassword: boolean;
 }
 
 @Component({
@@ -25,16 +26,15 @@ export class LoginComponent implements OnInit {
   email = 'cutexinhzai2018@gmail.com'
   password: string = "Ducnhung2020@";
 
-  // Mảng lỗi
   errors: {
     email?: string;
     password?: string;
   } = {};
 
-  // Check setting
   selfRegister: boolean = false;
+  mustChangePassword: boolean = false;
 
-  constructor(private authService: AuthService, private router: Router, private settingService: SettingServiceService) { }
+  constructor(private authService: AuthService, private router: Router, private settingService: SettingServiceService, private alertService: AlertService) { }
 
   ngOnInit(): void {
     this.settingService.getSetting().subscribe({
@@ -70,8 +70,12 @@ export class LoginComponent implements OnInit {
 
         if (res.code === 200 && res.result) {
           this.authService.saveToken(res.result.token);
+          this.alertService.success('Đăng nhập thành công!');
           if (res.result.emailConfirmationRequired) {
+            localStorage.setItem('mustChangePassword', String(res.result.mustChangePassword));
             this.router.navigate([`/account/email-validation/${this.email}`]);
+          } else if (res.result.mustChangePassword) {
+            this.router.navigate(['/account/change-password']);
           } else {
             this.router.navigate(['/app/admin/dashBoard']);
           }
@@ -86,7 +90,7 @@ export class LoginComponent implements OnInit {
           this.errors.password = 'Mật khẩu không đúng';
         }
         if (code === 4014) {
-          alert("Tài khoản chưa được kích hoạt")
+          this.alertService.error('Tài khoản chưa được kích hoạt');
         }
       }
     });

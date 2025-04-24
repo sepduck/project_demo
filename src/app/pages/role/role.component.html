@@ -1,5 +1,6 @@
 <form-view [headerTitle]="'Vai trò'" [description]="'Sử dụng vai trò để nhóm quyền.'"
-    [hasPermission]="authService.hasPermission('admin.role.create')" [labelBtn]="'Tạo vai trò mới'"
+    [hasPermissionView]="authService.hasPermission('admin.organizational-structure.managing-roles')"
+    [hasPermissionCreate]="authService.hasPermission('admin.role.create')" [labelBtn]="'Tạo vai trò mới'"
     (onCreatePage)="openCreateModal()">
     <p-panel styleClass="mt-3 mb-5">
         <div class="d-flex justify-content-between" *ngIf="false">
@@ -26,11 +27,13 @@
                                     </p-button>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                         <li>
-                                            <button class="dropdown-item" (click)="openEditModal(role.id)">Chỉnh
+                                            <button class="dropdown-item" (click)="openEditModal(role.id)"
+                                                *ngIf="authService.hasPermission('admin.role.edit')">Chỉnh
                                                 sửa</button>
                                         </li>
                                         <li>
-                                            <button class="dropdown-item" (click)="deleteRole(role.id)">Xóa bỏ</button>
+                                            <button class="dropdown-item" (click)="deleteRole(role.id)"
+                                                *ngIf="authService.hasPermission('admin.role.deleting')">Xóa bỏ</button>
                                         </li>
                                     </ul>
                                 </div>
@@ -61,9 +64,8 @@
 </form-view>
 
 <!-- Modal -->
-<p-dialog header="Edit Profile" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
-</p-dialog>
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
+    *ngIf="isEditMode ? authService.hasPermission('admin.role.edit') :  authService.hasPermission('admin.role.create') ">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">

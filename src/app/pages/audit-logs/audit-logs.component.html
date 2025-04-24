@@ -1,23 +1,25 @@
-<div class="container mt-5">
+<div class="container mt-5" *ngIf="authService.hasPermission('admin.activity-logs')">
     <p class="header-container me-2">Nhật ký kiểm tra</p>
     <p-panel styleClass="mt-3 mb-5">
-        <div class="mt-4 d-flex justify-content-end">
+        <div class="mt-4 mb-4 d-flex justify-content-between">
             <p-button label="Làm tươi" icon="bi bi-arrow-repeat" severity="info" (click)="refreshData()"></p-button>
+
+            <p-button label="Tìm kiếm" icon="bi bi-search" severity="info" (click)="searchActivityLogs()"></p-button>
         </div>
+
         <div class="d-flex justify-content-center gap-2">
             <div class="w-50">
                 <div class="flex-auto">
                     <label class="font-bold block mb-2">Phạm vi ngày</label>
                     <p-datepicker [(ngModel)]="rangeDates" selectionMode="range" styleClass="w-100"
-                        inputStyleClass="w-100" [readonlyInput]="true" (onSelect)="searchActivityLogByDateRange()" />
+                        inputStyleClass="w-100" [readonlyInput]="true" />
                 </div>
 
             </div>
             <div class="w-50">
                 <div class="flex-auto">
                     <label class="font-bold block mb-2">Tên truy cập</label>
-                    <input pInputText class="w-100" type="search" (keyup.enter)="searchActivityLogByUsername()"
-                        [(ngModel)]="username" />
+                    <input pInputText class="w-100" type="search" [(ngModel)]="username" />
                 </div>
             </div>
         </div>
@@ -26,15 +28,13 @@
                 <div class="col-md-6">
                     <div class="flex-auto">
                         <label class="font-bold block mb-2">Dịch vụ</label>
-                        <input pInputText class="w-100" type="text" (keyup.enter)="searchActivityLogByService()"
-                            [(ngModel)]="serviceName" />
+                        <input pInputText class="w-100" type="text" [(ngModel)]="serviceName" />
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="flex-auto">
                         <label class="font-bold block mb-2">Hoạt động</label>
-                        <input pInputText class="w-100" type="text" (keyup.enter)="searchActivityLogByActivity()"
-                            [(ngModel)]="activity" />
+                        <input pInputText class="w-100" type="text" [(ngModel)]="activity" />
                     </div>
                 </div>
             </div>
@@ -42,8 +42,7 @@
                 <div class="col-md-6">
                     <div class="flex-auto">
                         <label class="font-bold block mb-2">Trình duyệt</label>
-                        <input pInputText class="w-100" type="text" (keyup.enter)="searchActivityLogByBrowser()"
-                            [(ngModel)]="browser" />
+                        <input pInputText class="w-100" type="text" [(ngModel)]="browser" />
                     </div>
                 </div>
             </div>

@@ -8,6 +8,8 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { FormInputComponent } from '../../../components/common/form-input/form-input.component';
 import { UserService } from '../../../services/user.service';
 import { validateConfirmPassword, validateEmail, validateFirstName, validateLastName, validatePassword, validatePhoneNumber, validateUsername } from '../../../utils/validators';
+import { AlertService } from '../../../services/alert.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-create-user',
@@ -30,32 +32,29 @@ export class CreateUserComponent implements OnInit {
   mustChangePassword: boolean = false;
   isAction: boolean = false;
   isLockedOut: boolean = false;
-  
+
   activeTab: string = 'tab1';
   errorMessage: string = '';
   isSubmitting: boolean = false;
   previewImageUrl: string | ArrayBuffer | null = null;
   defaultImageUrl: string = '/images/default-profile-picture.png';
-  
+
   rolesSelect: any[] = [];
   roles: number[] = [];
-  
+
   errors: {
     firstName?: string;
     lastName?: string;
     email?: string;
     username?: string;
     password?: string;
-    phone?:string;
+    phone?: string;
     confirmPassword?: string;
   } = {};
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  constructor(
-    private userService: UserService,
-    private router: Router
-  ) {}
+  constructor(private userService: UserService, private router: Router, private alertService: AlertService, public authService: AuthService) { }
 
   ngOnInit(): void {
     this.loadRolesSelect();
@@ -194,7 +193,7 @@ export class CreateUserComponent implements OnInit {
     ).subscribe({
       next: (res) => {
         if (res.code === 200) {
-          alert('Tạo tài khoản thành công!');
+          this.alertService.success("Tạo tài khoản thành công!")
           this.router.navigate(['/app/admin/users']);
         } else if (res.code === 4001) {
           this.errors.email = "Email đã tồn tại";
@@ -208,7 +207,7 @@ export class CreateUserComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.errorMessage = 'Lỗi tạo tài khoản: ' + err.message;
+        this.alertService.error("Tạo tài khoản thất bại!")
         this.isSubmitting = false;
       }
     });

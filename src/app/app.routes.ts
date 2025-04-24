@@ -12,6 +12,7 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ForgotPasswordComponent } from './pages/account/forgot-password/forgot-password.component';
 import { CreateUserComponent } from './pages/user/create-user/create-user.component';
 import { AuthGuard } from './guards/auth.guard';
+import { CreateNewPasswordComponent } from './pages/account/create-new-password/create-new-password.component';
 
 export const routes: Routes = [
     { path: 'account/login', component: LoginComponent },
@@ -19,6 +20,7 @@ export const routes: Routes = [
     { path: 'account/email-validation/:email', component: EmailActivationComponent },
     { path: 'account/email-validation', component: EmailActivationComponent },
     { path: 'account/forgot-password', component: ForgotPasswordComponent },
+    { path: 'account/create-new-password/:email', component: CreateNewPasswordComponent },
 
     {
         path: 'app/admin',

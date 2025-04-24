@@ -13,7 +13,8 @@ export class FormViewComponent {
   @Input() headerTitle: string = '';
   @Input() description: string = '';
   @Input() labelBtn: string = '';
-  @Input() hasPermission: boolean = true;
+  @Input() hasPermissionView: boolean = true;
+  @Input() hasPermissionCreate: boolean = true;
 
   @Output() onCreatePage = new EventEmitter<void>();
 

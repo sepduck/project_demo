@@ -8,6 +8,8 @@ import { PanelModule } from 'primeng/panel';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ButtonModule } from 'primeng/button';
+import { AlertService } from '../../services/alert.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-setting',
@@ -16,7 +18,6 @@ import { ButtonModule } from 'primeng/button';
   styleUrl: './setting.component.css'
 })
 export class SettingComponent implements OnInit {
-  id!: number;
   selfRegister: boolean = false;
   defaultUserActivation: boolean = false;
   useCaptchaOnRegister: boolean = false;
@@ -42,10 +43,7 @@ export class SettingComponent implements OnInit {
   } = {};
 
   constructor(
-    private settingService: SettingServiceService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) { }
+    private settingService: SettingServiceService, private alertService: AlertService, public authService: AuthService) { }
   ngOnInit(): void {
     this.settingService.getSetting().subscribe({
       next: (res) => {
@@ -83,10 +81,6 @@ export class SettingComponent implements OnInit {
       this.hasUppercase = false;
       this.minPasswordLength = 8;
     } else {
-      this.hasNumber = false;
-      this.hasLowercase = false;
-      this.hasSpecialChar = false;
-      this.hasUppercase = false;
       this.minPasswordLength = 6;
     }
   }
@@ -125,15 +119,15 @@ export class SettingComponent implements OnInit {
       next: (res) => {
         this.isSubmitting = false;
         if (res.code === 200) {
-          alert('Cập nhật setting thành công!');
+          this.alertService.success("Sửa cài đặt thành công!")
           this.settingService.getSetting()
         } else {
-          this.errorMessage = 'Cập nhật setting thất bại!';
+          this.alertService.success("Sửa cài đặt thất bại!")
         }
       },
       error: (err) => {
         this.isSubmitting = false;
-        this.errorMessage = 'Lỗi cập nhật tài khoản: ' + err.message;
+        this.alertService.success("Sửa cài đặt thất bại!")
       }
     });
   }

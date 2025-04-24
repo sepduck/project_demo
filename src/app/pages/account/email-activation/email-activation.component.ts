@@ -7,6 +7,7 @@ import { AccountFormComponent } from '../../../components/account-form/account-f
 import { FormInputComponent } from '../../../components/common/form-input/form-input.component';
 import { FormButtonComponent } from '../../../components/common/form-button/form-button.component';
 import { validateEmail, validateTokenEmail } from '../../../utils/validators';
+import { AlertService } from '../../../services/alert.service';
 
 
 @Component({
@@ -29,7 +30,7 @@ export class EmailActivationComponent implements OnInit {
   constructor(
     private emailService: EmailActivationService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router, private alertService: AlertService
   ) { }
 
   ngOnInit(): void {
@@ -62,26 +63,30 @@ export class EmailActivationComponent implements OnInit {
         console.log(this.email);
 
         if (res.code === 200, res.result?.actionType === 'login') {
-          alert("Xác thực email thành công!");
-          this.router.navigate(['/app/admin/dashBoard']);
+          this.alertService.success("Xác thực email thành công")
+          const mustChangePassword = localStorage.getItem('mustChangePassword') === 'true';
+          console.log("mustChangePassword: " + mustChangePassword);
+
+          if (mustChangePassword) {
+            this.router.navigate([`/account/create-new-password/${this.email}`]);
+          } else {
+            this.router.navigate(['/app/admin/dashBoard']);
+          }
         } else if (res.code === 200, res.result?.actionType === 'register') {
-          alert("Xác thực email thành công! Vui lòng đăng nhập.");
+          this.alertService.success("Xác thực email thành công! Vui lòng đăng nhập")
           this.router.navigate(['/account/login']);
         } else if (res.code === 4006) {
           this.errors.email = "Email không tồn tại";
         } else if (res.code === 4007) {
           this.errors.token = "Không tìm thấy mã thông báo hoặc mã thông báo không khớp với email.";
         } else if (res.code === 4008) {
-          this.errors.token = "Mã   đã hết hạn.";
+          this.errors.token = "Mã đã hết hạn.";
         } else {
-          alert("Xác thực thất bại!");
-          this.errors.token = res.message;
+          this.alertService.error("Xác thực thất bại")
         }
       },
       error: (error) => {
-
-        alert("Xác thực thất bại! " + error.message);
-        this.errors.token = error.message;
+        this.alertService.error("Xác thực thất bại")
       }
     });
   }

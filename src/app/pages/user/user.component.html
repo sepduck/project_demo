@@ -1,4 +1,4 @@
-<div class="container mt-5 ">
+<div class="container mt-5 " *ngIf="authService.hasPermission('admin.organizational-structure.managing-members')">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center">
             <p class="header-container me-2">Người dùng</p>
@@ -6,7 +6,7 @@
         </div>
         <div class="d-flex align-items-center gap-2">
             <p-button label="Tạo tài khoản người dùng mới" [raised]="true" severity="info" icon="pi pi-plus"
-                *ngIf="authService.hasPermission('admin.role.create')" (onClick)="goToCreate()" />
+                *ngIf="authService.hasPermission('admin.user.create')" (onClick)="goToCreate()" />
         </div>
     </div>
     <p-panel styleClass="mt-3 mb-5">
@@ -66,7 +66,7 @@
                 [rowsPerPageOptions]="[5, 10, 25, 50, 100, 250, 500]">
                 <ng-template pTemplate="header">
                     <tr>
-                        <th>Hoạt động</th>
+                        <th style="width: 170px;" class="text-center">Hoạt động</th>
                         <th>Tên truy cập</th>
                         <th>Tên</th>
                         <th>Họ</th>
@@ -79,43 +79,35 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-user>
                     <tr>
-                        <td>
-                            <div class="dropdown">
-                                <p-button icon="pi pi-cog" label="Hành động" severity="info" id="dropdownMenuButton"
-                                    data-bs-toggle="dropdown" aria-expanded="false"></p-button>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <li><button class="dropdown-item" (click)="loginAsUser(user.id)">
-                                            Đăng nhập tài khoản với tư cách người dùng này</button>
-                                    </li>
-                                    <li> <button class="dropdown-item" (click)="goToUpdate(user.id)">Chỉnh sửa</button>
-                                    </li>
-                                    <li> <button class="dropdown-item" (click)="deleteUser(user.id)">Xóa bỏ</button>
-                                    </li>
-                                </ul>
-                            </div>
-                        </td>
-                        <!-- <td class="text-center">
-                            <ng-container *ngIf="user.role ==='admin'; else reservedIcon">
+                        <td class="text-center">
+                            <ng-container *ngIf="user.role.includes('admin'); else showDropdown">
+                                <i class="bi bi-lock-fill"></i>
+                            </ng-container>
+
+                            <ng-template #showDropdown>
                                 <div class="dropdown">
                                     <p-button icon="pi pi-cog" label="Hành động" severity="info" id="dropdownMenuButton"
                                         data-bs-toggle="dropdown" aria-expanded="false">
                                     </p-button>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                         <li>
-                                            <button class="dropdown-item" (click)="openEditModal(role.id)">Chỉnh
-                                                sửa</button>
+                                            <button class="dropdown-item" (click)="loginAsUser(user.id)"
+                                                *ngIf="authService.hasPermission('admin.user.user-login')">
+                                                Đăng nhập tài khoản với tư cách người dùng này
+                                            </button>
                                         </li>
                                         <li>
-                                            <button class="dropdown-item" (click)="deleteRole(role.id)">Xóa bỏ</button>
+                                            <button class="dropdown-item" (click)="goToUpdate(user.id)"
+                                                *ngIf="authService.hasPermission('admin.user.edit')">Chỉnh sửa</button>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item" (click)="deleteUser(user.id)"
+                                                *ngIf="authService.hasPermission('admin.user.deleting')">Xóa bỏ</button>
                                         </li>
                                     </ul>
                                 </div>
-                            </ng-container>
-
-                            <ng-template #reservedIcon>
-                                <i class="bi bi-lock-fill"></i>
                             </ng-template>
-                        </td> -->
+                        </td>
                         <td>{{user.username}}</td>
                         <td>{{user.lastName}}</td>
                         <td>{{user.firstName}}</td>

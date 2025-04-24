@@ -20,6 +20,7 @@ import { DialogModule } from 'primeng/dialog';
 import { TreeModule } from 'primeng/tree';
 import { TreeNode } from 'primeng/api';
 import { RoleService } from '../../services/role.service';
+import { AlertService } from '../../services/alert.service';
 
 
 @Component({
@@ -67,7 +68,7 @@ export class UserComponent {
     this.visible = true;
   }
 
-  constructor(private userService: UserService, private router: Router, public authService: AuthService, private roleService: RoleService) { }
+  constructor(private userService: UserService, private router: Router, public authService: AuthService, private roleService: RoleService, private alertService: AlertService) { }
 
   onPageChange(event: any) {
     this.pageNumber = Math.floor((event.first || 0) / (event.rows || 10)) + 1;
@@ -186,13 +187,13 @@ export class UserComponent {
       next: (res) => {
         if (res.code === 200) {
           this.loadUser();
-          alert('Xoá người dùng thành công!');
+          this.alertService.success("Xoá người dùng thành công!")
         }
         this.errorMessage = 'Xóa người dùng thất bại';
       },
       error: (err) => {
         console.error('Lỗi xoá người dùng:', err);
-        alert('Không thể xoá người dùng. Vui lòng thử lại sau.');
+        this.alertService.error("Không thể xoá người dùng. Vui lòng thử lại sau.")
       }
     });
   }
@@ -204,15 +205,14 @@ export class UserComponent {
           this.authService.saveToken(res.result.token);
           this.router.navigate(['/app/admin/dashBoard']).then(() => window.location.reload())
         } else if (res.code === 4014) {
-          alert('Tài khoản chưa được kích hoạt');
-        } else if ( res.code === 4009) {
-          alert('Người dùng không tồn tại');
+          this.alertService.error("Tài khoản chưa được kích hoạt")
+        } else if (res.code === 4009) {
+          this.alertService.error("Người dùng không tồn tại")
         }
-        this.errorMessage = 'Đăng nhập người dùng thất bại';
+        this.alertService.error("Đăng nhập người dùng thất bại")
       },
       error: (err) => {
-        console.error('Lỗi đăng nhập người dùng:', err);
-        alert('Không thể đăng nhập người dùng. Vui lòng thử lại sau.');
+        this.alertService.error("Không thể đăng nhập người dùng. Vui lòng thử lại sau.")
       }
     });
   }
@@ -233,8 +233,6 @@ export class UserComponent {
   // Phương thức khởi tạo cây permission từ danh sách phẳng
   initPermissionTree(permissions: any[]): TreeNode[] {
     const root: TreeNode[] = [];
-    console.log("Permission Tree: " + permissions);
-
     const map: { [key: string]: TreeNode } = {};
 
     // Xử lý từng permission
@@ -293,6 +291,7 @@ export class UserComponent {
     });
   }
 
+  // Trong file user.component.ts, chỉnh sửa phương thức buildPrimeNGTree:
   buildPrimeNGTree(data: any[]): TreeNode[] {
     let tree: TreeNode[] = [];
 
@@ -317,9 +316,11 @@ export class UserComponent {
             data: {
               id: isLeaf ? id : null,
               slug: isLeaf ? slug : "",
-              fullPath: currentPath
+              fullPath: currentPath,
+              isParent: !isLeaf || slug === ""
             },
-            selectable: isLeaf && slug !== "",
+            // Parent nodes are selectable but will trigger special handling
+            selectable: true,
             leaf: isLeaf && slug !== "",
             children: []
           };
@@ -345,6 +346,68 @@ export class UserComponent {
     return tree;
   }
 
+  // Thêm phương thức để xử lý khi click vào node cha
+  handleParentNodeSelection(event: any): void {
+    const node = event.node;
+
+    // Kiểm tra xem node có phải là node cha không
+    if (node.data && node.data.isParent) {
+      // Nếu là node cha, chọn/bỏ chọn tất cả các node con
+      this.toggleSelectionForAllChildren(node, event.originalEvent.checked);
+
+      // Cập nhật lại selectedPermissions
+      this.updateSelectedPermissionIds();
+    }
+  }
+
+  // Phương thức để đệ quy chọn/bỏ chọn tất cả các node con
+  toggleSelectionForAllChildren(node: TreeNode, select: boolean): void {
+    if (!node.children || node.children.length === 0) return;
+
+    node.children.forEach(child => {
+      // Chỉ xử lý nếu node có thể được chọn
+      if (child.selectable) {
+        // Thêm hoặc xóa khỏi selectedPermissions
+        const index = this.selectedPermissions.findIndex(p => p.key === child.key);
+
+        if (select && index === -1) {
+          // Nếu cần chọn và chưa có trong danh sách
+          this.selectedPermissions.push(child);
+        } else if (!select && index !== -1) {
+          // Nếu cần bỏ chọn và đã có trong danh sách
+          this.selectedPermissions.splice(index, 1);
+        }
+      }
+
+      // Đệ quy cho các node con
+      this.toggleSelectionForAllChildren(child, select);
+    });
+  }
+
+  // Sửa lại phương thức extractSelectedPermissionIds để chỉ lấy node lá
+  extractSelectedPermissionIds(nodes: TreeNode[]): number[] {
+    const ids: number[] = [];
+
+    // Đảm bảo nodes không rỗng
+    if (!nodes || !Array.isArray(nodes) || nodes.length === 0) {
+      return ids;
+    }
+
+    // Duyệt qua các node đã chọn
+    nodes.forEach(node => {
+      // Chỉ lấy ID của node lá (không phải parent node)
+      if (node.data && !node.data.isParent && node.data.id && !isNaN(Number(node.data.id))) {
+        ids.push(Number(node.data.id));
+      }
+      // Có thể cũng kiểm tra key nếu cần
+      else if (!node.data?.isParent && node.key && !isNaN(Number(node.key))) {
+        ids.push(Number(node.key));
+      }
+    });
+
+    console.log('Selected Permission IDs (leaf nodes only):', ids);
+    return ids;
+  }
 
   // Phương thức gọi khi chọn hoặc bỏ chọn permission
   onNodeSelect(event: any): void {
@@ -431,38 +494,5 @@ export class UserComponent {
           // Xử lý khi hoàn thành (tắt loading nếu cần)
         }
       });
-  }
-
-  // Điều chỉnh phương thức extractSelectedPermissionIds để đảm bảo ID được trích xuất đúng
-  extractSelectedPermissionIds(nodes: TreeNode[]): number[] {
-    const ids: number[] = [];
-
-    // Đảm bảo nodes không rỗng
-    if (!nodes || !Array.isArray(nodes) || nodes.length === 0) {
-      return ids;
-    }
-
-    // Hàm đệ quy để trích xuất ID từ các node
-    const extractIds = (nodes: TreeNode[]) => {
-      nodes.forEach(node => {
-        // Kiểm tra node.key có phải là ID không (trong trường hợp key là ID dạng chuỗi)
-        if (node.key && !isNaN(Number(node.key))) {
-          ids.push(Number(node.key));
-        }
-        // Hoặc kiểm tra node.data.id
-        else if (node.data && node.data.id && !isNaN(Number(node.data.id))) {
-          ids.push(Number(node.data.id));
-        }
-
-        // Đệ quy qua các con
-        if (node.children && node.children.length > 0) {
-          extractIds(node.children);
-        }
-      });
-    };
-
-    extractIds(nodes);
-    console.log('Selected Permission IDs:', ids);
-    return ids;
   }
 }
