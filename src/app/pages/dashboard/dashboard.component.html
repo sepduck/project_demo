@@ -1,4 +1,4 @@
-<div class="container-fluid">
+<div class="container-fluid" *ngIf="authService.hasPermission('dashboard')">
 
     <!-- Page Heading -->
     <h1 class="h4 mb-0 text-gray-800 mb-3">Dashboard</h1>

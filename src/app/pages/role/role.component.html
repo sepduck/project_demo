@@ -1,6 +1,6 @@
 <form-view [headerTitle]="'Vai trò'" [description]="'Sử dụng vai trò để nhóm quyền.'"
-    [hasPermissionView]="authService.hasPermission('admin.organizational-structure.managing-roles')"
-    [hasPermissionCreate]="authService.hasPermission('admin.role.create')" [labelBtn]="'Tạo vai trò mới'"
+    [hasPermissionView]="authService.hasPermission('mgmt.role')"
+    [hasPermissionCreate]="authService.hasPermission('mgmt.role.create')" [labelBtn]="'Tạo vai trò mới'"
     (onCreatePage)="openCreateModal()">
     <p-panel styleClass="mt-3 mb-5">
         <div class="d-flex justify-content-between" *ngIf="false">
@@ -28,12 +28,12 @@
                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                         <li>
                                             <button class="dropdown-item" (click)="openEditModal(role.id)"
-                                                *ngIf="authService.hasPermission('admin.role.edit')">Chỉnh
+                                                *ngIf="authService.hasPermission('mgmt.role.edit')">Chỉnh
                                                 sửa</button>
                                         </li>
                                         <li>
                                             <button class="dropdown-item" (click)="deleteRole(role.id)"
-                                                *ngIf="authService.hasPermission('admin.role.deleting')">Xóa bỏ</button>
+                                                *ngIf="authService.hasPermission('mgmt.role.delete')">Xóa bỏ</button>
                                         </li>
                                     </ul>
                                 </div>
@@ -65,7 +65,7 @@
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
-    *ngIf="isEditMode ? authService.hasPermission('admin.role.edit') :  authService.hasPermission('admin.role.create') ">
+    *ngIf="isEditMode ? authService.hasPermission('mgmt.role.edit') :  authService.hasPermission('mgmt.role.create') ">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -120,9 +120,9 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <p-button [label]="'Hủy bỏ'" icon="pi pi-save" severity="secondary" data-bs-dismiss="modal" />
-                <p-button (onClick)="saveRole()" [label]="isEditMode ? 'Cập nhật thông tin' : 'Lưu thông tin'"
-                    icon="pi pi-save" severity="info" />
+                <p-button [label]="'Hủy bỏ'" icon="pi pi-times" severity="secondary" data-bs-dismiss="modal" />
+                <p-button (click)="saveRole()" [label]="isSubmitting ? 'Đang xử lý...' : 'Lưu thông tin'"
+                    [disabled]="isSubmitting" icon="pi pi-save" severity="info" />
             </div>
         </div>
     </div>

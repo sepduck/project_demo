@@ -8,16 +8,20 @@ import Chart, {
   Tooltip,
   ArcElement
 } from 'chart.js/auto';
+import { AuthService } from '../../services/auth.service';
+import { CommonModule } from '@angular/common';
 
 // Đăng ký các thành phần cần thiết
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend, ArcElement);
 
 @Component({
   selector: 'app-dashboard',
+  imports: [CommonModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements AfterViewInit {
+  constructor(public authService: AuthService) { }
 
   ngAfterViewInit(): void {
     this.createBarChart();

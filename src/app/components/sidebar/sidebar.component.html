@@ -5,25 +5,25 @@
             alt="logo" />
 
         <ul class="nav flex-column mt-3">
-            <li class="nav-item"><a [routerLink]="['/app/admin/dashBoard']" class="nav-link text-white">Dashboard</a>
+            <li class="nav-item"><a [routerLink]="['/app/admin/dashBoard']" class="nav-link text-white" *ngIf="authService.hasPermission('dashboard')">Dashboard</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link text-white d-flex justify-content-between align-items-center"
-                    (click)="toggleSubMenu()">
+                    (click)="toggleSubMenu()" *ngIf="authService.hasPermission('mgmt')">
                     Quản trị
                     <i class="bi" [ngClass]="{ 'bi-chevron-down': !isSubMenuOpen, 'bi-chevron-up': isSubMenuOpen }"></i>
                 </a>
                 <ul class="nav flex-column ms-3" *ngIf="isSubMenuOpen">
-                    <li *ngIf="authService.hasPermission('admin.organizational-structure.managing-roles')"
-                        class="nav-item"><a [routerLink]="['/app/admin/roles']" class="nav-link text-white">Vai trò</a>
+                    <li *ngIf="authService.hasPermission('mgmt.role')" class="nav-item"><a
+                            [routerLink]="['/app/admin/roles']" class="nav-link text-white">Vai trò</a>
                     </li>
-                    <li *ngIf="authService.hasPermission('admin.organizational-structure.managing-members')"
-                        class="nav-item"><a [routerLink]="['/app/admin/users']" class="nav-link text-white">Người
+                    <li *ngIf="authService.hasPermission('mgmt.user')" class="nav-item"><a
+                            [routerLink]="['/app/admin/users']" class="nav-link text-white">Người
                             dùng</a></li>
-                    <li *ngIf="authService.hasPermission('admin.activity-logs')"
-                        class="nav-item"><a [routerLink]="['/app/admin/auditLogs']" class="nav-link text-white">Nhật ký
+                    <li *ngIf="authService.hasPermission('mgmt.activity')" class="nav-item"><a
+                            [routerLink]="['/app/admin/auditLogs']" class="nav-link text-white">Nhật ký
                             kiểm tra</a></li>
-                    <li *ngIf="authService.hasPermission('admin.setting')" class="nav-item"><a
+                    <li *ngIf="authService.hasPermission('mgmt.setting')" class="nav-item"><a
                             [routerLink]="['/app/admin/tenantSettings']" class="nav-link text-white">Cài
                             đặt</a></li>
                 </ul>

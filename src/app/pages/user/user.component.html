@@ -1,4 +1,4 @@
-<div class="container mt-5 " *ngIf="authService.hasPermission('admin.organizational-structure.managing-members')">
+<div class="container mt-5 " *ngIf="authService.hasPermission('mgmt.user')">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center">
             <p class="header-container me-2">Người dùng</p>
@@ -6,7 +6,7 @@
         </div>
         <div class="d-flex align-items-center gap-2">
             <p-button label="Tạo tài khoản người dùng mới" [raised]="true" severity="info" icon="pi pi-plus"
-                *ngIf="authService.hasPermission('admin.user.create')" (onClick)="goToCreate()" />
+                *ngIf="authService.hasPermission('mgmt.user.create')" (onClick)="goToCreate()" />
         </div>
     </div>
     <p-panel styleClass="mt-3 mb-5">
@@ -92,17 +92,17 @@
                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                         <li>
                                             <button class="dropdown-item" (click)="loginAsUser(user.id)"
-                                                *ngIf="authService.hasPermission('admin.user.user-login')">
+                                                *ngIf="authService.hasPermission('mgmt.user.as-login')">
                                                 Đăng nhập tài khoản với tư cách người dùng này
                                             </button>
                                         </li>
                                         <li>
                                             <button class="dropdown-item" (click)="goToUpdate(user.id)"
-                                                *ngIf="authService.hasPermission('admin.user.edit')">Chỉnh sửa</button>
+                                                *ngIf="authService.hasPermission('mgmt.user.edit')">Chỉnh sửa</button>
                                         </li>
                                         <li>
                                             <button class="dropdown-item" (click)="deleteUser(user.id)"
-                                                *ngIf="authService.hasPermission('admin.user.deleting')">Xóa bỏ</button>
+                                                *ngIf="authService.hasPermission('mgmt.user.delete')">Xóa bỏ</button>
                                         </li>
                                     </ul>
                                 </div>

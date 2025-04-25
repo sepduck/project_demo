@@ -9,6 +9,7 @@ import { FormInputComponent } from '../../../components/common/form-input/form-i
 import { validateEmail, validatePassword } from '../../../utils/validators';
 import { SettingServiceService } from '../../../services/setting-service.service';
 import { AlertService } from '../../../services/alert.service';
+import { ButtonModule } from 'primeng/button';
 export interface LoginResult {
   token: string;
   emailConfirmationRequired: boolean;
@@ -18,7 +19,7 @@ export interface LoginResult {
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, FormsModule, HttpClientModule, AccountFormComponent, FormInputComponent],
+  imports: [CommonModule, FormsModule, HttpClientModule, AccountFormComponent, FormInputComponent, ButtonModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -33,6 +34,7 @@ export class LoginComponent implements OnInit {
 
   selfRegister: boolean = false;
   mustChangePassword: boolean = false;
+  isSubmitting: boolean = false;
 
   constructor(private authService: AuthService, private router: Router, private settingService: SettingServiceService, private alertService: AlertService) { }
 
@@ -65,9 +67,10 @@ export class LoginComponent implements OnInit {
   login() {
     if (!this.validate()) return;
 
+    this.isSubmitting = true;
+
     this.authService.login(this.email, this.password).subscribe({
       next: (res: { code: number, message: string, result?: LoginResult }) => {
-
         if (res.code === 200 && res.result) {
           this.authService.saveToken(res.result.token);
           this.alertService.success('Đăng nhập thành công!');
@@ -79,9 +82,12 @@ export class LoginComponent implements OnInit {
           } else {
             this.router.navigate(['/app/admin/dashBoard']);
           }
+        } else {
+          this.isSubmitting = false;
         }
       },
       error: (error: any) => {
+        this.isSubmitting = false;
         const code = error?.error?.code;
         if (code === 4003) {
           this.errors.email = 'Email không tồn tại';

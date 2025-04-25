@@ -98,6 +98,7 @@ export class SettingComponent implements OnInit {
     if (!this.validate()) return;
 
     this.isSubmitting = true;
+    
     this.settingService.putSetting(
       this.selfRegister,
       this.defaultUserActivation,

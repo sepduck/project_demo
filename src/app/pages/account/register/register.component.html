@@ -6,6 +6,11 @@
         <form-input placeholder="Tên truy cập" [(value)]="username" [error]="errors.username!" isInput="no-label" />
         <form-input placeholder="Mật khẩu" [(value)]="password" [error]="errors.password!" type="password"
             isInput="no-label-password" />
-        <form-button (backClick)="goToLogin()" (submitClick)="register()" />
+        <!-- <form-button (backClick)="goToLogin()" (submitClick)="register()" /> -->
+        <div class="d-flex justify-content-start gap-2 mt-5">
+            <p-button [label]="'Trở lại'" icon="bi bi-arrow-left" severity="secondary" (click)="goToLogin()" />
+            <p-button (click)="register()" [label]="isSubmitting ? 'Đang xử lý...' : 'Gửi đi'" icon="bi bi-check-lg"
+                [disabled]="isSubmitting" icon="pi pi-save" severity="info" />
+        </div>
     </account-form>
 </div>

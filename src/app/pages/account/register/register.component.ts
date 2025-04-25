@@ -1,4 +1,3 @@
-import { HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
 import { Router } from '@angular/router';
@@ -6,15 +5,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SettingServiceService } from '../../../services/setting-service.service';
 import { FormInputComponent } from "../../../components/common/form-input/form-input.component";
-import { FormButtonComponent } from '../../../components/common/form-button/form-button.component';
 import { AccountFormComponent } from '../../../components/account-form/account-form.component';
 import { validateEmail, validateFirstName, validateLastName, validatePassword, validateUsername } from '../../../utils/validators';
 import { AlertService } from '../../../services/alert.service';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, FormInputComponent, FormInputComponent, FormButtonComponent, AccountFormComponent],
+  imports: [CommonModule, FormsModule, FormInputComponent, FormInputComponent, AccountFormComponent, ButtonModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
@@ -45,6 +44,8 @@ export class RegisterComponent implements OnInit {
   hasUppercase: boolean = false;
   hasNumber: boolean = false;
   minPasswordLength: number = 0;
+
+  isSubmitting: boolean = false
 
   constructor(private authService: AuthService, private router: Router, private settingService: SettingServiceService, private alertService: AlertService) { }
 
@@ -120,6 +121,8 @@ export class RegisterComponent implements OnInit {
   register() {
     if (!this.validate()) return;
 
+    this.isSubmitting = true
+
     this.authService.register(this.firstName, this.lastName, this.email, this.username, this.password).subscribe({
       next: (res: { code: number, message: string }) => {
         if (res.code === 200) {
@@ -136,6 +139,7 @@ export class RegisterComponent implements OnInit {
         }
       },
       error: (error: any) => {
+        this.isSubmitting = false
         this.errorMessage = error.error?.message || "Đã xảy ra lỗi!";
       }
     });

@@ -1,4 +1,4 @@
-<div class="container mt-5" *ngIf="authService.hasPermission('admin.setting')">
+<div class="container mt-5" *ngIf="authService.hasPermission('mgmt.setting')">
     <p class="header-container me-2">Cài đặt</p>
     <p-panel styleClass="mt-3 mb-5" header="Đăng ký dựa trên biểu mẫu">
         <div class="mb-2">
@@ -93,7 +93,8 @@
         </div>
 
         <div class="d-flex justify-content-end mt-5">
-            <p-button (onClick)="updateSetting()" [label]="'Lưu thông tin'" icon="pi pi-save" severity="info" />
+            <p-button (onClick)="updateSetting()" icon="pi pi-save" severity="info"
+                [label]="isSubmitting ? 'Đang xử lý...' : 'Lưu thông tin'" [disabled]="isSubmitting" />
         </div>
     </p-panel>
 </div>
