@@ -10,6 +10,7 @@ import { UserService } from '../../../services/user.service';
 import { validateEmail, validateFirstName, validateLastName, validatePhoneNumber, validateUsername } from '../../../utils/validators';
 import { AlertService } from '../../../services/alert.service';
 import { AuthService } from '../../../services/auth.service';
+import { USERS } from '../../../constants/path-valiable';
 
 
 @Component({
@@ -64,11 +65,11 @@ export class UpdateUserComponent implements OnInit {
         this.loadRolesSelect();
         this.getUserDetail(this.userId);
       } else {
-        this.router.navigate(['/app/admin/users']);
+        this.router.navigate([USERS]);
       }
     });
   }
-  
+
   loadRolesSelect(): void {
     this.userService.getRolesSelect().subscribe({
       next: (res) => {
@@ -86,7 +87,7 @@ export class UpdateUserComponent implements OnInit {
   }
 
 
-  
+
   getUserDetail(id: number): void {
     if (id === null) return;
 
@@ -241,7 +242,9 @@ export class UpdateUserComponent implements OnInit {
       next: (res) => {
         if (res.code === 200) {
           this.alertService.success("Cập nhật tài khoản thành công!")
-          this.router.navigate(['/app/admin/users']);
+          this.router.navigate([USERS]);
+        } else if (res.code === 4018) {
+          this.errors.phone = res.message
         } else {
           this.errorMessage = 'Cập nhật tài khoản thất bại!';
         }
@@ -255,6 +258,6 @@ export class UpdateUserComponent implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/app/admin/users']);
+    this.router.navigate([USERS]);
   }
 }

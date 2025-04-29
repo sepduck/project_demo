@@ -1,76 +1,36 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-
-interface ActivityLogs {
-  id: number;
-  username: string;
-  serviceName: string;
-  activity: string;
-  executionTime: number;
-  ipAddress: string;
-  browser: string;
-  createdAt: string;
-}
-
-interface ApiResponse {
-  code: number;
-  message: string;
-  result: {
-    contents: ActivityLogs[];
-    totalRecords: number;
-    totalPages: number;
-    pageNumber: number;
-    pageSize: number;
-  }
-}
+import { ApiResponse } from '../models/activity-log.model';
+import { AuthUtils } from '../utils/api/auth-utils';
+import { API_V1_ACTIVITY_LOG, API_V1_ACTIVITY_LOG_SEARCH } from '../constants/api-endpoints';
 @Injectable({
   providedIn: 'root'
 })
 export class AuditLogService {
-  private apiUrl = "http://localhost:5293/api/v1/activity-log";
-
   constructor(private http: HttpClient) { }
 
   getUsers(pageNumber: number, pageSize: number): Observable<ApiResponse> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.get<ApiResponse>(`${this.apiUrl}?pageNumber=${pageNumber}&pageSize=${pageSize}`, { headers })
-  }
-
-  searchActivityByUsername(username: string, pageNumber: number, pageSize: number): Observable<ApiResponse> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.get<ApiResponse>(`${this.apiUrl}/username/${username}?pageNumber=${pageNumber}&pageSize=${pageSize}`, { headers })
-  }
-
-  searchActivityByActivity(activity: string, pageNumber: number, pageSize: number): Observable<ApiResponse> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.get<ApiResponse>(`${this.apiUrl}/activity/${activity}?pageNumber=${pageNumber}&pageSize=${pageSize}`, { headers })
-  }
-
-  searchActivityByBrowser(browser: string, pageNumber: number, pageSize: number): Observable<ApiResponse> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.get<ApiResponse>(`${this.apiUrl}/browser/${browser}?pageNumber=${pageNumber}&pageSize=${pageSize}`, { headers })
-  }
-
-  searchActivityByService(serviceName: string, pageNumber: number, pageSize: number): Observable<ApiResponse> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.get<ApiResponse>(`${this.apiUrl}/service/${serviceName}?pageNumber=${pageNumber}&pageSize=${pageSize}`, { headers })
-  }
-
-  searchActivityByDateRange(startDate: string, endDate: string, pageNumber: number, pageSize: number): Observable<ApiResponse> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.get<ApiResponse>(`${this.apiUrl}/date?startDate=${startDate}&endDate=${endDate}&pageNumber=${pageNumber}&pageSize=${pageSize}`, { headers })
+    const headers = AuthUtils.getAuthHeaders();
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+    return this.http.get<ApiResponse>(API_V1_ACTIVITY_LOG, { headers, params })
   }
 
   searchActivityLogs(username: string, activity: string, browser: string, serviceName: string, startDate: string, endDate: string, pageNumber: number, pageSize: number): Observable<ApiResponse> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.get<ApiResponse>(`${this.apiUrl}/search?username=${username}&activity=${activity}&browser=${browser}&serviceName=${serviceName}&startDate=${startDate}&endDate=${endDate}&pageNumber=${pageNumber}&pageSize=${pageSize}`, { headers })
+    const headers = AuthUtils.getAuthHeaders();
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+
+    if (username && username.trim() !== '') { params = params.set('username', username); }
+    if (activity && activity.trim() !== '') { params = params.set('activity', activity); }
+    if (browser && browser.trim() !== '') { params = params.set('browser', browser); }
+    if (serviceName && serviceName.trim() !== '') { params = params.set('serviceName', serviceName); }
+    if (startDate && startDate.trim() !== '') { params = params.set('startDate', startDate); }
+    if (endDate && endDate.trim() !== '') { params = params.set('endDate', endDate); }
+
+    return this.http.get<ApiResponse>(API_V1_ACTIVITY_LOG_SEARCH, { headers, params })
   }
 }

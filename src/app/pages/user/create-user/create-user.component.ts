@@ -7,9 +7,10 @@ import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { FormInputComponent } from '../../../components/common/form-input/form-input.component';
 import { UserService } from '../../../services/user.service';
-import { validateConfirmPassword, validateEmail, validateFirstName, validateLastName, validatePassword, validatePhoneNumber, validateUsername } from '../../../utils/validators';
+import { validateConfirmPassword, validateEmail, validateFirstName, validateLastName, validatePassword, validatePasswordCreateUser, validatePhoneNumber, validateRole, validateUsername } from '../../../utils/validators';
 import { AlertService } from '../../../services/alert.service';
 import { AuthService } from '../../../services/auth.service';
+import { USERS } from '../../../constants/path-valiable';
 
 @Component({
   selector: 'app-create-user',
@@ -124,16 +125,14 @@ export class CreateUserComponent implements OnInit {
     const usernameError = validateUsername(this.username);
     if (usernameError) this.errors.username = usernameError;
 
-    const passwordError = validatePassword(this.password);
+    const passwordError = validatePasswordCreateUser(this.password, this.isRandomPassword);
     if (passwordError) this.errors.password = passwordError;
 
     const confirmPasswordError = validateConfirmPassword(this.password, this.confirmPassword, this.isRandomPassword);
     if (confirmPasswordError) this.errors.confirmPassword = confirmPasswordError;
 
-    if (this.roles.length === 0) {
-      this.errorMessage = 'Vui lòng chọn ít nhất một vai trò';
-      return false;
-    }
+    const rolesError = validateRole(this.roles);
+    if (rolesError) this.errorMessage = rolesError;
 
     return Object.keys(this.errors).length === 0;
   }
@@ -193,16 +192,19 @@ export class CreateUserComponent implements OnInit {
     ).subscribe({
       next: (res) => {
         if (res.code === 200) {
-          this.alertService.success("Tạo tài khoản thành công!")
-          this.router.navigate(['/app/admin/users']);
+          this.alertService.success(res?.message)
+          this.router.navigate([USERS]);
         } else if (res.code === 4001) {
-          this.errors.email = "Email đã tồn tại";
+          this.errors.email = res?.message;
           this.isSubmitting = false;
         } else if (res.code === 4002) {
-          this.errors.username = "Tên người dùng đã tồn tại";
+          this.errors.username = res.message;
+          this.isSubmitting = false;
+        } else if (res.code === 4018) {
+          this.errors.phone = res.message;
           this.isSubmitting = false;
         } else {
-          this.errorMessage = 'Tạo tài khoản thất bại!';
+          this.errorMessage = res.message || 'Tạo tài khoản thất bại!';
           this.isSubmitting = false;
         }
       },
@@ -214,7 +216,7 @@ export class CreateUserComponent implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/app/admin/users']);
+    this.router.navigate([USERS]);
   }
 
 }

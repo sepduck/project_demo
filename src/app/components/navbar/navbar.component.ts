@@ -1,16 +1,19 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
-import { UserService } from '../../services/user.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FormInputComponent } from '../common/form-input/form-input.component';
+import { ButtonModule } from 'primeng/button';
+import { LOGIN } from '../../constants/path-valiable';
+import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
+import { AlertService } from '../../services/alert.service';
 
 
 @Component({
   selector: 'app-navbar',
-  imports: [CommonModule, FormsModule, FormInputComponent],
+  imports: [CommonModule, FormsModule, FormInputComponent, ButtonModule],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
@@ -55,7 +58,7 @@ export class NavbarComponent implements OnInit {
   } = {}
 
 
-  constructor(private http: HttpClient, private authService: AuthService, private router: Router, private userService: UserService) { }
+  constructor(private http: HttpClient, private authService: AuthService, private router: Router, private userService: UserService, private alertService: AlertService) { }
   ngOnInit(): void {
     this.getUserDetail();
   }
@@ -92,8 +95,6 @@ export class NavbarComponent implements OnInit {
     if (!this.validatePasswords()) {
       return;
     }
-    console.log(this.currentPassword, this.newPassword);
-
     this.userService.changePassword(this.currentPassword, this.newPassword,).subscribe({
       next: (res) => {
         if (res.code === 200) {
@@ -101,10 +102,16 @@ export class NavbarComponent implements OnInit {
           if (closeButton) {
             closeButton.click();
           }
-          alert('Thay đổi mật khẩu thành công!');
-          this.router.navigate(['/account/login']);
+          this.alertService.success("Thay đổi mật khẩu thành công!")
+          this.router.navigate([LOGIN]);
+        } else if (res.code === 4004) {
+          this.errors.currentPassword = res.message
+        } else if (res.code === 400) {
+          this.errors.newPassword = res.message
         } else {
-          this.errorMessage = 'Thay đổi mật khẩu thất bại!';
+          this.alertService.error('Thay đổi mật khẩu thất bại!');
+          console.log(res.message);
+
         }
       },
       error: (err) => {
@@ -113,26 +120,22 @@ export class NavbarComponent implements OnInit {
     });
   }
   validatePasswords(): boolean {
-    // Kiểm tra nếu mật khẩu mới và xác nhận mật khẩu khớp nhau
     if (this.newPassword !== this.confirmPassword) {
       this.passwordMismatch = true;
       this.errors.confirmPassword = 'Mật khẩu mới và nhập lại mật khẩu không khớp';
       return false;
     }
 
-    // Kiểm tra nếu mật khẩu hiện tại trống
     if (!this.currentPassword) {
       this.errors.currentPassword = 'Vui lòng nhập mật khẩu hiện tại';
       return false;
     }
 
-    // Kiểm tra nếu mật khẩu mới trống
     if (!this.newPassword) {
       this.errors.newPassword = 'Vui lòng nhập mật khẩu mới';
       return false;
     }
 
-    // Kiểm tra nếu mật khẩu mới giống mật khẩu cũ
     if (this.currentPassword === this.newPassword) {
       this.errors.newPassword = 'Mật khẩu mới không được trùng với mật khẩu hiện tại';
       return false;
@@ -148,12 +151,12 @@ export class NavbarComponent implements OnInit {
     this.authService.logout().subscribe({
       next: () => {
         localStorage.removeItem('jwtToken')
-        this.router.navigate(['account/login'])
+        this.router.navigate([LOGIN])
       },
       error: err => {
         console.error('Logout failed:', err);
         localStorage.removeItem('token');
-        this.router.navigate(['account/login']);
+        this.router.navigate([LOGIN]);
       }
     })
   }

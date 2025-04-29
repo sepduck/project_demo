@@ -1,15 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { SettingServiceService } from '../../services/setting-service.service';
 import { validateMinPasswordLength } from '../../utils/validators';
 import { PanelModule } from 'primeng/panel';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ButtonModule } from 'primeng/button';
-import { AlertService } from '../../services/alert.service';
+import { SettingServiceService } from '../../services/setting-service.service';
 import { AuthService } from '../../services/auth.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
   selector: 'app-setting',
@@ -98,7 +97,7 @@ export class SettingComponent implements OnInit {
     if (!this.validate()) return;
 
     this.isSubmitting = true;
-    
+
     this.settingService.putSetting(
       this.selfRegister,
       this.defaultUserActivation,

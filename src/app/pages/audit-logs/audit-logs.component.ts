@@ -1,7 +1,6 @@
 import { CommonModule, NgIf } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AuditLogService } from '../../services/audit-log.service';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
@@ -10,11 +9,15 @@ import { PanelModule } from 'primeng/panel';
 import { DatePicker } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputGroupModule } from 'primeng/inputgroup';
+import { DialogModule } from 'primeng/dialog';
+import { AuditLogService } from '../../services/audit-log.service';
 import { AuthService } from '../../services/auth.service';
+import { E_ACTIVITY, E_ADVANCED, E_ALL, E_BROWSER, E_DATE, E_SERVICE, E_USERNAME } from '../../constants/status-enum';
+import { UNABLE_LOAD_DATA_ON_FILTER } from '../../constants/error-message';
 
 @Component({
   selector: 'app-audit-logs',
-  imports: [CommonModule, NgIf, FormsModule, NgxPaginationModule, BadgeModule, ButtonModule, TableModule, PanelModule, DatePicker, InputTextModule, InputGroupModule],
+  imports: [CommonModule, DialogModule, NgIf, FormsModule, NgxPaginationModule, BadgeModule, ButtonModule, TableModule, PanelModule, DatePicker, InputTextModule, InputGroupModule],
   templateUrl: './audit-logs.component.html',
   styleUrl: './audit-logs.component.css'
 })
@@ -24,8 +27,13 @@ export class AuditLogsComponent {
   pageNumber = 1;
   pageSize = 10;
   showAdvancedFilter: boolean = false;
+  visible: boolean = false;
+  selectedActivityLog: any = {};
 
-  // Khai báo rõ ràng kiểu cho filterState
+  showDialog(activityLog: any) {
+    this.selectedActivityLog = activityLog;
+    this.visible = true;
+  }
   filterState: 'all' | 'username' | 'date' | 'activity' | 'browser' | 'service' | 'advanced' = 'all';
 
   username: string = '';
@@ -89,28 +97,26 @@ export class AuditLogsComponent {
     this.loadAuditLog();
   }
 
-  // Xác định trạng thái filter dựa trên các trường đã nhập
   determineFilterState(): void {
     if (this.username && !this.activity && !this.browser && !this.serviceName && this.rangeDates.length === 0) {
-      this.filterState = 'username';
+      this.filterState = E_USERNAME;
     } else if (this.rangeDates.length > 0 && !this.username && !this.activity && !this.browser && !this.serviceName) {
-      this.filterState = 'date';
+      this.filterState = E_DATE;
     } else if (this.activity && !this.username && !this.browser && !this.serviceName && this.rangeDates.length === 0) {
-      this.filterState = 'activity';
+      this.filterState = E_ACTIVITY;
     } else if (this.browser && !this.username && !this.activity && !this.serviceName && this.rangeDates.length === 0) {
-      this.filterState = 'browser';
+      this.filterState = E_BROWSER;
     } else if (this.serviceName && !this.username && !this.activity && !this.browser && this.rangeDates.length === 0) {
-      this.filterState = 'service';
+      this.filterState = E_SERVICE;
     } else if (this.username || this.activity || this.browser || this.serviceName || this.rangeDates.length > 0) {
-      this.filterState = 'advanced';
+      this.filterState = E_ADVANCED;
     } else {
-      this.filterState = 'all';
+      this.filterState = E_ALL;
     }
   }
 
-  // Áp dụng filter hiện tại khi chuyển trang hoặc thay đổi kích thước trang
   applyCurrentFilter(): void {
-    if (this.filterState === 'all') {
+    if (this.filterState === E_ALL) {
       this.loadAuditLog();
     } else {
       this.searchActivityLogs(false);
@@ -119,12 +125,8 @@ export class AuditLogsComponent {
 
   searchActivityLogs(resetPage: boolean = true): void {
     if (resetPage) this.pageNumber = 1;
-
-    // Xác định trạng thái filter dựa trên các trường đã nhập
     this.determineFilterState();
-
-    // Nếu không có điều kiện filter nào, quay lại tải tất cả dữ liệu
-    if (this.filterState === 'all') {
+    if (this.filterState === E_ALL) {
       this.loadAuditLog();
       return;
     }
@@ -143,14 +145,12 @@ export class AuditLogsComponent {
       )
       .subscribe(res => {
         if (res.code === 200) {
-          console.log('API request params:', params.startDate);
-
           this.activityLogs = res.result.contents;
           this.totalRecords = res.result.totalRecords;
           this.pageNumber = res.result.pageNumber;
           this.pageSize = res.result.pageSize;
         } else {
-          console.error('Không thể tải dữ liệu theo điều kiện lọc');
+          console.error(UNABLE_LOAD_DATA_ON_FILTER);
         }
       });
   }

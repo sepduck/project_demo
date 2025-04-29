@@ -110,10 +110,15 @@
                     <div class="tab-pane fade show active container" *ngIf="activeTab === 'tab2'">
                         <div class="container mt-4">
                             <div class="card">
-                                <p-tree [value]="permissionTree" selectionMode="checkbox" styleClass="w-full md:w-full"
+                                <!-- <p-tree [value]="permissionTree" selectionMode="checkbox" styleClass="w-full md:w-full"
                                     [(selection)]="selectedPermissions" (onNodeSelect)="nodeSelect($event)"
                                     (onNodeUnselect)="nodeUnselect($event)">
-                                </p-tree>
+                                </p-tree> -->
+
+                                <permission-tree [permissions]="permissions"
+                                    [selectedPermissionIds]="newRole.permissions"
+                                    (permissionsChange)="onPermissionsChange($event)">
+                                </permission-tree>
                             </div>
                         </div>
                     </div>

@@ -9,33 +9,6 @@
     color: #99A1B7;
 }
 
-.custom-btn {
-    background-color: #F1F1F4 !important;
-    color: #333;
-    font-size: 14.5px;
-    font-weight: 600;
-}
-
-.custom-btn-act {
-    background-color: #1B84FF !important;
-    color: #fff;
-    font-size: 14.5px;
-    font-weight: 600;
-    border: none;
-}
-
-.custom-btn-excel {
-    color: #17c653;
-    font-size: 14.5px;
-    font-weight: 600;
-    border: 1px solid #17c653;
-}
-
-.color-search {
-    color: #1B84FF;
-}
-
-
 /* Match original color scheme if needed */
 .custom-header {
     font-weight: bold;
@@ -49,4 +22,31 @@
 
 :host ::ng-deep .w-max button {
     width: 100%;
+}
+
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+:host ::ng-deep .p-datatable-table th,
+:host ::ng-deep .p-datatable-table td {
+    white-space: nowrap;
+}
+
+:host ::ng-deep .custom-avatar-fit img {
+    object-fit: cover !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Tùy chỉnh menu items */
+:host ::ng-deep .p-menu .p-menuitem-link {
+    padding: 0.75rem 1rem;
+}
+
+.excel-operations-container {
+    display: inline-block;
 }

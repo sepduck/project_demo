@@ -5,15 +5,24 @@
             <p class="header-description">Quản lý tài khoản người dùng và phân quyền.</p>
         </div>
         <div class="d-flex align-items-center gap-2">
+            <div class="excel-operations-container">
+                <p-button severity="success" (click)="menu.toggle($event)" styleClass="white-text-button">
+                    <ng-template pTemplate="content">
+                        <i class="pi pi-file-excel" style="color: black;"></i>
+                        <span style="font-weight: 600;">Excel operations</span>
+                    </ng-template>
+                </p-button>
+
+                <p-menu #menu [model]="excelOperations" [popup]="true"></p-menu>
+            </div>
             <p-button label="Tạo tài khoản người dùng mới" [raised]="true" severity="info" icon="pi pi-plus"
                 *ngIf="authService.hasPermission('mgmt.user.create')" (onClick)="goToCreate()" />
         </div>
     </div>
     <p-panel styleClass="mt-3 mb-5">
         <p-inputGroup>
-            <input pInputText placeholder="Tìm kiếm ..." class="w-100" (keyup.enter)="searchUserByName()"
-                [(ngModel)]="name" type="search" />
-            <p-button label="Search" severity="info" (click)="searchUserByName()"></p-button>
+            <input pInputText placeholder="Tìm kiếm ..." class="w-100" [(ngModel)]="name" type="search" />
+            <p-button label="Search" severity="info" (click)="searchUsers()"></p-button>
         </p-inputGroup>
 
         <div *ngIf="showAdvancedFilter" class="mt-4">
@@ -26,17 +35,14 @@
                             [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }"
                             [draggable]="false" [resizable]="false">
                             <div class="card">
-                                <p-tree [value]="permissionTree" selectionMode="checkbox" styleClass="w-full md:w-full"
-                                    [(selection)]="selectedPermissions">
-                                </p-tree>
+                                <permission-tree [permissions]="permissions"
+                                    [selectedPermissionIds]="selectedPermissionIds"
+                                    (permissionsChange)="onPermissionsChange($event)">
+                                </permission-tree>
                             </div>
                             <ng-template pTemplate="footer">
-
                                 <div class="flex justify-content-end gap-2">
-                                    <p-button label="Hủy" icon="pi pi-times" styleClass="p-button-text"
-                                        (click)="visible = false"></p-button>
-                                    <p-button label="Áp dụng" icon="pi pi-check"
-                                        (click)="applyPermissionFilter()"></p-button>
+                                    <p-button label="Áp dụng" icon="pi pi-check" (click)="visible = false"></p-button>
                                 </div>
                             </ng-template>
                         </p-dialog>
@@ -46,8 +52,6 @@
                     <p-inputGroup>
                         <p-select [options]="rolesSelect" [(ngModel)]="selectedRoleId" optionLabel="name"
                             optionValue="id" placeholder="Select a role" class="w-100 md:w-50" />
-                        <p-button label="Lọc" icon="bi bi-filter" severity="info"
-                            (click)="filterUserByRole()"></p-button>
                     </p-inputGroup>
                 </div>
             </div>
@@ -60,13 +64,14 @@
             {{ showAdvancedFilter ? 'Ẩn bộ lọc nâng cao' : 'Hiển thị bộ lọc nâng cao' }}
         </button>
 
-        <div class="card mt-2">
+        <div class="card mt-2 table-container">
             <p-table [value]="users" [paginator]="true" [rows]="pageSize" [first]="(pageNumber - 1) * pageSize"
                 [totalRecords]="totalRecords" [lazy]="true" (onLazyLoad)="onPageChange($event)"
                 [rowsPerPageOptions]="[5, 10, 25, 50, 100, 250, 500]">
                 <ng-template pTemplate="header">
                     <tr>
                         <th style="width: 170px;" class="text-center">Hoạt động</th>
+                        <th class="text-center">Ảnh</th>
                         <th>Tên truy cập</th>
                         <th>Tên</th>
                         <th>Họ</th>
@@ -108,6 +113,13 @@
                                 </div>
                             </ng-template>
                         </td>
+                        <td class="text-center">
+                            <p-avatar *ngIf="user.thumbnail; else defaultAvatar" [image]="baseImageUrl + user.thumbnail"
+                                class="mr-2 custom-avatar-fit" size="large" shape="circle" />
+                            <ng-template #defaultAvatar>
+                                <p-avatar icon="pi pi-user" class="mr-2" size="large" shape="circle" />
+                            </ng-template>
+                        </td>
                         <td>{{user.username}}</td>
                         <td>{{user.lastName}}</td>
                         <td>{{user.firstName}}</td>
@@ -129,3 +141,71 @@
         </div>
     </p-panel>
 </div>
+
+<!-- Dialog Import -->
+<p-dialog header="Nhập dữ liệu người dùng từ Excel" [(visible)]="importDialogVisible" [modal]="true"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }" [draggable]="false"
+    [resizable]="false">
+
+    <div class="card">
+        <div *ngIf="!showImportPreview" class="p-3">
+            <div class="mb-3">
+                <i class="text-muted">File phải đúng định dạng như tệp mẫu. Có thể tải tệp mẫu từ menu "Download tệp
+                    nhập mẫu".</i>
+                <div class="mt-3">
+                    <input type="file" class="form-control" accept=".xlsx, .xls" (change)="onFileSelected($event)" />
+                </div>
+
+            </div>
+        </div>
+
+        <div *ngIf="showImportPreview" class="p-3">
+            <h5>Xem trước dữ liệu ({{importData.length}} bản ghi)</h5>
+
+            <div class="table-responsive mt-3" style="max-height: 300px; overflow-y: auto;">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Tên</th>
+                            <th>Họ</th>
+                            <th>Tên đăng nhập</th>
+                            <th>Email</th>
+                            <th>Số điện thoại</th>
+                            <th>Vai trò</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let user of importData.slice(0, 5)">
+                            <td>{{user.firstName}}</td>
+                            <td>{{user.lastName}}</td>
+                            <td>{{user.username}}</td>
+                            <td>{{user.email}}</td>
+                            <td>{{user.phoneNumber}}</td>
+                            <td>{{user.role}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p *ngIf="importData.length > 5" class="text-muted">Hiển thị 5 bản ghi đầu tiên...</p>
+            </div>
+
+            <div *ngIf="importProgress > 0" class="mt-3">
+                <p>Tiến trình import: {{processedItems}}/{{totalImportItems}}</p>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+                        [style.width.%]="importProgress">
+                        {{importProgress}}%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <p-button label="Hủy" icon="pi pi-times" severity="secondary"
+                (click)="cancelImport(); importDialogVisible = false"></p-button>
+            <p-button *ngIf="showImportPreview" label="Import" icon="pi pi-check" severity="success"
+                (click)="importUsers()"></p-button>
+        </div>
+    </ng-template>
+</p-dialog>

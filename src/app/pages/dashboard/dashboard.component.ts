@@ -8,8 +8,8 @@ import Chart, {
   Tooltip,
   ArcElement
 } from 'chart.js/auto';
-import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
 
 // Đăng ký các thành phần cần thiết
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend, ArcElement);

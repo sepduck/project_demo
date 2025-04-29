@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../../../services/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SettingServiceService } from '../../../services/setting-service.service';
 import { FormInputComponent } from "../../../components/common/form-input/form-input.component";
 import { AccountFormComponent } from '../../../components/account-form/account-form.component';
 import { validateEmail, validateFirstName, validateLastName, validatePassword, validateUsername } from '../../../utils/validators';
-import { AlertService } from '../../../services/alert.service';
 import { ButtonModule } from 'primeng/button';
+import { EMAIL_VALIDATION, LOGIN } from '../../../constants/path-valiable';
+import { AuthService } from '../../../services/auth.service';
+import { SettingServiceService } from '../../../services/setting-service.service';
+import { AlertService } from '../../../services/alert.service';
 
 @Component({
   selector: 'app-register',
@@ -64,7 +65,7 @@ export class RegisterComponent implements OnInit {
   }
 
   goToLogin() {
-    this.router.navigate(['/account/login']);
+    this.router.navigate([LOGIN]);
   }
 
   validate(): boolean {
@@ -126,17 +127,21 @@ export class RegisterComponent implements OnInit {
     this.authService.register(this.firstName, this.lastName, this.email, this.username, this.password).subscribe({
       next: (res: { code: number, message: string }) => {
         if (res.code === 200) {
-          this.alertService.success("Đăng ký thành công! Hãy đăng nhập")
-          this.router.navigate([`/account/email-validation/${this.email}`]);
+          this.alertService.success(res?.message)
+          this.router.navigate([EMAIL_VALIDATION(this.email)]);
         } else if (res.code === 4001) {
-          this.errors.email = "Email đã tồn tại!"
+          this.errors.email = res.message
         } else if (res.code === 4002) {
-          this.errors.username = "Tên người dùng đã tồn tại!"
+          this.errors.username = res.message
         } else if (res.code === 4011) {
-          this.errors.username = "Bạn chưa thể tạo tài khoản lúc này. Hãy liên hệ Professor Duck"
+          this.errorMessage = res.message
         } else if (res.code === 400) {
           this.errors.password = res.message;
+        } else {
+          console.log(res.message);
+
         }
+        this.isSubmitting = false
       },
       error: (error: any) => {
         this.isSubmitting = false

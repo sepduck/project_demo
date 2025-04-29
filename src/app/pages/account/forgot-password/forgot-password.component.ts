@@ -3,8 +3,10 @@ import { AccountFormComponent } from '../../../components/account-form/account-f
 import { FormInputComponent } from '../../../components/common/form-input/form-input.component';
 import { FormButtonComponent } from '../../../components/common/form-button/form-button.component';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../services/auth.service';
 import { validateEmail } from '../../../utils/validators';
+import { EMAIL_VALIDATION, LOGIN } from '../../../constants/path-valiable';
+import { AuthService } from '../../../services/auth.service';
+import { AUTHENTICATION_FAILED } from '../../../constants/error-message';
 
 @Component({
   selector: 'app-forgot-password',
@@ -20,7 +22,7 @@ export class ForgotPasswordComponent {
     email?: string
   } = {}
   goToLogin() {
-    this.router.navigate(['/account/login']);
+    this.router.navigate([LOGIN]);
   }
   validate(): boolean {
     this.errors = {}
@@ -36,13 +38,13 @@ export class ForgotPasswordComponent {
     this.authService.forgotPassword(this.email).subscribe({
       next: (res) => {
         if (res.code === 200) {
-          this.router.navigate([`/account/email-validation/${this.email}`]);
+          this.router.navigate([EMAIL_VALIDATION(this.email)]);
         } else {
           this.errors.email = res.message;
         }
       },
       error: (error) => {
-        alert("Xác thực thất bại!");
+        alert(AUTHENTICATION_FAILED);
       }
     });
   }

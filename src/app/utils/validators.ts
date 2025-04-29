@@ -47,6 +47,11 @@ export function validateConfirmPassword(password: string, confirmPassword: strin
     return null;
 }
 
+export function validatePasswordCreateUser(password: string, isRandomPassword: boolean): string | null {
+    if (!isRandomPassword && !password.trim()) return 'Mật khẩu không được để trống';
+    return null;
+}
+
 export function validateRoleName(name: string): string | null {
     if (!name.trim()) return 'Tên vai trò không được để trống';
     return null;
@@ -54,5 +59,10 @@ export function validateRoleName(name: string): string | null {
 
 export function validateTokenEmail(token: string): string | null {
     if (!token.trim()) return 'Mã xác thực không được để trống';
+    return null;
+}
+
+export function validateRole(roles: number[]): string | null {
+    if (roles.length === 0) return 'Vui lòng chọn ít nhất một vai trò';
     return null;
 }

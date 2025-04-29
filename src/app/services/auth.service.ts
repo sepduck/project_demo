@@ -1,41 +1,30 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { AuthUtils } from '../utils/api/auth-utils';
+import { API_V1_AUTH_LOGIN, API_V1_AUTH_CREATE_NEW_PASSWORD, API_V1_AUTH_FORGOT_PASSWORD, API_V1_AUTH_LOGOUT, API_V1_AUTH_REFRESH_TOKEN, API_V1_AUTH_REGISTER } from '../constants/api-endpoints';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:5293/api/v1/auth/login';
-  private apiUrlLogout = 'http://localhost:5293/api/v1/auth/logout';
-  private apiRefreshToken = 'http://localhost:5293/api/v1/auth/refresh-token'
-  private apiForgotPassword = 'http://localhost:5293/api/v1/auth/forgot-password'
-  private apiCreateNewPassword = 'http://localhost:5293/api/v1/auth/create-new-password'
-
   constructor(private http: HttpClient) { this.loadUserFromToken() }
 
   login(email: string, password: string): Observable<any> {
-    return this.http.post<any>(this.apiUrl, { email, password });
+    return this.http.post<any>(API_V1_AUTH_LOGIN, { email, password });
   }
 
-  saveToken(token: string) {
-    localStorage.setItem('jwtToken', token);
-  }
-
-  getToken(): string | null {
-    return localStorage.getItem('jwtToken');
-  }
+  saveToken(token: string) { localStorage.setItem('jwtToken', token) }
+  getToken(): string | null { return localStorage.getItem('jwtToken') }
 
   logout() {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.post(this.apiUrlLogout, {}, { headers })
+    const headers = AuthUtils.getAuthHeaders();
+    return this.http.post(API_V1_AUTH_LOGOUT, {}, { headers })
   }
 
   register(firstName: string, lastName: string, email: string, username: string, password: string) {
     return this.http.post<{ code: number, message: string }>(
-      'http://localhost:5293/api/v1/auth/register',
-      { firstName, lastName, email, username, password }
+      API_V1_AUTH_REGISTER, { firstName, lastName, email, username, password }
     )
   }
 
@@ -71,6 +60,9 @@ export class AuthService {
     if (user?.permission && Array.isArray(user.permission)) {
       return user.permission.map((p: string) => p.trim()).includes(permission.trim());
     }
+    if (user?.permission && typeof user.permission === 'string') {
+      return user.permission.trim() === permission.trim();
+    }
     return false;
   }
 
@@ -88,20 +80,20 @@ export class AuthService {
     return !!this.getToken();
   }
 
-  refreshToken():Observable<any> {
+  refreshToken(): Observable<any> {
     const refreshToken = localStorage.getItem('jwtToken');
-    return this.http.post<{code: number, message: string}>(this.apiRefreshToken, {token: refreshToken})
+    return this.http.post<{ code: number, message: string }>(API_V1_AUTH_REFRESH_TOKEN, { token: refreshToken })
   }
 
   forgotPassword(email: string) {
     return this.http.post<{ code: number, message: string }>(
-      `${this.apiForgotPassword}`, { email }
+      API_V1_AUTH_FORGOT_PASSWORD, { email }
     )
   }
 
   createNewPassword(email: string, password: string) {
     return this.http.post<{ code: number, message: string }>(
-      `${this.apiCreateNewPassword}`, { email, password }
+      API_V1_AUTH_CREATE_NEW_PASSWORD, { email, password }
     )
   }
 }

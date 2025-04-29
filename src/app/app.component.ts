@@ -1,8 +1,8 @@
 import { HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { SettingServiceService } from './services/setting-service.service';
 import { ToastModule } from 'primeng/toast';
+import { SettingServiceService } from './services/setting-service.service';
 
 @Component({
   selector: 'app-root',

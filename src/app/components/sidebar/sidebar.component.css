@@ -7,13 +7,52 @@
     min-height: 100vh;
     height: 100%;
     transition: width 0.3s;
+    position: relative;
 }
 
 .collapsed .sidebar {
     width: 80px;
 }
 
-.collapsed .sidebar h5,
-.collapsed .nav-link {
+.sidebar .toggle-btn {
+    position: absolute;
+    top: 4%;
+    left: 92%;
+    transform: translateY(-50%);
+    z-index: 100;
+}
+
+/* Ẩn phần text trong chế độ thu gọn */
+.collapsed .sidebar .nav-link span,
+.collapsed .sidebar .nav-link i.bi-chevron-down,
+.collapsed .sidebar .nav-link i.bi-chevron-up {
     display: none;
+}
+
+/* Định dạng cho tất cả các liên kết trong chế độ thu gọn */
+.collapsed .sidebar .nav-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem;
+    text-align: center;
+}
+
+/* Đảm bảo tất cả các icon có kích thước và căn chỉnh đồng nhất */
+.collapsed .sidebar .bi {
+    font-size: 1.25rem;
+    margin: 0 !important;
+}
+
+/* Xóa margin cho submenu */
+.collapsed .sidebar ul.ms-3 {
+    margin-left: 0 !important;
+    padding-left: 0;
+}
+
+/* Điều chỉnh căn chỉnh cho thẻ div bọc icon và text */
+.collapsed .sidebar .nav-link div {
+    display: flex;
+    justify-content: center;
+    width: 100%;
 }

@@ -54,3 +54,24 @@ th {
 :host ::ng-deep .w-max button {
     width: 100%;
 }
+
+.detail-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.detail-row {
+    display: flex;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.detail-label {
+    flex: 0 0 250px;
+}
+
+.detail-value {
+    flex: 1;
+}

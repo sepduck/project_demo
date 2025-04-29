@@ -1,13 +1,11 @@
 import { InputGroupModule } from 'primeng/inputgroup';
 import { CommonModule, NgIf } from '@angular/common';
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { UserService } from '../../services/user.service';
-import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 import { LoginResult } from '../account/login/login.component';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { PaginatorModule } from 'primeng/paginator'; // 
+import { PaginatorModule } from 'primeng/paginator';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
@@ -18,19 +16,24 @@ import { PanelModule } from 'primeng/panel';
 import { MenuModule } from 'primeng/menu';
 import { DialogModule } from 'primeng/dialog';
 import { TreeModule } from 'primeng/tree';
-import { TreeNode } from 'primeng/api';
+import { PermissionTreeComponent } from '../../components/permission-tree/permission-tree.component';
+import { MenuItem } from 'primeng/api';
+import * as XLSX from 'xlsx';
+import { AvatarModule } from 'primeng/avatar';
+import { DASHBOARD, USERS_CREATE, USERS_ID } from '../../constants/path-valiable';
+import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 import { RoleService } from '../../services/role.service';
 import { AlertService } from '../../services/alert.service';
 
-
 @Component({
   selector: 'app-user',
-  imports: [CommonModule, NgIf, FormsModule, DialogModule, TreeModule, NgxPaginationModule, MenuModule, DropdownModule, PanelModule, SelectModule, PaginatorModule, InputGroupAddonModule, TableModule, ButtonModule, BadgeModule, InputGroupModule],
+  imports: [PermissionTreeComponent, AvatarModule, CommonModule, NgIf, FormsModule, DialogModule, TreeModule, NgxPaginationModule, MenuModule, DropdownModule, PanelModule, SelectModule, PaginatorModule, InputGroupAddonModule, TableModule, ButtonModule, BadgeModule, InputGroupModule],
   templateUrl: './user.component.html',
   styleUrl: './user.component.css'
 })
 export class UserComponent {
-
+  // Khởi tạo
   users: any[] = [];
   rolesSelect: any[] = [];
   totalRecords = 0;
@@ -38,7 +41,9 @@ export class UserComponent {
   pageSize = 10;
   activeTab: string = 'tab1';
   showAdvancedFilter: boolean = false;
+  errorMessage: string = '';
 
+  // Form Variables
   firstName: string = '';
   lastName: string = '';
   email: string = '';
@@ -48,60 +53,64 @@ export class UserComponent {
   verifyToken: boolean = false;
   thumbnail: string = '';
   isRandomPassword: boolean = false;
-  errorMessage: string = '';
   isPasswordVisible: boolean = false;
-  roles: any[] = [];
-  previewImageUrl: string | ArrayBuffer | null = null;
-  permissionTree: TreeNode[] = [];
-  selectedPermissions: TreeNode[] = [];
 
+  baseImageUrl: string = 'http://localhost:5293/api/v1/images/view/';
+
+  // Permissions and Roles
+  roles: any[] = [];
+  permissions: any[] = [];
+  selectedPermissionIds: number[] = [];
+
+  // Search and Filter
   name: string = '';
   selectedRoleId: number = 0;
   filterState: 'all' | 'search' | 'role' | 'permissions' = 'all'
-  permissions: any[] = [];
 
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-
+  // Dialog visibility
   visible: boolean = false;
-
-  showDialog() {
-    this.visible = true;
-  }
-
+  items: MenuItem[] | undefined;
+  excelOperations: MenuItem[] = [];
   constructor(private userService: UserService, private router: Router, public authService: AuthService, private roleService: RoleService, private alertService: AlertService) { }
 
-  onPageChange(event: any) {
-    this.pageNumber = Math.floor((event.first || 0) / (event.rows || 10)) + 1;
-    this.pageSize = event.rows || 10;
-
-    if (this.filterState === 'search' && this.name) {
-      this.searchUserByName(false); // Truyền false để ngăn reset về trang 1
-    } else if (this.filterState === 'role' && this.selectedRoleId) {
-      this.filterUserByRole(false); // Truyền false để ngăn reset về trang 1
-    } else if (this.filterState === 'permissions' && this.selectedPermissionIds.length > 0) {
-      this.filterUserByPermissions(false); // Truyền false để ngăn reset về trang 1
-    } else {
-      this.loadUser();
-    }
-  }
-  // Add a computed property for totalPages
-  get totalPages(): number {
-    return Math.ceil(this.totalRecords / this.pageSize);
-  }
   ngOnInit(): void {
     this.loadUser();
     this.loadRolesSelect();
     this.loadPermissions();
+    this.setupExcelOperations()
 
   }
 
-  setActiveTab(tab: string): void {
-    this.activeTab = tab;
+  setupExcelOperations(): void {
+    this.excelOperations = [
+      {
+        label: 'Xuất sang Excel',
+        icon: 'bi bi-download',
+        command: () => this.exportToExcel(),
+        visible: this.authService.hasPermission('mgmt.user')
+      },
+      {
+        label: 'Nhập từ Excel',
+        icon: 'pi pi-sign-in',
+        command: () => this.showImportDialog(),
+        visible: this.authService.hasPermission('mgmt.user.create')
+      },
+      {
+        label: 'Download tệp nhập mẫu',
+        icon: 'bi bi-file-arrow-down',
+        command: () => this.downloadTemplateFile(),
+        visible: this.authService.hasPermission('mgmt.user.create')
+      }
+    ];
   }
 
-  toggleAdvancedFilter(): void {
-    this.showAdvancedFilter = !this.showAdvancedFilter;
+  importDialogVisible: boolean = false;
+
+  showImportDialog(): void {
+    this.importDialogVisible = true;
   }
+
+  get totalPages(): number { return Math.ceil(this.totalRecords / this.pageSize); }
 
   loadUser(): void {
     this.userService.getUsers(this.pageNumber, this.pageSize).subscribe(res => {
@@ -115,79 +124,61 @@ export class UserComponent {
       }
     });
   }
-  searchUserByName(resetPage: boolean = true): void {
-    if (resetPage) {
-      this.pageNumber = 1;
-    }
-    this.filterState = 'search';
-    if (!this.name || this.name.trim() === '') {
-      this.filterState = 'all';
-      this.loadUser();
-      return;
-    }
-    this.userService.searchUserByName(this.name, this.pageNumber, this.pageSize).subscribe(res => {
-      if (res.code === 200) {
-        this.users = res.result.contents;
-        this.totalRecords = res.result.totalRecords;
-        this.pageNumber = res.result.pageNumber;
-        this.pageSize = res.result.pageSize;
-      } else {
-        this.errorMessage = 'Không thể tải dữ liệu người dùng';
-      }
-    });
-  }
 
-  filterUserByRole(resetPage: boolean = true): void {
+  searchUsers(resetPage: boolean = true): void {
     if (resetPage) {
       this.pageNumber = 1;
     }
 
-    this.filterState = 'role';
-
-    if (this.selectedRoleId === null) {
+    if (this.selectedPermissionIds && this.selectedPermissionIds.length > 0) {
+      this.filterState = 'permissions';
+    } else if (this.selectedRoleId && this.selectedRoleId > 0) {
+      this.filterState = 'role';
+    } else if (this.name && this.name.trim() !== '') {
+      this.filterState = 'search';
+    } else {
+      // If nothing is specified, load all users
       this.filterState = 'all';
       this.loadUser();
       return;
     }
 
-    this.userService.filterByRole(this.selectedRoleId, this.pageNumber, this.pageSize).subscribe(res => {
-      if (res.code === 200) {
-        this.users = res.result.contents;
-        this.totalRecords = res.result.totalRecords;
-        this.pageNumber = res.result.pageNumber;
-        this.pageSize = res.result.pageSize;
-      } else {
-        this.errorMessage = 'Không thể tải dữ liệu người dùng';
+    const permissionIds = this.selectedPermissionIds ? [...this.selectedPermissionIds] : [];
+
+    this.userService.searchUser(
+      permissionIds,
+      this.name || '',
+      this.selectedRoleId || 0,
+      this.pageNumber,
+      this.pageSize
+    ).subscribe({
+      next: (res) => {
+        if (res.code === 200) {
+          this.users = res.result.contents;
+          this.totalRecords = res.result.totalRecords;
+          this.pageNumber = res.result.pageNumber;
+          this.pageSize = res.result.pageSize;
+        } else {
+          this.errorMessage = 'Không thể tìm kiếm người dùng';
+          this.alertService.error(res.message || 'Lỗi không xác định khi tìm kiếm người dùng');
+        }
+      },
+      error: (err) => {
+        this.errorMessage = 'Lỗi kết nối khi tìm kiếm người dùng';
+        this.alertService.error("Không thể tìm kiếm người dùng. Vui lòng thử lại sau.");
+      },
+      complete: () => {
       }
     });
   }
-  onPageSizeChange(event: any): void {
-    this.pageSize = parseInt(event.target.value, 10);
-    this.pageNumber = 1; // Reset về trang đầu tiên
-    this.loadUser();
-  }
-  loadRolesSelect(): void {
-    this.userService.getRolesSelect().subscribe(res => {
-      if (res.code === 200) {
-        this.rolesSelect = res.result;
-      }
-    });
-  }
-
-  goToUpdate(id: string): void {
-    this.router.navigate(['/app/admin/users/', id]);
-  }
-  goToCreate(): void {
-    this.router.navigate(['/app/admin/user/create']);
-  }
-
-
   deleteUser(userId: number): void {
     this.userService.deleteUser(userId).subscribe({
       next: (res) => {
         if (res.code === 200) {
           this.loadUser();
           this.alertService.success("Xoá người dùng thành công!")
+        } else if (res.code === 4022) {
+          this.alertService.error(res.message)
         }
         this.errorMessage = 'Xóa người dùng thất bại';
       },
@@ -203,7 +194,7 @@ export class UserComponent {
       next: (res: { code: number, message: string, result?: LoginResult }) => {
         if (res.code === 200 && res.result) {
           this.authService.saveToken(res.result.token);
-          this.router.navigate(['/app/admin/dashBoard']).then(() => window.location.reload())
+          this.router.navigate([DASHBOARD]).then(() => window.location.reload())
         } else if (res.code === 4014) {
           this.alertService.error("Tài khoản chưa được kích hoạt")
         } else if (res.code === 4009) {
@@ -217,282 +208,253 @@ export class UserComponent {
     });
   }
 
+  onPageChange(event: any) {
+    this.pageNumber = Math.floor((event.first || 0) / (event.rows || 10)) + 1;
+    this.pageSize = event.rows || 10;
+
+    if (this.filterState === 'search' && this.name) {
+      this.searchUsers(false);
+    } else {
+      this.loadUser();
+    }
+  }
+
+  onPageSizeChange(event: any): void {
+    this.pageSize = parseInt(event.target.value, 10);
+    this.pageNumber = 1;
+    this.loadUser();
+  }
+
   refreshData(): void {
     this.name = '';
     this.selectedRoleId = 0;
-    this.selectedPermissions = [];
     this.selectedPermissionIds = [];
     this.filterState = 'all';
     this.pageNumber = 1;
     this.loadUser();
   }
 
-  // ---------------------------------------------------------------------------------------------------------------------
-  selectedPermissionIds: number[] = [];
-
-  // Phương thức khởi tạo cây permission từ danh sách phẳng
-  initPermissionTree(permissions: any[]): TreeNode[] {
-    const root: TreeNode[] = [];
-    const map: { [key: string]: TreeNode } = {};
-
-    // Xử lý từng permission
-    permissions.forEach(perm => {
-      // Tách slug để tạo cấu trúc cây
-      const parts = perm.slug.split('.');
-      let currentLevel = root;
-      let currentPath = '';
-
-      // Xử lý từng phần của slug để tạo cây
-      parts.forEach((part: string, index: number) => {
-        const isLast = index === parts.length - 1;
-        currentPath += (index > 0 ? '.' : '') + part;
-
-        // Tìm hoặc tạo node cho phần hiện tại
-        const existingNode = currentLevel.find(node => node.key === currentPath);
-
-        if (existingNode) {
-          // Nếu node đã tồn tại, cập nhật nó
-          if (isLast) {
-            existingNode.data = perm; // Gán dữ liệu permission cho node cuối cùng
-          }
-          currentLevel = existingNode.children || [];
-        } else {
-          // Tạo node mới
-          const newNode: TreeNode = {
-            key: currentPath,
-            label: part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, ' '),
-            children: [],
-            data: isLast ? perm : null, // Chỉ gán dữ liệu nếu là node cuối
-            selectable: isLast // Chỉ cho phép chọn node cuối
-          };
-
-          currentLevel.push(newNode);
-          map[currentPath] = newNode;
-          currentLevel = newNode.children as TreeNode[];
-        }
-      });
+  loadRolesSelect(): void {
+    this.userService.getRolesSelect().subscribe(res => {
+      if (res.code === 200) {
+        this.rolesSelect = res.result;
+      }
     });
-
-    return root;
   }
 
-  // Phương thức để lấy permission từ API và chuyển thành cây
   loadPermissions(): void {
     this.roleService.getPermissions().subscribe(res => {
       if (res.result && Array.isArray(res.result)) {
         this.permissions = res.result;
-        this.permissionTree = this.buildPrimeNGTree(res.result);
-        console.log("PrimeNG Tree:", this.permissionTree);
       } else {
-        console.error("Invalid response format:", res.result);
         this.permissions = [];
-        this.permissionTree = [];
       }
     });
   }
 
-  // Trong file user.component.ts, chỉnh sửa phương thức buildPrimeNGTree:
-  buildPrimeNGTree(data: any[]): TreeNode[] {
-    let tree: TreeNode[] = [];
+  setActiveTab(tab: string): void { this.activeTab = tab }
+  showDialog() { this.visible = true }
+  toggleAdvancedFilter(): void { this.showAdvancedFilter = !this.showAdvancedFilter }
+  goToUpdate(id: string): void { this.router.navigate([USERS_ID(id)]) }
+  goToCreate(): void { this.router.navigate([USERS_CREATE]) }
+  onPermissionsChange(permissions: number[]): void { this.selectedPermissionIds = [...permissions] }
 
-    // Tạo map để lưu trữ các node dựa trên path
-    const nodeMap = new Map<string, TreeNode>();
 
-    data.forEach(item => {
-      let parts: string[] = item.name.split(".");
-      let slug: string = item.slug ? item.slug.trim() : "";
-      let id: number = item.id;
-      let path = '';
 
-      for (let i = 0; i < parts.length; i++) {
-        const part = parts[i];
-        const currentPath = path ? `${path}.${part}` : part;
+  exportToExcel(): void {
+    this.userService.getUsers(1, 1000).subscribe({
+      next: (res) => {
+        if (res.code === 200) {
+          const users = res.result.contents;
 
-        if (!nodeMap.has(currentPath)) {
-          const isLeaf = i === parts.length - 1;
-          const newNode: TreeNode = {
-            key: isLeaf ? id.toString() : currentPath,
-            label: part,
-            data: {
-              id: isLeaf ? id : null,
-              slug: isLeaf ? slug : "",
-              fullPath: currentPath,
-              isParent: !isLeaf || slug === ""
-            },
-            // Parent nodes are selectable but will trigger special handling
-            selectable: true,
-            leaf: isLeaf && slug !== "",
-            children: []
-          };
+          const exportData = users.map(user => ({
+            'Tên người dùng': user.username,
+            'Họ': user.lastName,
+            'Tên': user.firstName,
+            'Email': user.email,
+            'Vai trò': user.role,
+            'Đã xác thực': user.verifyToken ? 'Có' : 'Không',
+            'Hoạt động': user.isAction ? 'Có' : 'Không',
+            'Ngày tạo': new Date(user.createdAt).toLocaleDateString('vi-VN', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })
+          }));
 
-          if (path === '') {
-            // Nút gốc
-            tree.push(newNode);
-          } else {
-            // Nút con
-            const parentNode = nodeMap.get(path);
-            if (parentNode && parentNode.children) {
-              parentNode.children.push(newNode);
+          const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+          const range = XLSX.utils.decode_range(worksheet['!ref']!);
+          for (let R = range.s.r; R <= range.e.r; ++R) {
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+              const cell_address = { c: C, r: R };
+              const cell_ref = XLSX.utils.encode_cell(cell_address);
+              if (!worksheet[cell_ref]) continue;
+
+              worksheet[cell_ref].s = {
+                alignment: { horizontal: "center", vertical: "center" },
+                font: {
+                  bold: R === 0,
+                }
+              };
             }
           }
 
-          nodeMap.set(currentPath, newNode);
+          // Set độ rộng từng cột (optional)
+          worksheet['!cols'] = [
+            { wch: 20 },
+            { wch: 15 },
+            { wch: 15 },
+            { wch: 30 },
+            { wch: 15 },
+            { wch: 12 },
+            { wch: 12 },
+            { wch: 20 },
+          ];
+
+          const workbook = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+
+          // Xuất file
+          XLSX.writeFile(workbook, 'UserList.xlsx');
+          this.alertService.success('Xuất danh sách người dùng thành công!');
+        } else {
+          this.alertService.error('Không thể xuất dữ liệu người dùng!');
         }
-
-        path = currentPath;
+      },
+      error: (err) => {
+        console.error('Lỗi khi xuất file Excel:', err);
+        this.alertService.error('Không thể xuất dữ liệu người dùng. Vui lòng thử lại sau.');
       }
     });
-
-    return tree;
   }
 
-  // Thêm phương thức để xử lý khi click vào node cha
-  handleParentNodeSelection(event: any): void {
-    const node = event.node;
+  downloadTemplateFile(): void {
+    // Tạo dữ liệu mẫu với headers tiếng Việt
+    const templateData = [{
+      'Tên': 'Văn A',
+      'Họ': 'Nguyễn',
+      'Email': 'nguyenvana@example.com',
+      'Tên đăng nhập': 'nguyenvana',
+      'Mật khẩu': 'password123',
+      'Số điện thoại': '0123456789',
+      'Vai trò': 'user'
+    }];
 
-    // Kiểm tra xem node có phải là node cha không
-    if (node.data && node.data.isParent) {
-      // Nếu là node cha, chọn/bỏ chọn tất cả các node con
-      this.toggleSelectionForAllChildren(node, event.originalEvent.checked);
+    const worksheet = XLSX.utils.json_to_sheet(templateData);
 
-      // Cập nhật lại selectedPermissions
-      this.updateSelectedPermissionIds();
+    const range = XLSX.utils.decode_range(worksheet['!ref']!);
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const cell_address = { c: C, r: 0 };
+      const cell_ref = XLSX.utils.encode_cell(cell_address);
+      if (!worksheet[cell_ref]) continue;
+
+      worksheet[cell_ref].s = {
+        font: { bold: true },
+        alignment: { horizontal: "center" }
+      };
     }
+
+    worksheet['!cols'] = [
+      { wch: 20 },
+      { wch: 15 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 12 }
+    ];
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Template');
+
+    XLSX.writeFile(workbook, 'ImportUsersSampleFile.xlsx');
+    this.alertService.success('Tải xuống tệp mẫu thành công!');
   }
 
-  // Phương thức để đệ quy chọn/bỏ chọn tất cả các node con
-  toggleSelectionForAllChildren(node: TreeNode, select: boolean): void {
-    if (!node.children || node.children.length === 0) return;
+  // Biến để lưu trữ thông tin import
+  importFile: File | null = null;
+  importData: any[] = [];
+  showImportPreview: boolean = false;
+  importProgress: number = 0;
+  totalImportItems: number = 0;
+  processedItems: number = 0;
 
-    node.children.forEach(child => {
-      // Chỉ xử lý nếu node có thể được chọn
-      if (child.selectable) {
-        // Thêm hoặc xóa khỏi selectedPermissions
-        const index = this.selectedPermissions.findIndex(p => p.key === child.key);
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.importFile = file;
+      const reader = new FileReader();
 
-        if (select && index === -1) {
-          // Nếu cần chọn và chưa có trong danh sách
-          this.selectedPermissions.push(child);
-        } else if (!select && index !== -1) {
-          // Nếu cần bỏ chọn và đã có trong danh sách
-          this.selectedPermissions.splice(index, 1);
+      reader.onload = (e: any) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+
+          const excelData = XLSX.utils.sheet_to_json(worksheet);
+
+          this.importData = excelData.map((row: any) => {
+            return {
+              firstName: row['Tên'] || '',
+              lastName: row['Họ'] || '',
+              email: row['Email'] || '',
+              username: row['Tên đăng nhập'] || '',
+              password: row['Mật khẩu'] || '',
+              phoneNumber: row['Số điện thoại'] ? ('0' + row['Số điện thoại'].toString().trim()) : '',
+              role: row['Vai trò'] || ''
+            };
+          });
+
+          this.showImportPreview = true;
+          this.totalImportItems = this.importData.length;
+
+          this.importProgress = 0;
+          this.processedItems = 0;
+
+          this.alertService.success(`Đã đọc ${this.importData.length} bản ghi từ file.`);
+        } catch (error) {
+          console.error('Lỗi khi đọc file Excel:', error);
+          this.alertService.error('Không thể đọc dữ liệu từ file. Vui lòng kiểm tra định dạng file.');
         }
-      }
+      };
 
-      // Đệ quy cho các node con
-      this.toggleSelectionForAllChildren(child, select);
-    });
-  }
-
-  // Sửa lại phương thức extractSelectedPermissionIds để chỉ lấy node lá
-  extractSelectedPermissionIds(nodes: TreeNode[]): number[] {
-    const ids: number[] = [];
-
-    // Đảm bảo nodes không rỗng
-    if (!nodes || !Array.isArray(nodes) || nodes.length === 0) {
-      return ids;
+      reader.readAsArrayBuffer(file);
     }
-
-    // Duyệt qua các node đã chọn
-    nodes.forEach(node => {
-      // Chỉ lấy ID của node lá (không phải parent node)
-      if (node.data && !node.data.isParent && node.data.id && !isNaN(Number(node.data.id))) {
-        ids.push(Number(node.data.id));
-      }
-      // Có thể cũng kiểm tra key nếu cần
-      else if (!node.data?.isParent && node.key && !isNaN(Number(node.key))) {
-        ids.push(Number(node.key));
-      }
-    });
-
-    console.log('Selected Permission IDs (leaf nodes only):', ids);
-    return ids;
   }
-
-  // Phương thức gọi khi chọn hoặc bỏ chọn permission
-  onNodeSelect(event: any): void {
-    this.updateSelectedPermissionIds();
-  }
-
-  onNodeUnselect(event: any): void {
-    this.updateSelectedPermissionIds();
-  }
-
-  // Cập nhật danh sách ID permission đã chọn
-  updateSelectedPermissionIds(): void {
-    this.selectedPermissionIds = this.extractSelectedPermissionIds(this.selectedPermissions);
-  }
-
-  // Trích xuất ID từ các node đã chọn
-  // extractSelectedPermissionIds(nodes: TreeNode[]): number[] {
-  //   const ids: number[] = [];
-
-  //   const extractIds = (nodes: TreeNode[]) => {
-  //     if (!nodes) return;
-
-  //     nodes.forEach(node => {
-  //       if (node.data && node.data.id) {
-  //         ids.push(node.data.id);
-  //       }
-  //       if (node.children) {
-  //         extractIds(node.children);
-  //       }
-  //     });
-  //   };
-
-  //   extractIds(nodes);
-  //   return ids;
-  // }
-
-  applyPermissionFilter(): void {
-    this.visible = false;
-
-    // Cập nhật lại selectedPermissionIds từ selectedPermissions
-    this.updateSelectedPermissionIds();
-
-    // Gọi filterUserByPermissions bất kể có permissions được chọn hay không
-    this.filterUserByPermissions(true);
-  }
-  // Điều chỉnh phương thức filterUserByPermissions trong UserComponent
-  filterUserByPermissions(resetPage: boolean = true): void {
-    if (resetPage) {
-      this.pageNumber = 1;
-    }
-
-    this.filterState = 'permissions';
-
-    // Kiểm tra nếu không có quyền nào được chọn
-    if (this.selectedPermissionIds.length === 0) {
-      this.filterState = 'all';
-      this.loadUser();
+  importUsers(): void {
+    if (this.importData.length === 0) {
+      this.alertService.error('Không có dữ liệu để import.');
       return;
     }
 
-    // Hiển thị loading hoặc thông báo nếu cần
-
-    this.userService.filterByPermissions(this.selectedPermissionIds, this.pageNumber, this.pageSize)
-      .subscribe({
-        next: (res) => {
-          if (res.code === 200) {
-            console.log(this.selectedPermissionIds);
-
-            this.users = res.result.contents;
-            this.totalRecords = res.result.totalRecords;
-            this.pageNumber = res.result.pageNumber;
-            this.pageSize = res.result.pageSize;
-          } else {
-            this.errorMessage = 'Không thể lọc người dùng theo quyền';
-            console.error('Lỗi: ', res.message || 'Không xác định');
-          }
-        },
-        error: (err) => {
-          console.error('Lỗi khi lọc người dùng theo quyền:', err);
-          this.errorMessage = 'Lỗi kết nối khi lọc người dùng theo quyền';
-          // Có thể hiển thị thông báo lỗi
-        },
-        complete: () => {
-          // Xử lý khi hoàn thành (tắt loading nếu cần)
+    // Không cần ánh xạ lại vì đã được xử lý trong onFileSelected
+    this.userService.createUsers(this.importData).subscribe({
+      next: (res) => {
+        if (res.code === 200) {
+          this.alertService.success(`Đã import ${this.importData.length} người dùng thành công.`);
+        } else {
+          this.alertService.error(`${res.message}`);
         }
-      });
+      },
+      error: (err) => {
+        console.log(err);
+        this.alertService.error(`${err?.error?.message || 'Lỗi không xác định'}`);
+      },
+      complete: () => {
+        this.showImportPreview = false;
+        this.loadUser(); // Làm mới danh sách sau khi import
+      }
+    });
   }
+  cancelImport(): void {
+    this.showImportPreview = false;
+    this.importData = [];
+    this.importFile = null;
+  }
+
 }

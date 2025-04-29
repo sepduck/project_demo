@@ -30,7 +30,7 @@ export const routes: Routes = [
             { path: 'dashBoard', component: DashboardComponent },
             { path: 'roles', component: RoleComponent },
             { path: 'users', component: UserComponent },
-            { path: 'user/create', component: CreateUserComponent },
+            { path: 'users/create', component: CreateUserComponent },
             { path: 'users/:id', component: UpdateUserComponent },
             { path: 'auditLogs', component: AuditLogsComponent },
             { path: 'tenantSettings', component: SettingComponent }

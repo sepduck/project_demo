@@ -27,7 +27,6 @@
 .avatar-container img[src=""],
 .avatar-container img:not([src]) {
     display: none;
-    /* Ẩn ảnh nếu không có */
 }
 
 .avatar-container img[src=""]+.avatar-icon,

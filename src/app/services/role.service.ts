@@ -1,32 +1,9 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-
-interface Role {
-  id: number;
-  name: string;
-  status: boolean;
-  systemReserve: boolean;
-  createdAt: string;
-}
-
-interface ApiResponse {
-  code: number;
-  message: string;
-  result: {
-    contents: Role[];
-    totalRecords: number;
-    totalPages: number;
-    pageNumber: number;
-    pageSize: number;
-  }
-}
-
-interface Permission {
-  id: number;
-  name: string;
-  slug: string;
-}
+import { ApiResponse } from '../models/role.model';
+import { AuthUtils } from '../utils/api/auth-utils';
+import { API_V1_PERMISSIONS_TREE, API_V1_ROLE } from '../constants/api-endpoints';
 
 export interface UpdateRole {
   name: string;
@@ -44,44 +21,38 @@ export interface CreatedRole {
   providedIn: 'root'
 })
 export class RoleService {
-  private apiUrl = "http://localhost:5293/api/v1/role";
-  private apiUrlPermission = "http://localhost:5293/api/v1/permissions/tree";
-
   constructor(private http: HttpClient) { }
 
   getRoles(pageNumber: number, pageSize: number): Observable<ApiResponse> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.get<ApiResponse>(`${this.apiUrl}?pageNumber=${pageNumber}&pageSize=${pageSize}`, { headers })
+    const headers = AuthUtils.getAuthHeaders();
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+    return this.http.get<ApiResponse>(API_V1_ROLE, { headers, params })
   }
 
   getPermissions(): Observable<ApiResponse> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.get<ApiResponse>(`${this.apiUrlPermission}`, { headers });
+    const headers = AuthUtils.getAuthHeaders();
+    return this.http.get<ApiResponse>(API_V1_PERMISSIONS_TREE, { headers });
   }
 
   createRole(role: CreatedRole): Observable<any> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.post<{ code: number, message: string }>(this.apiUrl, role, { headers });
+    const headers = AuthUtils.getAuthHeaders();
+    return this.http.post<{ code: number, message: string }>(API_V1_ROLE, role, { headers });
   }
   updateRole(id: number, role: UpdateRole): Observable<any> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.put<{code: number, message: string}>(`${this.apiUrl}/${id}`, role, { headers });
+    const headers = AuthUtils.getAuthHeaders();
+    return this.http.put<{ code: number, message: string }>(API_V1_ROLE + `/${id}`, role, { headers });
   }
 
   getRoleById(id: number): Observable<any> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.get<any>(`${this.apiUrl}/${id}`, { headers });
+    const headers = AuthUtils.getAuthHeaders();
+    return this.http.get<any>(API_V1_ROLE + `/${id}`, { headers });
   }
 
   deleteRole(id: number): Observable<any> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.delete<any>(`${this.apiUrl}/${id}`, { headers });
+    const headers = AuthUtils.getAuthHeaders();
+    return this.http.delete<any>(API_V1_ROLE + `/${id}`, { headers });
   }
 
 

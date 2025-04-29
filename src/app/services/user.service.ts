@@ -1,83 +1,23 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-
-interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  username: string;
-  role: string;
-  verifyToken: boolean;
-  isAction: boolean;
-  createdAt: string;
-}
-interface Role {
-  id: number;
-  name: string;
-}
-
-interface ApiResponse {
-  code: number;
-  message: string;
-  result: {
-    contents: User[];
-    totalRecords: number;
-    totalPages: number;
-    pageNumber: number;
-    pageSize: number;
-  }
-}
-
-interface UserDetail {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  username: string;
-  phoneNumber: string;
-  thumbnail: string;
-  verifyToken: boolean;
-  isRandomPassword: boolean;
-  roleName: string;
-  mustChangePassword: boolean;
-  isAction: boolean;
-  isLockedOut: boolean;
-  isSendEmail: boolean;
-}
-interface ApiResponseUserDetail {
-  code: number;
-  message: string;
-  result: UserDetail;
-}
-interface ApiResponseRoles {
-  code: number;
-  message: string;
-  result: Role[];
-}
-
-interface PermissionIdsRequest {
-  permissionIds: number[]
-}
+import { AuthUtils } from '../utils/api/auth-utils';
+import { ApiResponse, ApiResponse2, ApiResponseRoles, ApiResponseUserDetail } from '../models/user.model';
+import { API_V1_AUTH_LOGIN_AS_USER, API_V1_IMAGES_UPLOAD, API_V1_ROLE_SELECT, API_V1_USER, API_V1_USER_CHANGE_PASSWORD, API_V1_USER_CREATE_USER_LIST, API_V1_USER_PROFILE, API_V1_USER_SEARCH } from '../constants/api-endpoints';
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = "http://localhost:5293/api/v1/user";
-  private apiUrlImage = "http://localhost:5293/api/v1/images/upload";
-  private apiUrlRoleSelect = "http://localhost:5293/api/v1/role/select";
-  private apiUrlLoginAsUser = "http://localhost:5293/api/v1/auth/login-as-user";
+  constructor(private http: HttpClient) {
 
-
-  constructor(private http: HttpClient) { }
-
-  getUsers(pageNumber: number, pageSize: number): Observable<ApiResponse> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.get<ApiResponse>(`${this.apiUrl}?pageNumber=${pageNumber}&pageSize=${pageSize}`, { headers })
   }
-
+  getUsers(pageNumber: number, pageSize: number): Observable<ApiResponse> {
+    const headers = AuthUtils.getAuthHeaders();
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+    return this.http.get<ApiResponse>(API_V1_USER, { headers, params })
+  }
   createUser(
     firstName: string,
     lastName: string,
@@ -93,99 +33,66 @@ export class UserService {
     isAction: boolean,
     isLockedOut: boolean
   ) {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
+    const headers = AuthUtils.getAuthHeaders();
     return this.http.post<{ code: number, message: string }>(
-      this.apiUrl, { firstName, lastName, email, username, password, phoneNumber, isSendEmail, thumbnail, isRandomPassword, roles, mustChangePassword, isAction, isLockedOut }, { headers }
+      API_V1_USER, { firstName, lastName, email, username, password, phoneNumber, isSendEmail, thumbnail, isRandomPassword, roles, mustChangePassword, isAction, isLockedOut }, { headers }
     )
   }
-
   uploadImage(formData: FormData) {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.post<{ code: number, message: string, result: string }>(this.apiUrlImage, formData, { headers });
+    const headers = AuthUtils.getAuthHeaders();
+    return this.http.post<{ code: number, message: string, result: string }>(API_V1_IMAGES_UPLOAD, formData, { headers });
   }
-
   getRolesSelect(): Observable<ApiResponseRoles> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.get<ApiResponseRoles>(`${this.apiUrlRoleSelect}`, { headers })
+    const headers = AuthUtils.getAuthHeaders();
+    return this.http.get<ApiResponseRoles>(API_V1_ROLE_SELECT, { headers })
   }
-
   getFindUserById(id: number): Observable<ApiResponseUserDetail> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.get<ApiResponseUserDetail>(`${this.apiUrl}/${id}`, { headers })
+    const headers = AuthUtils.getAuthHeaders();
+    return this.http.get<ApiResponseUserDetail>(API_V1_USER + `/${id}`, { headers })
   }
-
   updateUser(id: number, firstName: string, lastName: string, email: string, username: string, phoneNumber: string, isSendEmail: boolean, thumbnail: string, roles: number[], isAction: boolean, isLockedOut: boolean) {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
+    const headers = AuthUtils.getAuthHeaders();
     return this.http.put<{ code: number, message: string }>(
-      `${this.apiUrl}/${id}`, { firstName, lastName, email, username, phoneNumber, isSendEmail, thumbnail, roles, isAction, isLockedOut }, { headers }
+      API_V1_USER + `/${id}`, { firstName, lastName, email, username, phoneNumber, isSendEmail, thumbnail, roles, isAction, isLockedOut }, { headers }
     )
   }
-
   deleteUser(id: number) {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.delete<{ code: number, message: string }>(`${this.apiUrl}/${id}`, { headers })
+    const headers = AuthUtils.getAuthHeaders();
+    return this.http.delete<{ code: number, message: string }>(API_V1_USER + `/${id}`, { headers })
   }
-
   loginAsUser(id: number) {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.post<{ code: number, message: string }>(`${this.apiUrlLoginAsUser}`, { id }, { headers });
+    const headers = AuthUtils.getAuthHeaders();
+    return this.http.post<{ code: number, message: string }>(API_V1_AUTH_LOGIN_AS_USER, { id }, { headers });
   }
-
-  searchUserByName(name: string, pageNumber: number, pageSize: number): Observable<ApiResponse> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.get<ApiResponse>(`${this.apiUrl}/name/${name}?pageNumber=${pageNumber}&pageSize=${pageSize}`, { headers })
-  }
-
-  filterByRole(roleId: number, pageNumber: number, pageSize: number): Observable<ApiResponse> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.get<ApiResponse>(`${this.apiUrl}/role/${roleId}?pageNumber=${pageNumber}&pageSize=${pageSize}`, { headers })
-  }
-
   getCurrentUser(): Observable<ApiResponseUserDetail> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-    return this.http.get<ApiResponseUserDetail>(`${this.apiUrl}/profile`, { headers })
+    const headers = AuthUtils.getAuthHeaders();
+    return this.http.get<ApiResponseUserDetail>(API_V1_USER_PROFILE, { headers })
   }
-
   changePassword(currentPassword: string, newPassword: string) {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-
+    const headers = AuthUtils.getAuthHeaders();
     return this.http.post<{ code: number, message: string }>(
-      `${this.apiUrl}/change-password`, { currentPassword, newPassword }, { headers }
+      API_V1_USER_CHANGE_PASSWORD, { currentPassword, newPassword }, { headers }
     )
   }
-
-  filterByPermissions(permissionIds: number[], pageNumber: number, pageSize: number): Observable<ApiResponse> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
-
-    let params = new HttpParams().set('pageNumber', pageNumber).set('pageSize', pageSize)
-    permissionIds.forEach(id => {
-      params = params.append('permissionIds', id)
-    })
-    return this.http.get<ApiResponse>(`${this.apiUrl}/permissions`, { headers, params })
-  }
-
-
   searchUser(permissionIds: number[], name: string, roleId: number, pageNumber: number, pageSize: number): Observable<ApiResponse> {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders().set('Authorization', 'Bearer ' + token);
+    const headers = AuthUtils.getAuthHeaders();
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
 
-    let params = new HttpParams().set('pageNumber', pageNumber).set('pageSize', pageSize)
-    permissionIds.forEach(id => {
-      params = params.append('permissionIds', id)
-    })
-    return this.http.get<ApiResponse>(`${this.apiUrl}/search?name=${name}&roleId=${roleId}&pageNumber=${pageNumber}&pageSize=${pageSize}`, { headers, params })
+    if (name && name.trim() !== '') { params = params.set('name', name); }
+    if (roleId && roleId > 0) { params = params.set('roleId', roleId.toString()); }
+
+    if (permissionIds && permissionIds.length > 0) {
+      permissionIds.forEach(id => {
+        params = params.append('permissionIds', id.toString());
+      });
+    }
+    return this.http.get<ApiResponse>(API_V1_USER_SEARCH, { headers, params });
+  }
+  createUsers(data: any[]): Observable<ApiResponse2<string>> {
+    const headers = AuthUtils.getAuthHeaders();
+    return this.http.post<ApiResponse2<string>>(API_V1_USER_CREATE_USER_LIST, data, { headers });
   }
 
 }

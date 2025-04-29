@@ -1,21 +1,18 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, Observable, throwError } from 'rxjs';
+import { EmailActionType } from '../models/email.model';
+import { API_V1_AUTH_CONFIRM_EMAIL } from '../constants/api-endpoints';
 
-interface EmailActionType {
-  actionType: string
-}
+
 @Injectable({
   providedIn: 'root'
 })
 export class EmailActivationService {
-  private apiUrl = 'http://localhost:5293/api/v1/auth/confirm-email';
-
   constructor(private http: HttpClient) { }
 
   emailConfirmation(email: string, token: string) {
     return this.http.post<{ code: number; message: string; result?: EmailActionType }>(
-      this.apiUrl, { email, token }
+      API_V1_AUTH_CONFIRM_EMAIL, { email, token }
     )
   }
 }

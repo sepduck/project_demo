@@ -3,13 +3,15 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../services/auth.service';
 import { AccountFormComponent } from "../../../components/account-form/account-form.component";
 import { FormInputComponent } from '../../../components/common/form-input/form-input.component';
 import { validateEmail, validatePassword } from '../../../utils/validators';
+import { ButtonModule } from 'primeng/button';
+import { CREATE_NEW_PASSWORD, DASHBOARD, EMAIL_VALIDATION } from '../../../constants/path-valiable';
+import { AuthService } from '../../../services/auth.service';
 import { SettingServiceService } from '../../../services/setting-service.service';
 import { AlertService } from '../../../services/alert.service';
-import { ButtonModule } from 'primeng/button';
+import { MUST_CHANGE_PASSWORD } from '../../../constants/status-enum';
 export interface LoginResult {
   token: string;
   emailConfirmationRequired: boolean;
@@ -73,31 +75,25 @@ export class LoginComponent implements OnInit {
       next: (res: { code: number, message: string, result?: LoginResult }) => {
         if (res.code === 200 && res.result) {
           this.authService.saveToken(res.result.token);
-          this.alertService.success('Đăng nhập thành công!');
+          this.alertService.success(res.message);
           if (res.result.emailConfirmationRequired) {
-            localStorage.setItem('mustChangePassword', String(res.result.mustChangePassword));
-            this.router.navigate([`/account/email-validation/${this.email}`]);
+            localStorage.setItem(MUST_CHANGE_PASSWORD, String(res.result.mustChangePassword));
+            this.router.navigate([EMAIL_VALIDATION(this.email)]);
           } else if (res.result.mustChangePassword) {
-            this.router.navigate(['/account/change-password']);
+            this.router.navigate([CREATE_NEW_PASSWORD(this.email)]);
           } else {
-            this.router.navigate(['/app/admin/dashBoard']);
+            this.router.navigate([DASHBOARD]);
           }
+        } else if (res.code === 4003) {
+          this.isSubmitting = false;
+          this.errors.email = res.message
         } else {
           this.isSubmitting = false;
+          this.errors.password = res.message
         }
       },
       error: (error: any) => {
         this.isSubmitting = false;
-        const code = error?.error?.code;
-        if (code === 4003) {
-          this.errors.email = 'Email không tồn tại';
-        }
-        if (code === 4004) {
-          this.errors.password = 'Mật khẩu không đúng';
-        }
-        if (code === 4014) {
-          this.alertService.error('Tài khoản chưa được kích hoạt');
-        }
       }
     });
   }

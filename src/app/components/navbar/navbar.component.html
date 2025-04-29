@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light">
+<nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
@@ -7,20 +7,21 @@
                     <a class="nav-link dropdown-toggle d-flex align-items-center justify-content-center" href="#"
                         id="userDropdown" role="button" data-bs-toggle="dropdown">
                         <img *ngIf="previewImageUrl; else defaultAvatar" [src]="previewImageUrl"
-                            style="width: 40px; border-radius: 20%; margin-left: 1rem;" class="me-2"
-                            alt="User Avatar" />
+                            style="width: 50px; height: 50px; border-radius: 50%; margin-left: 1rem; object-fit: cover;"
+                            class="me-2" alt="User Avatar" />
 
                         <ng-template #defaultAvatar>
                             <img [src]="defaultImageUrl" style="width: 40px; border-radius: 20%; margin-left: 1rem;"
-                                class="me-2" alt="Default Avatar" />
+                                class="me-2" alt="" />
                         </ng-template>
                     </a>
 
                     <ul class="dropdown-menu dropdown-menu-end me-3">
                         <li class="nav-item dropdown d-flex align-items-center ">
                             <img [src]="previewImageUrl || defaultImageUrl"
-                                style="width: 40px; border-radius: 20%; margin-left: 1rem;" class="me-2"
-                                alt="User Avatar" />
+                                style="width: 40px; height: 40px; border-radius: 20%; margin-left: 1rem; object-fit: cover;"
+                                class="me-2" alt="" />
+
                             <div class="user-info">
                                 <span style="white-space: nowrap; margin-right: 20px;"><strong>{{firstName}}
                                         {{lastName}}</strong></span>
@@ -33,7 +34,6 @@
                         </li>
                         <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#changePassword">Đổi
                                 mật khẩu</button></li>
-                        <!-- <li><a class="dropdown-item" href="#">Cài đặt của tôi</a></li> -->
                         <li>
                             <hr class="dropdown-divider">
                         </li>
@@ -65,10 +65,9 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
-                <button type="button" class="btn btn-primary" (click)="changePassword()"><i
-                        class="bi bi-floppy-fill me-2"></i>Lưu thông tin
-                </button>
+                <p-button [label]="'Hủy bỏ'" icon="pi pi-times" severity="secondary" data-bs-dismiss="modal" />
+                <p-button (click)="changePassword()" [label]="'Lưu thông tin'" [disabled]="isSubmitting"
+                    icon="pi pi-save" severity="info" />
             </div>
         </div>
     </div>
