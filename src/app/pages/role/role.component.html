@@ -1,56 +1,54 @@
-<form-view [headerTitle]="'Vai trò'" [description]="'Sử dụng vai trò để nhóm quyền.'"
-    [hasPermissionView]="authService.hasPermission('mgmt.role')"
-    [hasPermissionCreate]="authService.hasPermission('mgmt.role.create')" [labelBtn]="'Tạo vai trò mới'"
-    (onCreatePage)="openCreateModal()">
-    <p-panel styleClass="mt-3 mb-5">
-        <div class="d-flex justify-content-between" *ngIf="false">
-            <button type="button" class="btn btn-primary"><i class="bi bi-arrow-repeat me-2"></i>Làm tươi</button>
+<div class="p-4">
+    <p-panel styleClass="shadow-0; border-0" *ngIf="authService.hasPermission('mgmt.role')">
+        <div class="d-flex justify-content-between">
+            <div class="d-flex align-items-center">
+                <p class="header-container me-2">Vai trò</p>
+                <p class="header-description">Sử dụng vai trò để nhóm quyền</p>
+            </div>
+            <p-button label="Tạo người dùng mới" [raised]="true" icon="pi pi-plus"
+                *ngIf="authService.hasPermission('mgmt.user.create')" (onClick)="openCreateModal()"
+                styleClass="custom-create-button" />
+
         </div>
-        <div class="card mt-2">
+
+        <div class="mt-3 table-container">
             <p-table [value]="roles" [paginator]="true" [rows]="pageSize" [first]="(pageNumber - 1) * pageSize"
                 [totalRecords]="totalRecords" [lazy]="true" (onLazyLoad)="onPageChange($event)"
-                [rowsPerPageOptions]="[5, 10, 25, 50, 100, 250, 500]">
+                [rowsPerPageOptions]="[5, 10, 25, 50, 100, 250, 500]" styleClass="no-border-table">
                 <ng-template pTemplate="header">
                     <tr>
-                        <th style="width: 170px;" class="text-center">Hành động</th>
+                        <th class="text-center">No.</th>
                         <th>Tên vai trò</th>
-                        <th>Thời gian tạo mới</th>
+                        <th class="text-center">Thời gian tạo mới</th>
+                        <th class="text-center">Hoạt động</th>
                     </tr>
                 </ng-template>
-                <ng-template pTemplate="body" let-role>
-                    <tr>
+                <ng-template pTemplate="body" let-role let-rowIndex="rowIndex">
+                    <tr [ngClass]="{ 'row-light': rowIndex % 2 === 0, 'row-dark': rowIndex % 2 === 1 }">
+                        <td class="text-center">
+                            {{ (first + rowIndex + 1) }}
+                        </td>
+                        <td>
+                            {{ role.name }}
+                            <p-badge *ngIf="role.systemReserve" value="Tĩnh" severity="success" styleClass="ms-3">
+                            </p-badge>
+                            <span *ngIf="role.status" style="font-size: 0.7rem; font-weight: 600;" class="ms-3">Mặc
+                                định</span>
+                        </td>
+                        <td class="text-center">{{ role.createdAt | date:'HH:mm:ss dd/M/yyyy' }}</td>
                         <td class="text-center">
                             <ng-container *ngIf="!role.systemReserve; else reservedIcon">
-                                <div class="dropdown">
-                                    <p-button icon="pi pi-cog" label="Hành động" severity="info" id="dropdownMenuButton"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                    </p-button>
-                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <li>
-                                            <button class="dropdown-item" (click)="openEditModal(role.id)"
-                                                *ngIf="authService.hasPermission('mgmt.role.edit')">Chỉnh
-                                                sửa</button>
-                                        </li>
-                                        <li>
-                                            <button class="dropdown-item" (click)="deleteRole(role.id)"
-                                                *ngIf="authService.hasPermission('mgmt.role.delete')">Xóa bỏ</button>
-                                        </li>
-                                    </ul>
-                                </div>
+                                <i class="pi pi-pencil" (click)="openEditModal(role.id)"
+                                    *ngIf="authService.hasPermission('mgmt.role.edit')" style="color: #4aa4d9;"></i>
+                                <i class="pi pi-trash" (click)="deleteRole(role.id)"
+                                    *ngIf="authService.hasPermission('mgmt.role.delete')"
+                                    style="color: #ef3f3e; margin-left: 10px;"></i>
                             </ng-container>
 
                             <ng-template #reservedIcon>
                                 <i class="bi bi-lock-fill"></i>
                             </ng-template>
                         </td>
-                        <td>
-                            {{ role.name }}
-                            <p-badge *ngIf="role.systemReserve" value="Tĩnh" severity="info" styleClass="ms-3">
-                            </p-badge>
-                            <span *ngIf="role.status" style="font-size: 0.7rem; font-weight: 600;" class="ms-3">Mặc
-                                định</span>
-                        </td>
-                        <td>{{ role.createdAt | date:'HH:mm:ss dd/M/yyyy' }}</td>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="paginatorleft">
@@ -61,7 +59,7 @@
             </p-table>
         </div>
     </p-panel>
-</form-view>
+</div>
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
@@ -75,59 +73,49 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <ul class="nav nav-tabs">
-                    <li class="nav-item">
-                        <a class="nav-link" [class.active]="activeTab === 'tab1'" (click)="setActiveTab('tab1')">Tên vai
-                            trò</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" [class.active]="activeTab === 'tab2'"
-                            (click)="setActiveTab('tab2')">Quyền</a>
-                    </li>
-                </ul>
-
-                <div class="tab-content mt-3">
-                    <div class="tab-pane fade show active container" *ngIf="activeTab === 'tab1'">
-                        <form-input label="Tên vai trò" [(value)]="newRole.name" [error]="errors.name!" isInput="label"
-                            type="email" />
-                        <div class="custom-checkbox-container d-flex align-items-center gap-1 mt-3">
-                            <input class="custom-checkbox-input" type="checkbox" id="isDefault"
-                                [(ngModel)]="newRole.status" [ngClass]="{'checked': newRole.status}">
-                            <label class="custom-checkbox-label me-2" style="color: #99a187;" for="isDefault">
-                                Mặc định
-                            </label>
-                            <p class="mb-0" style="color: #99a187; font-size: 0.9rem;">
-                                (Mặc định gán cho tài khoản được tạo mới)
-                            </p>
-                        </div>
-
-                        <div style="padding: 10px; border: 1px solid #f6c000; background-color: #fff8dd; color: #f6c215; border-radius: 10px;"
-                            class="mt-5 mb-3">
-                            <p>{{description}}</p>
-                        </div>
-                    </div>
-
-                    <div class="tab-pane fade show active container" *ngIf="activeTab === 'tab2'">
-                        <div class="container mt-4">
+                <p-tabs value="0">
+                    <p-tablist>
+                        <p-tab value="0" class="custom-bold-tab">Tên vai trò</p-tab>
+                        <p-tab value="1" class="custom-bold-tab">Quyền</p-tab>
+                    </p-tablist>
+                    <p-tabpanels>
+                        <p-tabpanel value="0">
+                            <form-input label="Tên vai trò" [(value)]="newRole.name" [error]="errors.name!"
+                                [placeholder]="'Nhập tên vai trò'" isInput="label" />
+                            <div class="d-flex items-center gap-2 mt-2">
+                                <p-checkbox [(ngModel)]="newRole.status" inputId="status" binary="true" />
+                                <label for="status">Kích hoạt</label>
+                                <p class="mb-0" style="color: #99a187; font-size: 0.9rem;">
+                                    (Mặc định gán cho tài khoản được tạo mới)
+                                </p>
+                            </div>
+                            <div style="padding: 10px; border: 1px solid #f6c000; background-color: #fff8dd; color: #f6c215; border-radius: 10px;"
+                                class="mt-5 mb-3">
+                                <p>{{description}}</p>
+                            </div>
+                        </p-tabpanel>
+                        <p-tabpanel value="1">
                             <div class="card">
-                                <!-- <p-tree [value]="permissionTree" selectionMode="checkbox" styleClass="w-full md:w-full"
-                                    [(selection)]="selectedPermissions" (onNodeSelect)="nodeSelect($event)"
-                                    (onNodeUnselect)="nodeUnselect($event)">
-                                </p-tree> -->
-
                                 <permission-tree [permissions]="permissions"
                                     [selectedPermissionIds]="newRole.permissions"
                                     (permissionsChange)="onPermissionsChange($event)">
                                 </permission-tree>
                             </div>
-                        </div>
-                    </div>
-                </div>
+
+                        </p-tabpanel>
+                    </p-tabpanels>
+                </p-tabs>
+
+
+
+
+
+
             </div>
             <div class="modal-footer">
                 <p-button [label]="'Hủy bỏ'" icon="pi pi-times" severity="secondary" data-bs-dismiss="modal" />
                 <p-button (click)="saveRole()" [label]="isSubmitting ? 'Đang xử lý...' : 'Lưu thông tin'"
-                    [disabled]="isSubmitting" icon="pi pi-save" severity="info" />
+                    [disabled]="isSubmitting" icon="pi pi-save" severity="success" />
             </div>
         </div>
     </div>

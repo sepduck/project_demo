@@ -1,10 +1,16 @@
-<div class="container mt-5" *ngIf="authService.hasPermission('mgmt.activity')">
-    <p class="header-container me-2">Nhật ký kiểm tra</p>
-    <p-panel styleClass="mt-3 mb-5">
-        <div class="mt-4 mb-4 d-flex justify-content-between">
-            <p-button label="Làm tươi" icon="bi bi-arrow-repeat" severity="info" (click)="refreshData()"></p-button>
+<div class="p-4">
+    <p-panel styleClass="shadow-0; border-0" *ngIf="authService.hasPermission('mgmt.activity')">
+        <div class="d-flex justify-content-between">
+            <div class="d-flex align-items-center">
+                <p class="header-container me-2">Nhật ký kiểm tra</p>
+            </div>
+        </div>
 
-            <p-button label="Tìm kiếm" icon="bi bi-search" severity="info" (click)="searchActivityLogs()"></p-button>
+        <div class="mt-4 mb-4 d-flex justify-content-between">
+            <p-button label="Làm tươi" icon="bi bi-arrow-repeat" styleClass="custom-create-button" (click)="refreshData()"></p-button>
+
+            <p-button label="Tìm kiếm" icon="bi bi-search" styleClass="custom-create-button"
+                (click)="loadActivityLogs()"></p-button>
         </div>
 
         <div class="d-flex justify-content-center gap-2">
@@ -51,28 +57,30 @@
             {{ showAdvancedFilter ? 'Ẩn bộ lọc nâng cao' : 'Hiển thị bộ lọc nâng cao' }}
         </button>
 
-        <div class="card mt-2">
+        <div class="mt-3 table-container">
             <p-table [value]="activityLogs" [paginator]="true" [rows]="pageSize" [first]="(pageNumber - 1) * pageSize"
                 [totalRecords]="totalRecords" [lazy]="true" (onLazyLoad)="onPageChange($event)"
-                [rowsPerPageOptions]="[5, 10, 25, 50, 100, 250, 500]">
+                [rowsPerPageOptions]="[5, 10, 25, 50, 100, 250, 500]" styleClass="no-border-table">
                 <ng-template pTemplate="header">
                     <tr>
                         <th></th>
                         <th></th>
+                        <th class="text-center">No.</th>
                         <th>Tên truy cập</th>
                         <th>Dịch vụ</th>
                         <th>Hoạt động</th>
                         <th>Khoảng thời gian</th>
+                        <th>Địa chỉ IP</th>
                         <th>Khách hàng</th>
                         <th>Trình duyệt</th>
                         <th>Thời gian</th>
                     </tr>
                 </ng-template>
-                <ng-template pTemplate="body" let-activityLog>
-                    <tr>
+                <ng-template pTemplate="body" let-activityLog let-rowIndex="rowIndex">
+                    <tr [ngClass]="{ 'row-light': rowIndex % 2 === 0, 'row-dark': rowIndex % 2 === 1 }">
                         <td>
                             <p-button icon="pi pi-search" [rounded]="true" (click)="showDialog(activityLog)"
-                                severity="info" />
+                                severity="secondary" />
                         </td>
                         <td>
                             <i class="fa" [class.fa-check-circle]="activityLog.isError"
@@ -80,11 +88,15 @@
                                 [class.text-success]="activityLog.isError" [class.text-danger]="!activityLog.isError">
                             </i>
                         </td>
+                        <td class="text-center">
+                            {{ (first + rowIndex + 1) }}
+                        </td>
                         <td>{{activityLog.username}}</td>
                         <td>{{activityLog.serviceName}}</td>
                         <td>{{activityLog.activity}}</td>
                         <td>{{activityLog.executionTime}} ms</td>
                         <td>{{activityLog.ipAddress}}</td>
+                        <td></td>
                         <td class="browser-default">{{activityLog.browser}}</td>
                         <td>{{ activityLog.createdAt | date:'HH:mm:ss dd/M/yyyy' }}</td>
                     </tr>
@@ -97,53 +109,54 @@
             </p-table>
         </div>
     </p-panel>
-    <p-dialog header="Chi tiết nhật ký kiểm tra" [(visible)]="visible" [modal]="true"
-        [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }" [draggable]="false"
-        [resizable]="false">
-        <p style="font-size: 1.1rem; font-weight: 600;" class="mt-3">Thông tin người dùng</p>
-        <div class="detail-container">
-            <div class="detail-row">
-                <div class="detail-label">Tên truy cập:</div>
-                <div class="detail-value">{{selectedActivityLog.username}}</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Địa chỉ IP:</div>
-                <div class="detail-value">{{selectedActivityLog.ipAddress}}</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Khách hàng:</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Trình duyệt:</div>
-                <div class="detail-value">{{selectedActivityLog.browser}}</div>
-            </div>
-        </div>
-        <p style="font-size: 1.1rem; font-weight: 600;" class="mt-5">Thông tin hành động</p>
-        <div class="detail-container">
-            <div class="detail-row">
-                <div class="detail-label">Dịch vụ:</div>
-                <div class="detail-value">{{selectedActivityLog.serviceName}}</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Hoạt động</div>
-                <div class="detail-value">{{selectedActivityLog.activity}}</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Thời gian:</div>
-                <div class="detail-value">{{selectedActivityLog.createdAt}}</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Khoảng thời gian:</div>
-                <div class="detail-value">{{selectedActivityLog.executionTime}} ms</div>
-            </div>
-        </div>
-        <p style="font-size: 1.1rem; font-weight: 600;" class="mt-5">Trạng thái lỗi</p>
-        <i class="fa" [class.fa-check-circle]="selectedActivityLog.isError"
-            [class.fa-times-circle]="!selectedActivityLog.isError" [class.text-success]="selectedActivityLog.isError"
-            [class.text-danger]="!selectedActivityLog.isError">
-        </i>
-        <span>
-            {{ selectedActivityLog.isError ? 'Thành công' : 'Không thành công' }}
-        </span>
-    </p-dialog>
 </div>
+
+<p-dialog header="Chi tiết nhật ký kiểm tra" [(visible)]="visible" [modal]="true"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }" [draggable]="false"
+    [resizable]="false">
+    <p style="font-size: 1.1rem; font-weight: 600;" class="mt-3">Thông tin người dùng</p>
+    <div class="detail-container">
+        <div class="detail-row">
+            <div class="detail-label">Tên truy cập:</div>
+            <div class="detail-value">{{selectedActivityLog.username}}</div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">Địa chỉ IP:</div>
+            <div class="detail-value">{{selectedActivityLog.ipAddress}}</div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">Khách hàng:</div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">Trình duyệt:</div>
+            <div class="detail-value">{{selectedActivityLog.browser}}</div>
+        </div>
+    </div>
+    <p style="font-size: 1.1rem; font-weight: 600;" class="mt-5">Thông tin hành động</p>
+    <div class="detail-container">
+        <div class="detail-row">
+            <div class="detail-label">Dịch vụ:</div>
+            <div class="detail-value">{{selectedActivityLog.serviceName}}</div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">Hoạt động</div>
+            <div class="detail-value">{{selectedActivityLog.activity}}</div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">Thời gian:</div>
+            <div class="detail-value">{{selectedActivityLog.createdAt}}</div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">Khoảng thời gian:</div>
+            <div class="detail-value">{{selectedActivityLog.executionTime}} ms</div>
+        </div>
+    </div>
+    <p style="font-size: 1.1rem; font-weight: 600;" class="mt-5">Trạng thái lỗi</p>
+    <i class="fa" [class.fa-check-circle]="selectedActivityLog.isError"
+        [class.fa-times-circle]="!selectedActivityLog.isError" [class.text-success]="selectedActivityLog.isError"
+        [class.text-danger]="!selectedActivityLog.isError">
+    </i>
+    <span>
+        {{ selectedActivityLog.isError ? 'Thành công' : 'Không thành công' }}
+    </span>
+</p-dialog>

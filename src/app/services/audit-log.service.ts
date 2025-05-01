@@ -10,15 +10,7 @@ import { API_V1_ACTIVITY_LOG, API_V1_ACTIVITY_LOG_SEARCH } from '../constants/ap
 export class AuditLogService {
   constructor(private http: HttpClient) { }
 
-  getUsers(pageNumber: number, pageSize: number): Observable<ApiResponse> {
-    const headers = AuthUtils.getAuthHeaders();
-    let params = new HttpParams()
-      .set('pageNumber', pageNumber.toString())
-      .set('pageSize', pageSize.toString());
-    return this.http.get<ApiResponse>(API_V1_ACTIVITY_LOG, { headers, params })
-  }
-
-  searchActivityLogs(username: string, activity: string, browser: string, serviceName: string, startDate: string, endDate: string, pageNumber: number, pageSize: number): Observable<ApiResponse> {
+  getActivityLogs(username: string, activity: string, browser: string, serviceName: string, startDate: string, endDate: string, pageNumber: number, pageSize: number): Observable<ApiResponse> {
     const headers = AuthUtils.getAuthHeaders();
     let params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
@@ -31,6 +23,7 @@ export class AuditLogService {
     if (startDate && startDate.trim() !== '') { params = params.set('startDate', startDate); }
     if (endDate && endDate.trim() !== '') { params = params.set('endDate', endDate); }
 
-    return this.http.get<ApiResponse>(API_V1_ACTIVITY_LOG_SEARCH, { headers, params })
+    return this.http.get<ApiResponse>(API_V1_ACTIVITY_LOG, { headers, params })
   }
+  
 }

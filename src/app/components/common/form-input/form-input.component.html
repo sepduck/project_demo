@@ -1,3 +1,5 @@
+<!-- No Label --------------------------------------------------------------------------------------------------------------------------- -->
+
 <form autocomplete="off" class="mt-3" *ngIf="isInput === 'no-label'">
     <input [type]="type" class="form-control custom-input" [placeholder]="placeholder" [value]="value"
         [readOnly]="readOnly" (input)="onInputChange($event)">
@@ -13,20 +15,26 @@
     <div class="text-danger" style="font-size: 0.9rem; font-weight: 600;" *ngIf="error">{{ error }}</div>
 </form>
 
+<!-- Checkout --------------------------------------------------------------------------------------------------------------------------- -->
+
+<div class="flex items-center gap-2">
+
+</div>
+
 <div *ngIf="isInput === 'checkbox'" class="mt-3">
-    <div class="form-check">
-        <input class="form-check-input giant-checkbox" autocomplete="new-form" type="checkbox" [id]="checkboxId"
-            [(ngModel)]="checked" (change)="onChangeEmit()" (ngModelChange)="onNgModelChange()" [disabled]="disabled"
-            (change)="onCheckboxChange($event)">
-        <label class="form-check-label" [for]="checkboxId"> {{label}}</label>
+    <div class="flex items-center gap-2">
+        <p-checkbox [(ngModel)]="checked" [inputId]="checkboxId" [name]="checkboxName || label"
+            (onChange)="onCheckboxChange($event)" value=" Large" />
+        <label [htmlFor]="checkboxId" class="text-lg">{{label}}</label>
     </div>
     <i style="font-size: 0.75rem; margin-left: 25px; color: gray;" *ngIf="note">{{note}}</i>
 </div>
 
+<!-- On Label --------------------------------------------------------------------------------------------------------------------------- -->
 <form autocomplete="off" class="form-group mt-3" *ngIf="isInput === 'label'">
     <label for="numberLength">{{label}}</label>
-    <input [type]="type" class="form-control" autocomplete="new-form" [placeholder]="placeholder" [id]="value"
-        [value]="value" (input)="onInputChange($event)" [disabled]="disabled">
+    <input pInputText [(ngModel)]="value" [type]="type" autocomplete="new-form" [placeholder]="placeholder" [id]="value"
+        name="value" (input)="onInputChange($event)" [disabled]="disabled" class="full-width-input" />
     <div class="text-danger" style="font-size: 0.9rem; font-weight: 600;" *ngIf="error">{{ error }} </div>
 </form>
 
@@ -39,3 +47,29 @@
     </i>
     <div class="text-danger" style="font-size: 0.9rem; font-weight: 600;" *ngIf="error">{{ error }} </div>
 </form>
+
+
+
+
+<!-- Row Col ---------------------------------------------------------------------------------------------------------------- -->
+<div *ngIf="isInput === 'col'" class="mt-3 row">
+    <div class="col-md-3 mt-2">
+        <label [for]="value" style="font-weight: 500; color: #000;">{{label}}</label>
+    </div>
+    <div class="col-md-9">
+        <input [type]="type" pInputText autocomplete="new-form" [placeholder]="placeholder" [id]="value"
+            [(ngModel)]="value" (input)="onInputChange($event)" [disabled]="disabled" class="full-width-input" />
+        <div class="text-danger" style="font-size: 0.9rem; font-weight: 600;" *ngIf="error">{{ error }} </div>
+    </div>
+</div>
+
+<div *ngIf="isInput === 'col-password'" class="mt-3 row">
+    <div class="col-md-3 mt-2">
+        <label for="password" style="font-weight: 500; color: #000;">{{label}}</label>
+    </div>
+    <div class="col-md-9">
+        <p-password [(ngModel)]="value" (input)="onInputChange($event)" [id]="value" autocomplete="new-form"
+            (input)="onInputChange($event)" [placeholder]="placeholder" [toggleMask]="true" required />
+        <div class="text-danger" style="font-size: 0.9rem; font-weight: 600;" *ngIf="error">{{ error }} </div>
+    </div>
+</div>

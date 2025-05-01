@@ -54,6 +54,12 @@ export function validatePasswordCreateUser(password: string, isRandomPassword: b
 
 export function validateRoleName(name: string): string | null {
     if (!name.trim()) return 'Tên vai trò không được để trống';
+
+    const englishPattern = /^[a-zA-Z0-9_-]+$/;
+
+    if (!englishPattern.test(name)) {
+        return 'Tên vai trò chỉ được phép chứa chữ cái tiếng Anh, số và dấu gạch dưới/gạch ngang';
+    }
     return null;
 }
 

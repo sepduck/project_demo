@@ -1,29 +1,33 @@
-<div class="container mt-5 " *ngIf="authService.hasPermission('mgmt.user')">
-    <div class="d-flex justify-content-between">
-        <div class="d-flex align-items-center">
-            <p class="header-container me-2">Người dùng</p>
-            <p class="header-description">Quản lý tài khoản người dùng và phân quyền.</p>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-            <div class="excel-operations-container">
-                <p-button severity="success" (click)="menu.toggle($event)" styleClass="white-text-button">
-                    <ng-template pTemplate="content">
-                        <i class="pi pi-file-excel" style="color: black;"></i>
-                        <span style="font-weight: 600;">Excel operations</span>
-                    </ng-template>
-                </p-button>
-
-                <p-menu #menu [model]="excelOperations" [popup]="true"></p-menu>
+<div class="p-4">
+    <p-panel styleClass="shadow-0; border-0" *ngIf="authService.hasPermission('mgmt.user')">
+        <div class="d-flex justify-content-between">
+            <div class="d-flex align-items-center">
+                <p class="header-container me-2">Người dùng</p>
+                <p class="header-description">Quản lý tài khoản người dùng và phân quyền.</p>
             </div>
-            <p-button label="Tạo tài khoản người dùng mới" [raised]="true" severity="info" icon="pi pi-plus"
-                *ngIf="authService.hasPermission('mgmt.user.create')" (onClick)="goToCreate()" />
+            <div class="d-flex align-items-center gap-2">
+                <div class="excel-operations-container">
+                    <p-button (click)="menu.toggle($event)" styleClass="excel-button">
+                        <ng-template pTemplate="content">
+                            <i class="pi pi-file-excel me-2"></i>
+                            <span class="fw-semibold">Excel operations</span>
+                        </ng-template>
+                    </p-button>
+                    <p-menu #menu [model]="excelOperations" [popup]="true"></p-menu>
+                </div>
+                <p-button label="Tạo người dùng mới" [raised]="true" icon="pi pi-plus"
+                    *ngIf="authService.hasPermission('mgmt.user.create')" (onClick)="goToCreate()"
+                    styleClass="custom-create-button" />
+
+            </div>
         </div>
-    </div>
-    <p-panel styleClass="mt-3 mb-5">
-        <p-inputGroup>
-            <input pInputText placeholder="Tìm kiếm ..." class="w-100" [(ngModel)]="name" type="search" />
-            <p-button label="Search" severity="info" (click)="searchUsers()"></p-button>
-        </p-inputGroup>
+
+        <div class="mt-5 ">
+            <p-inputGroup>
+                <input pInputText placeholder="Tìm kiếm ..." class="w-100" [(ngModel)]="name" type="search" />
+                <p-button label="Search" styleClass="custom-create-button" (click)="loadUsers()"></p-button>
+            </p-inputGroup>
+        </div>
 
         <div *ngIf="showAdvancedFilter" class="mt-4">
             <div class="d-flex justify-content-center gap-2">
@@ -56,7 +60,8 @@
                 </div>
             </div>
             <div class="mt-4 d-flex justify-content-end">
-                <p-button label="Làm tươi" icon="bi bi-arrow-repeat" severity="info" (click)="refreshData()"></p-button>
+                <p-button label="Làm tươi" icon="bi bi-arrow-repeat" styleClass="custom-create-button"
+                    (click)="refreshData()"></p-button>
             </div>
 
         </div>
@@ -64,26 +69,47 @@
             {{ showAdvancedFilter ? 'Ẩn bộ lọc nâng cao' : 'Hiển thị bộ lọc nâng cao' }}
         </button>
 
-        <div class="card mt-2 table-container">
+        <div class="mt-3 table-container">
             <p-table [value]="users" [paginator]="true" [rows]="pageSize" [first]="(pageNumber - 1) * pageSize"
                 [totalRecords]="totalRecords" [lazy]="true" (onLazyLoad)="onPageChange($event)"
-                [rowsPerPageOptions]="[5, 10, 25, 50, 100, 250, 500]">
+                [rowsPerPageOptions]="[5, 10, 25, 50, 100, 250, 500]" styleClass="no-border-table">
                 <ng-template pTemplate="header">
                     <tr>
-                        <th style="width: 170px;" class="text-center">Hoạt động</th>
+                        <th class="text-center">No.</th>
                         <th class="text-center">Ảnh</th>
                         <th>Tên truy cập</th>
                         <th>Tên</th>
                         <th>Họ</th>
-                        <th>Vai trò</th>
+                        <th class="text-center">Vai trò</th>
                         <th>Địa chỉ email</th>
-                        <th>Email xác nhận</th>
-                        <th>Kích hoạt</th>
-                        <th>Thời gian tạo mới</th>
+                        <th class="text-center">Email xác nhận</th>
+                        <th class="text-center">Kích hoạt</th>
+                        <th class="text-center">Thời gian tạo mới</th>
+                        <th style="width: 170px;" class="text-center">Hoạt động</th>
                     </tr>
                 </ng-template>
-                <ng-template pTemplate="body" let-user>
-                    <tr>
+                <ng-template pTemplate="body" let-user let-rowIndex="rowIndex">
+                    <tr [ngClass]="{ 'row-light': rowIndex % 2 === 0, 'row-dark': rowIndex % 2 === 1 }">
+                        <td class="text-center">
+                            {{ (first + rowIndex + 1) }}
+                        </td>
+                        <td class="text-center">
+                            <p-avatar *ngIf="user.thumbnail; else defaultAvatar" [image]="baseImageUrl + user.thumbnail"
+                                class="mr-2 custom-avatar-fit" size="large" shape="circle" />
+                            <ng-template #defaultAvatar>
+                                <p-avatar icon="pi pi-user" class="mr-2" size="large" shape="circle" />
+                            </ng-template>
+                        </td>
+                        <td>{{user.username}}</td>
+                        <td>{{user.lastName}}</td>
+                        <td>{{user.firstName}}</td>
+                        <td class="text-center">{{user.role}}</td>
+                        <td>{{user.email}}</td>
+                        <td class="text-center"><p-badge [value]="user.verifyToken ? 'success' : 'failed'"
+                                [severity]="user.verifyToken ? 'success' : 'danger'"></p-badge></td>
+                        <td class="text-center"><p-badge [value]="user.isAction? 'success' : 'failed'"
+                                [severity]="user.isAction ? 'success' : 'danger'"></p-badge></td>
+                        <td class="text-center"> {{user.createdAt | date:'HH:mm:ss dd/M/yyyy'}}</td>
                         <td class="text-center">
                             <ng-container *ngIf="user.role.includes('admin'); else showDropdown">
                                 <i class="bi bi-lock-fill"></i>
@@ -113,23 +139,6 @@
                                 </div>
                             </ng-template>
                         </td>
-                        <td class="text-center">
-                            <p-avatar *ngIf="user.thumbnail; else defaultAvatar" [image]="baseImageUrl + user.thumbnail"
-                                class="mr-2 custom-avatar-fit" size="large" shape="circle" />
-                            <ng-template #defaultAvatar>
-                                <p-avatar icon="pi pi-user" class="mr-2" size="large" shape="circle" />
-                            </ng-template>
-                        </td>
-                        <td>{{user.username}}</td>
-                        <td>{{user.lastName}}</td>
-                        <td>{{user.firstName}}</td>
-                        <td>{{user.role}}</td>
-                        <td>{{user.email}}</td>
-                        <td><p-badge [value]="user.verifyToken ? 'success' : 'failed'"
-                                [severity]="user.verifyToken ? 'success' : 'danger'"></p-badge></td>
-                        <td><p-badge [value]="user.isAction? 'success' : 'failed'"
-                                [severity]="user.isAction ? 'success' : 'danger'"></p-badge></td>
-                        <td>{{user.createdAt | date:'HH:mm:ss dd/M/yyyy'}}</td>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="paginatorleft">
@@ -142,7 +151,6 @@
     </p-panel>
 </div>
 
-<!-- Dialog Import -->
 <p-dialog header="Nhập dữ liệu người dùng từ Excel" [(visible)]="importDialogVisible" [modal]="true"
     [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }" [draggable]="false"
     [resizable]="false">

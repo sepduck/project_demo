@@ -1,12 +1,14 @@
-.header-container{
+.header-container {
     font-size: calc(1.1rem + .12vw) !important;
     font-weight: bold !important;
 }
-.header-description{
+
+.header-description {
     font-size: 13px !important;
     font-weight: 600 !important;
     color: #99A1B7;
 }
+
 .custom-btn {
     background-color: #F1F1F4 !important;
     color: #333;
@@ -27,9 +29,9 @@
 }
 
 .form-check-input {
-    background-color: transparent !important; 
-    border: 1px solid #52525b !important; 
-    box-shadow: none !important; 
+    background-color: transparent !important;
+    border: 1px solid #52525b !important;
+    box-shadow: none !important;
 }
 
 
@@ -40,7 +42,7 @@
 
 .custom-checkbox-label {
     position: relative;
-    padding-left: 30px; 
+    padding-left: 30px;
     cursor: pointer;
     font-size: 1rem;
 }
@@ -59,16 +61,16 @@
     transition: all 0.3s;
 }
 
-.custom-checkbox-input.checked + .custom-checkbox-label:before {
+.custom-checkbox-input.checked+.custom-checkbox-label:before {
     background-color: #99a187;
     border-color: #99a187;
-    box-shadow: inset 0 0 0 3px #fff; 
+    box-shadow: inset 0 0 0 3px #fff;
 }
 
-.custom-checkbox-input:checked + .custom-checkbox-label:before {
+.custom-checkbox-input:checked+.custom-checkbox-label:before {
     background-color: #99a187;
     border-color: #99a187;
-    box-shadow: inset 0 0 0 3px #fff; 
+    box-shadow: inset 0 0 0 3px #fff;
 }
 
 .custom-checkbox-label {
@@ -80,8 +82,98 @@
     background-color: #f2f2f2;
 }
 
-.custom-checkbox-input:checked + .custom-checkbox-label:before {
+.custom-checkbox-input:checked+.custom-checkbox-label:before {
     background-color: rgb(0, 0, 0);
     border-color: #99a187;
     box-shadow: inset 0 0 0 3px #fff;
+}
+
+::ng-deep .custom-create-button .p-button {
+    background-color: #0da487 !important;
+    border-color: #0da487 !important;
+    color: #fff !important;
+}
+
+::ng-deep .custom-create-button .p-button:hover {
+    background-color: #0b8e74 !important;
+    border-color: #0b8e74 !important;
+}
+
+::ng-deep .row-light {
+    background-color: #ffffff !important;
+}
+
+::ng-deep .row-dark {
+    background-color: #f8f8f8 !important;
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th {
+    background-color: #f3f3f3 !important;
+    color: #000 !important;
+    font-weight: 600;
+}
+
+/* CSS để loại bỏ viền bảng - phiên bản mạnh hơn với !important */
+:host ::ng-deep .p-datatable.no-border-table,
+:host ::ng-deep .p-datatable.no-border-table * {
+    border-collapse: collapse !important;
+}
+
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-wrapper,
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-table,
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-thead,
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-tbody,
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-tfoot {
+    border: 0 none !important;
+    border-width: 0 !important;
+    box-shadow: none !important;
+}
+
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-thead>tr>th,
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-tbody>tr>td,
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-tfoot>tr>td {
+    border: 0 none !important;
+    border-width: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Loại bỏ viền cho phân trang */
+:host ::ng-deep .p-datatable.no-border-table .p-paginator {
+    border: none !important;
+    border-width: 0 !important;
+}
+
+:host ::ng-deep .custom-bold-tab,
+:host ::ng-deep p-tab {
+    font-weight: bold !important;
+}
+
+/* Đổi màu chữ và viền dưới của tab đang active */
+:host ::ng-deep .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link,
+:host ::ng-deep .p-tabs .p-tablist .p-tab.p-highlight {
+    color: #0da487 !important;
+    border-bottom: 2px solid #0da487 !important;
+    font-weight: bold !important;
+}
+
+/* Đổi màu khi hover tab */
+:host ::ng-deep .p-tabview .p-tabview-nav li:not(.p-highlight):hover .p-tabview-nav-link,
+:host ::ng-deep .p-tabs .p-tablist .p-tab:not(.p-highlight):hover {
+    color: #0da487 !important;
+    border-color: #0da487 !important;
+}
+
+/* Đổi màu thanh ink-bar dưới tab */
+:host ::ng-deep .p-tabview .p-tabview-ink-bar,
+:host ::ng-deep .p-tabs-ink-bar {
+    background-color: #0da487 !important;
+    height: 2px !important;
+}
+
+/* Đảm bảo màu khi focus */
+:host ::ng-deep .p-tabview .p-tabview-nav li .p-tabview-nav-link:focus,
+:host ::ng-deep .p-tabs .p-tablist .p-tab:focus {
+    color: #0da487 !important;
+    outline: none !important;
 }

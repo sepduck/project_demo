@@ -2,10 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
 
 @Component({
   selector: 'form-input',
-  imports: [FormsModule, CommonModule, CheckboxModule],
+  imports: [FormsModule, CommonModule, CheckboxModule, PasswordModule, InputTextModule, CheckboxModule],
   templateUrl: './form-input.component.html',
   styleUrl: './form-input.component.css'
 })
@@ -23,6 +25,7 @@ export class FormInputComponent {
   @Input() checked: boolean = false;
   @Input() disabled: boolean = false;
   @Input() note: string = ''
+  @Input() checkboxName: string = '';
 
   @Output() valueChange = new EventEmitter<string | number>();
   @Output() checkedChange = new EventEmitter<boolean>();
@@ -39,15 +42,15 @@ export class FormInputComponent {
     this.valueChange.emit(this.value);
   }
 
-  onCheckboxChange(event: Event) {
-    const input = event.target as HTMLInputElement;
+  onCheckboxChange(event: any) {
+    this.checked = event;
     this.checkedChange.emit(this.checked);
   }
-  onChangeEmit(){
+  onChangeEmit() {
     this.onChange.emit()
   }
 
-  onNgModelChange(){
+  onNgModelChange() {
     this.ngModelChange.emit()
   }
 

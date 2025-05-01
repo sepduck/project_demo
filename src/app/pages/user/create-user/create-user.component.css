@@ -1,64 +1,34 @@
-.custom-checkbox {
-    position: relative;
-    padding-left: 2.5rem;
-    /* khoảng cách từ checkbox đến text */
-    cursor: pointer;
-    user-select: none;
-    display: inline-flex;
-    align-items: center;
-    font-size: 1rem;
+/* Làm đậm text trong tabs */
+:host ::ng-deep .custom-bold-tab,
+:host ::ng-deep p-tab {
+    font-weight: bold !important;
 }
 
-.custom-checkbox input[type="checkbox"] {
-    opacity: 0;
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    height: 1.5rem;
-    /* tăng vùng click */
-    width: 1.5rem;
-    cursor: pointer;
-    z-index: 2;
+/* Đổi màu chữ và viền dưới của tab đang active */
+:host ::ng-deep .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link,
+:host ::ng-deep .p-tabs .p-tablist .p-tab.p-highlight {
+    color: #0da487 !important;
+    border-bottom: 2px solid #0da487 !important;
+    font-weight: bold !important;
 }
 
-.checkmark {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    height: 1.5rem;
-    /* tăng kích thước box hiển thị */
-    width: 1.5rem;
-    background-color: #fff;
-    border: 2px solid #ced4da;
-    border-radius: 0.25rem;
-    transition: all 0.2s ease-in-out;
-    z-index: 1;
+/* Đổi màu khi hover tab */
+:host ::ng-deep .p-tabview .p-tabview-nav li:not(.p-highlight):hover .p-tabview-nav-link,
+:host ::ng-deep .p-tabs .p-tablist .p-tab:not(.p-highlight):hover {
+    color: #0da487 !important;
+    border-color: #0da487 !important;
 }
 
-.custom-checkbox input[type="checkbox"]:checked~.checkmark {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
+/* Đổi màu thanh ink-bar dưới tab */
+:host ::ng-deep .p-tabview .p-tabview-ink-bar,
+:host ::ng-deep .p-tabs-ink-bar {
+    background-color: #0da487 !important;
+    height: 2px !important;
 }
 
-.checkmark::after {
-    content: '';
-    position: absolute;
-    display: none;
-    left: 6px;
-    top: 2px;
-    width: 6px;
-    height: 12px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-}
-
-.custom-checkbox input[type="checkbox"]:checked~.checkmark::after {
-    display: block;
-}
-
-.role-label-text {
-    margin-left: 0.5rem;
+/* Đảm bảo màu khi focus */
+:host ::ng-deep .p-tabview .p-tabview-nav li .p-tabview-nav-link:focus,
+:host ::ng-deep .p-tabs .p-tablist .p-tab:focus {
+    color: #0da487 !important;
+    outline: none !important;
 }

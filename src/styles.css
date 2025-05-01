@@ -5,3 +5,23 @@ input,
 textarea {
     autocomplete: off !important;
 }
+
+:root {
+    --p-primary-color: #0da487 !important;
+    --p-primary-color-text: #ffffff !important;
+}
+
+.p-button.p-button-success {
+    background-color: #0da487 !important;
+    border-color: #0da487 !important;
+    color: #fff !important;
+}
+
+.p-tabview-nav li.p-highlight .p-tabview-nav-link {
+    color: #0da487 !important;
+    border-bottom: 2px solid #0da487 !important;
+}
+
+.p-tabview-nav .p-tabview-ink-bar {
+    background-color: #0da487 !important;
+}

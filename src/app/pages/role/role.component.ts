@@ -23,11 +23,13 @@ import { CreatedRole } from '../../models/role.model';
 import { RoleService } from '../../services/role.service';
 import { AuthService } from '../../services/auth.service';
 import { AlertService } from '../../services/alert.service';
+import { CheckboxModule } from 'primeng/checkbox';
+import { TabsModule } from 'primeng/tabs';
 
 @Component({
   selector: 'app-role',
   standalone: true,
-  imports: [FormsModule, CommonModule, FormInputComponent, FormViewComponent, CommonModule, NgIf, FormsModule, DialogModule, NgxPaginationModule, MenuModule, DropdownModule, PanelModule, SelectModule, PaginatorModule, InputGroupAddonModule, TableModule, ButtonModule, BadgeModule, InputGroupModule, PermissionTreeComponent],
+  imports: [FormsModule, TabsModule, CommonModule,CheckboxModule, FormInputComponent, CommonModule, NgIf, FormsModule, DialogModule, NgxPaginationModule, MenuModule, DropdownModule, PanelModule, SelectModule, PaginatorModule, InputGroupAddonModule, TableModule, ButtonModule, BadgeModule, InputGroupModule, PermissionTreeComponent],
   templateUrl: './role.component.html',
   styleUrl: './role.component.css'
 })
@@ -54,6 +56,7 @@ export class RoleComponent {
     name?: string
   } = {}
   visible: boolean = false;
+  first = 0;
 
   showDialog() { this.visible = true; }
   constructor(private roleService: RoleService, public authService: AuthService, private router: Router, private alertService: AlertService) { }
@@ -61,6 +64,12 @@ export class RoleComponent {
   ngOnInit(): void {
     this.loadRole();
     this.loadPermissions();
+    const modalElement = document.getElementById('exampleModal');
+    if (modalElement) {
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        this.onHideModal();
+      });
+    }
   }
 
   onPageChange(event: any) {
@@ -78,6 +87,10 @@ export class RoleComponent {
       this.roles = res.result.contents;
       this.totalRecords = res.result.totalRecords;
     });
+  }
+  onHideModal(): void {
+    this.errors = {};
+    this.resetForm();
   }
 
   loadPermissions(): void {
@@ -97,8 +110,10 @@ export class RoleComponent {
 
   validate(): boolean {
     this.errors = {}
+
     const nameError = validateRoleName(this.newRole.name)
     if (nameError) this.errors.name = nameError
+
     return Object.keys(this.errors).length === 0;
   }
 
@@ -140,16 +155,12 @@ export class RoleComponent {
         this.newRole.name = roleData.name;
         this.newRole.status = roleData.status;
 
-        // Xử lý permissions là mảng các đối tượng
         if (Array.isArray(roleData.permissions)) {
-          // Chuyển đổi mảng đối tượng permissions thành mảng id
           this.newRole.permissions = roleData.permissions.map((p: any) => p.id);
         } else {
           console.warn("Permissions is not an array:", roleData.permissions);
           this.newRole.permissions = [];
         }
-
-        // Mở modal sau khi đã load dữ liệu
         const modalElement = document.getElementById('exampleModal');
         if (modalElement) {
           const bsModal = new (window as any).bootstrap.Modal(modalElement);
@@ -179,6 +190,7 @@ export class RoleComponent {
     };
     this.isSubmitting = false;
     this.isEditMode = false;
+    this.errors = {};
   }
 
   saveRole(): void {
@@ -208,11 +220,30 @@ export class RoleComponent {
               }
             }
             const currentUser = this.authService.getCurrentUser();
-            console.log(currentUser);
 
-            if (currentUser?.role === roleData.name) {
+            let userRoles = [];
+            if (currentUser && currentUser.role) {
+              if (typeof currentUser.role === 'string') {
+                userRoles = currentUser.role.split(',').map((role: string) => role.trim());
+              } else if (Array.isArray(currentUser.role)) {
+                userRoles = currentUser.role;
+              } else if (typeof currentUser.role === 'object') {
+                console.log("Role object:", currentUser.role);
+              }
+            }
+
+            if (userRoles.length > 0 && userRoles.includes(roleData.name)) {
               this.alertService.warning("Vai trò hiện tại của bạn đã được thay đổi. Vui lòng đăng nhập lại để áp dụng quyền mới.")
-              this.logout()
+              this.authService.logout().subscribe({
+                next: () => {
+                  localStorage.removeItem('jwtToken')
+                  this.router.navigate([LOGIN])
+                },
+                error: err => {
+                  localStorage.removeItem('token');
+                  this.router.navigate([LOGIN]);
+                }
+              })
             }
           } else if (res.code === 4012) {
             this.alertService.error(res?.message)
@@ -260,7 +291,22 @@ export class RoleComponent {
     const currentUser = this.authService.getCurrentUser();
     const roleToDelete = this.roles.find(role => role.id === roleId);
 
-    if (currentUser && roleToDelete && currentUser.role === roleToDelete.name) {
+    if (!currentUser || !roleToDelete) {
+      return;
+    }
+    let userHasRole = false;
+
+    if (currentUser.role) {
+      if (typeof currentUser.role === 'string') {
+        const userRoles = currentUser.role.split(',').map((role: string) => role.trim());
+        userHasRole = userRoles.includes(roleToDelete.name);
+      } else if (Array.isArray(currentUser.role)) {
+        userHasRole = currentUser.role.includes(roleToDelete.name);
+      } else if (typeof currentUser.role === 'object') {
+        console.log("Role object:", currentUser.role);
+      }
+    }
+    if (userHasRole) {
       this.alertService.error("Bạn không thể xóa vai trò của chính mình!");
       return;
     }

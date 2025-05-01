@@ -3,21 +3,48 @@
 }
 
 .sidebar {
-    width: 250px;
+    width: 280px;
     min-height: 100vh;
     height: 100%;
     transition: width 0.3s;
     position: relative;
+
+    background: linear-gradient(-43deg,
+            rgb(13, 164, 135) 0%,
+            rgb(0, 146, 137) 60%,
+            rgb(0, 146, 137) 80%,
+            rgb(235, 177, 110) 100%);
+    background-size: 300% 300%;
+    background-repeat: no-repeat;
+    animation: gradientScroll 20s ease-in-out infinite;
 }
+
+@keyframes gradientScroll {
+    0% {
+        background-position: 0% 0%;
+    }
+
+    50% {
+        background-position: 100% 100%;
+    }
+
+    100% {
+        background-position: 0% 0%;
+    }
+}
+
+
 
 .collapsed .sidebar {
     width: 80px;
 }
 
 .sidebar .toggle-btn {
+    width: 35px;
+    height: 35px;
     position: absolute;
     top: 4%;
-    left: 92%;
+    left: 85%;
     transform: translateY(-50%);
     z-index: 100;
 }

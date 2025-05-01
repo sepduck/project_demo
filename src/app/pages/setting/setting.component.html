@@ -1,7 +1,9 @@
-<div class="container mt-5" *ngIf="authService.hasPermission('mgmt.setting')">
-    <p class="header-container me-2">Cài đặt</p>
-    <p-panel styleClass="mt-3 mb-5" header="Đăng ký dựa trên biểu mẫu">
-        <div class="mb-2">
+<div class="d-flex justify-content-center align-items-center mt-4"
+    *ngIf="authService.hasPermission('mgmt.setting')">
+    <div style="width: 60vw; max-width: 1000px; background-color: #fff; padding: 30px;">
+        <h5 style="font-size: 1.3rem;">Cài đặt</h5>
+       
+        <div class="mb-2 mt-5">
             <div class="d-flex align-items-center gap-2">
                 <p-checkbox [(ngModel)]="selfRegister" [id]="selfRegister" binary="true"></p-checkbox>
                 <label for="selfRegister" class="ml-2">Cho phép người dùng tự đăng ký.</label>
@@ -96,5 +98,5 @@
             <p-button (onClick)="updateSetting()" icon="pi pi-save" severity="info"
                 [label]="isSubmitting ? 'Đang xử lý...' : 'Lưu thông tin'" [disabled]="isSubmitting" />
         </div>
-    </p-panel>
+    </div>
 </div>

@@ -75,3 +75,102 @@ th {
 .detail-value {
     flex: 1;
 }
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+:host ::ng-deep .p-datatable-table th,
+:host ::ng-deep .p-datatable-table td {
+    white-space: nowrap;
+}
+
+:host ::ng-deep .custom-avatar-fit img {
+    object-fit: cover !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Tùy chỉnh menu items */
+:host ::ng-deep .p-menu .p-menuitem-link {
+    padding: 0.75rem 1rem;
+}
+
+.excel-operations-container {
+    display: inline-block;
+}
+
+::ng-deep .excel-button .p-button {
+    background-color: #217346 !important;
+    /* Màu xanh Excel */
+    border-color: #217346 !important;
+    color: #fff !important;
+}
+
+::ng-deep .excel-button .p-button:hover {
+    background-color: #1e613c !important;
+    border-color: #1e613c !important;
+}
+
+::ng-deep .excel-button .pi-file-excel {
+    color: #fff !important;
+    /* icon trắng */
+}
+
+::ng-deep .custom-create-button .p-button {
+    background-color: #0da487 !important;
+    border-color: #0da487 !important;
+    color: #fff !important;
+}
+
+::ng-deep .custom-create-button .p-button:hover {
+    background-color: #0b8e74 !important;
+    border-color: #0b8e74 !important;
+}
+
+::ng-deep .row-light {
+    background-color: #ffffff !important;
+}
+
+::ng-deep .row-dark {
+    background-color: #f8f8f8 !important;
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th {
+    background-color: #f3f3f3 !important;
+    color: #000 !important;
+    font-weight: 600;
+}
+
+/* CSS để loại bỏ viền bảng - phiên bản mạnh hơn với !important */
+:host ::ng-deep .p-datatable.no-border-table,
+:host ::ng-deep .p-datatable.no-border-table * {
+    border-collapse: collapse !important;
+}
+
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-wrapper,
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-table,
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-thead,
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-tbody,
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-tfoot {
+    border: 0 none !important;
+    border-width: 0 !important;
+    box-shadow: none !important;
+}
+
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-thead>tr>th,
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-tbody>tr>td,
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-tfoot>tr>td {
+    border: 0 none !important;
+    border-width: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Loại bỏ viền cho phân trang */
+:host ::ng-deep .p-datatable.no-border-table .p-paginator {
+    border: none !important;
+    border-width: 0 !important;
+}

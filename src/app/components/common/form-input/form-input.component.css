@@ -64,3 +64,19 @@
     margin-left: 2rem;
     color: #666;
 }
+
+
+:host ::ng-deep .p-password {
+    width: 100%;
+    background-color: #f9f9f6;
+}
+
+:host ::ng-deep .p-password input {
+    width: 100%;
+    background-color: #f9f9f6;
+}
+
+::ng-deep .full-width-input {
+    width: 100%;
+    background-color: #f9f9f6 !important;
+}

@@ -11,12 +11,14 @@ import { validateEmail, validateFirstName, validateLastName, validatePhoneNumber
 import { AlertService } from '../../../services/alert.service';
 import { AuthService } from '../../../services/auth.service';
 import { USERS } from '../../../constants/path-valiable';
+import { TabsModule } from 'primeng/tabs';
+import { PasswordModule } from 'primeng/password';
 
 
 @Component({
   selector: 'app-update-user',
   standalone: true,
-  imports: [CommonModule, FormsModule, FormInputComponent, ButtonModule, PanelModule, CheckboxModule],
+  imports: [CommonModule, FormsModule, FormInputComponent, ButtonModule, PanelModule, CheckboxModule, TabsModule, PasswordModule],
   templateUrl: './update-user.component.html',
   styleUrl: './update-user.component.css'
 })

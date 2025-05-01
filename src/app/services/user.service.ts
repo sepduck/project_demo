@@ -11,12 +11,21 @@ export class UserService {
   constructor(private http: HttpClient) {
 
   }
-  getUsers(pageNumber: number, pageSize: number): Observable<ApiResponse> {
+  getUsers(permissionIds: number[], name: string, roleId: number | null, pageNumber: number, pageSize: number): Observable<ApiResponse> {
     const headers = AuthUtils.getAuthHeaders();
     let params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString());
-    return this.http.get<ApiResponse>(API_V1_USER, { headers, params })
+
+    if (name && name.trim() !== '') { params = params.set('name', name); }
+    if (roleId && roleId > 0) { params = params.set('roleId', roleId.toString()); }
+
+    if (permissionIds && permissionIds.length > 0) {
+      permissionIds.forEach(id => {
+        params = params.append('permissionIds', id.toString());
+      });
+    }
+    return this.http.get<ApiResponse>(API_V1_USER, { headers, params });
   }
   createUser(
     firstName: string,
@@ -74,22 +83,7 @@ export class UserService {
       API_V1_USER_CHANGE_PASSWORD, { currentPassword, newPassword }, { headers }
     )
   }
-  searchUser(permissionIds: number[], name: string, roleId: number, pageNumber: number, pageSize: number): Observable<ApiResponse> {
-    const headers = AuthUtils.getAuthHeaders();
-    let params = new HttpParams()
-      .set('pageNumber', pageNumber.toString())
-      .set('pageSize', pageSize.toString());
 
-    if (name && name.trim() !== '') { params = params.set('name', name); }
-    if (roleId && roleId > 0) { params = params.set('roleId', roleId.toString()); }
-
-    if (permissionIds && permissionIds.length > 0) {
-      permissionIds.forEach(id => {
-        params = params.append('permissionIds', id.toString());
-      });
-    }
-    return this.http.get<ApiResponse>(API_V1_USER_SEARCH, { headers, params });
-  }
   createUsers(data: any[]): Observable<ApiResponse2<string>> {
     const headers = AuthUtils.getAuthHeaders();
     return this.http.post<ApiResponse2<string>>(API_V1_USER_CREATE_USER_LIST, data, { headers });

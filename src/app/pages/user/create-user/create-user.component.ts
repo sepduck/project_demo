@@ -11,11 +11,13 @@ import { validateConfirmPassword, validateEmail, validateFirstName, validateLast
 import { AlertService } from '../../../services/alert.service';
 import { AuthService } from '../../../services/auth.service';
 import { USERS } from '../../../constants/path-valiable';
+import { TabsModule } from 'primeng/tabs';
+import { PasswordModule } from 'primeng/password';
 
 @Component({
   selector: 'app-create-user',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonModule, CheckboxModule, FormInputComponent],
+  imports: [CommonModule, FormsModule, ButtonModule, CheckboxModule, FormInputComponent, TabsModule, PasswordModule, CheckboxModule],
   templateUrl: './create-user.component.html',
   styleUrl: './create-user.component.css'
 })

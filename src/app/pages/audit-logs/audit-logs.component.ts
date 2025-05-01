@@ -42,17 +42,12 @@ export class AuditLogsComponent {
   serviceName: string = '';
   rangeDates: Date[] = [];
 
+  first = 0;
+
   constructor(private auditLogService: AuditLogService, public authService: AuthService) { }
 
   ngOnInit(): void {
-    this.loadAuditLog();
-  }
-
-  loadAuditLog(): void {
-    this.auditLogService.getUsers(this.pageNumber, this.pageSize).subscribe(res => {
-      this.activityLogs = res.result.contents;
-      this.totalRecords = res.result.totalRecords;
-    });
+    this.loadActivityLogs();
   }
 
   activeTab: string = 'tab1';
@@ -94,7 +89,7 @@ export class AuditLogsComponent {
     this.activity = '';
     this.browser = '';
     this.filterState = 'all';
-    this.loadAuditLog();
+    this.loadActivityLogs();
   }
 
   determineFilterState(): void {
@@ -116,24 +111,17 @@ export class AuditLogsComponent {
   }
 
   applyCurrentFilter(): void {
-    if (this.filterState === E_ALL) {
-      this.loadAuditLog();
-    } else {
-      this.searchActivityLogs(false);
-    }
+    this.loadActivityLogs();
+
   }
 
-  searchActivityLogs(resetPage: boolean = true): void {
+  loadActivityLogs(resetPage: boolean = true): void {
     if (resetPage) this.pageNumber = 1;
-    this.determineFilterState();
-    if (this.filterState === E_ALL) {
-      this.loadAuditLog();
-      return;
-    }
+
 
     const params = this.buildSearchParams();
     this.auditLogService
-      .searchActivityLogs(
+      .getActivityLogs(
         params.username,
         params.activity,
         params.browser,

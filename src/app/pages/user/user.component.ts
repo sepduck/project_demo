@@ -28,7 +28,7 @@ import { AlertService } from '../../services/alert.service';
 
 @Component({
   selector: 'app-user',
-  imports: [PermissionTreeComponent, AvatarModule, CommonModule, NgIf, FormsModule, DialogModule, TreeModule, NgxPaginationModule, MenuModule, DropdownModule, PanelModule, SelectModule, PaginatorModule, InputGroupAddonModule, TableModule, ButtonModule, BadgeModule, InputGroupModule],
+  imports: [DialogModule, PermissionTreeComponent, AvatarModule, CommonModule, NgIf, FormsModule, DialogModule, TreeModule, NgxPaginationModule, MenuModule, DropdownModule, PanelModule, SelectModule, PaginatorModule, InputGroupAddonModule, TableModule, ButtonModule, BadgeModule, InputGroupModule],
   templateUrl: './user.component.html',
   styleUrl: './user.component.css'
 })
@@ -54,7 +54,7 @@ export class UserComponent {
   thumbnail: string = '';
   isRandomPassword: boolean = false;
   isPasswordVisible: boolean = false;
-
+  first = 0;
   baseImageUrl: string = 'http://localhost:5293/api/v1/images/view/';
 
   // Permissions and Roles
@@ -74,7 +74,7 @@ export class UserComponent {
   constructor(private userService: UserService, private router: Router, public authService: AuthService, private roleService: RoleService, private alertService: AlertService) { }
 
   ngOnInit(): void {
-    this.loadUser();
+    this.loadUsers();
     this.loadRolesSelect();
     this.loadPermissions();
     this.setupExcelOperations()
@@ -112,24 +112,10 @@ export class UserComponent {
 
   get totalPages(): number { return Math.ceil(this.totalRecords / this.pageSize); }
 
-  loadUser(): void {
-    this.userService.getUsers(this.pageNumber, this.pageSize).subscribe(res => {
-      if (res.code === 200) {
-        this.users = res.result.contents;
-        this.totalRecords = res.result.totalRecords;
-        this.pageNumber = res.result.pageNumber;
-        this.pageSize = res.result.pageSize;
-      } else {
-        this.errorMessage = 'Không thể tải dữ liệu người dùng';
-      }
-    });
-  }
+  loadUsers(resetPage: boolean = true): void {
+    if (resetPage) this.pageNumber = 1;
 
-  searchUsers(resetPage: boolean = true): void {
-    if (resetPage) {
-      this.pageNumber = 1;
-    }
-
+    // Xác định trạng thái filter dựa trên các tham số hiện tại
     if (this.selectedPermissionIds && this.selectedPermissionIds.length > 0) {
       this.filterState = 'permissions';
     } else if (this.selectedRoleId && this.selectedRoleId > 0) {
@@ -137,15 +123,13 @@ export class UserComponent {
     } else if (this.name && this.name.trim() !== '') {
       this.filterState = 'search';
     } else {
-      // If nothing is specified, load all users
       this.filterState = 'all';
-      this.loadUser();
-      return;
     }
 
     const permissionIds = this.selectedPermissionIds ? [...this.selectedPermissionIds] : [];
 
-    this.userService.searchUser(
+    // Sử dụng searchUser cho tất cả các trường hợp
+    this.userService.getUsers(
       permissionIds,
       this.name || '',
       this.selectedRoleId || 0,
@@ -159,23 +143,22 @@ export class UserComponent {
           this.pageNumber = res.result.pageNumber;
           this.pageSize = res.result.pageSize;
         } else {
-          this.errorMessage = 'Không thể tìm kiếm người dùng';
-          this.alertService.error(res.message || 'Lỗi không xác định khi tìm kiếm người dùng');
+          this.errorMessage = 'Không thể tải dữ liệu người dùng';
+          this.alertService.error(res.message || 'Lỗi không xác định khi tải dữ liệu người dùng');
         }
       },
       error: (err) => {
-        this.errorMessage = 'Lỗi kết nối khi tìm kiếm người dùng';
-        this.alertService.error("Không thể tìm kiếm người dùng. Vui lòng thử lại sau.");
-      },
-      complete: () => {
+        this.errorMessage = 'Lỗi kết nối khi tải dữ liệu người dùng';
+        this.alertService.error("Không thể tải dữ liệu người dùng. Vui lòng thử lại sau.");
       }
     });
   }
+
   deleteUser(userId: number): void {
     this.userService.deleteUser(userId).subscribe({
       next: (res) => {
         if (res.code === 200) {
-          this.loadUser();
+          this.loadUsers();
           this.alertService.success("Xoá người dùng thành công!")
         } else if (res.code === 4022) {
           this.alertService.error(res.message)
@@ -211,27 +194,21 @@ export class UserComponent {
   onPageChange(event: any) {
     this.pageNumber = Math.floor((event.first || 0) / (event.rows || 10)) + 1;
     this.pageSize = event.rows || 10;
-
-    if (this.filterState === 'search' && this.name) {
-      this.searchUsers(false);
-    } else {
-      this.loadUser();
-    }
+    this.loadUsers(false);
   }
 
   onPageSizeChange(event: any): void {
     this.pageSize = parseInt(event.target.value, 10);
     this.pageNumber = 1;
-    this.loadUser();
+    this.loadUsers();
   }
 
   refreshData(): void {
     this.name = '';
     this.selectedRoleId = 0;
     this.selectedPermissionIds = [];
-    this.filterState = 'all';
     this.pageNumber = 1;
-    this.loadUser();
+    this.loadUsers();
   }
 
   loadRolesSelect(): void {
@@ -262,7 +239,7 @@ export class UserComponent {
 
 
   exportToExcel(): void {
-    this.userService.getUsers(1, 1000).subscribe({
+    this.userService.getUsers([], '', null, 1, 1000).subscribe({
       next: (res) => {
         if (res.code === 200) {
           const users = res.result.contents;
@@ -332,7 +309,6 @@ export class UserComponent {
   }
 
   downloadTemplateFile(): void {
-    // Tạo dữ liệu mẫu với headers tiếng Việt
     const templateData = [{
       'Tên': 'Văn A',
       'Họ': 'Nguyễn',
@@ -432,7 +408,6 @@ export class UserComponent {
       return;
     }
 
-    // Không cần ánh xạ lại vì đã được xử lý trong onFileSelected
     this.userService.createUsers(this.importData).subscribe({
       next: (res) => {
         if (res.code === 200) {
@@ -447,7 +422,7 @@ export class UserComponent {
       },
       complete: () => {
         this.showImportPreview = false;
-        this.loadUser(); // Làm mới danh sách sau khi import
+        this.loadUsers();
       }
     });
   }

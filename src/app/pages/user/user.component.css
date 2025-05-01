@@ -50,3 +50,76 @@
 .excel-operations-container {
     display: inline-block;
 }
+
+::ng-deep .excel-button .p-button {
+    background-color: #217346 !important;
+    /* Màu xanh Excel */
+    border-color: #217346 !important;
+    color: #fff !important;
+}
+
+::ng-deep .excel-button .p-button:hover {
+    background-color: #1e613c !important;
+    border-color: #1e613c !important;
+}
+
+::ng-deep .excel-button .pi-file-excel {
+    color: #fff !important;
+    /* icon trắng */
+}
+
+::ng-deep .p-button.custom-create-button {
+    background-color: #0da487 !important;
+    border-color: #0da487 !important;
+    color: #fff !important;
+}
+
+::ng-deep .p-button.custom-create-button:hover {
+    background-color: #0b8e74 !important;
+    border-color: #0b8e74 !important;
+}
+
+::ng-deep .row-light {
+    background-color: #ffffff !important;
+}
+
+::ng-deep .row-dark {
+    background-color: #f8f8f8 !important;
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th {
+    background-color: #f3f3f3 !important;
+    color: #000 !important;
+    font-weight: 600;
+}
+
+/* CSS để loại bỏ viền bảng - phiên bản mạnh hơn với !important */
+:host ::ng-deep .p-datatable.no-border-table,
+:host ::ng-deep .p-datatable.no-border-table * {
+    border-collapse: collapse !important;
+}
+
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-wrapper,
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-table,
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-thead,
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-tbody,
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-tfoot {
+    border: 0 none !important;
+    border-width: 0 !important;
+    box-shadow: none !important;
+}
+
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-thead>tr>th,
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-tbody>tr>td,
+:host ::ng-deep .p-datatable.no-border-table .p-datatable-tfoot>tr>td {
+    border: 0 none !important;
+    border-width: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Loại bỏ viền cho phân trang */
+:host ::ng-deep .p-datatable.no-border-table .p-paginator {
+    border: none !important;
+    border-width: 0 !important;
+}

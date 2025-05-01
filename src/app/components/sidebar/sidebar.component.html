@@ -1,20 +1,20 @@
 <div class="d-flex" [ngClass]="{ 'collapsed': isCollapsed }">
-    <div class="sidebar bg-dark text-white p-3">
-        <img [src]="isCollapsed ? '/svg/app-logo-on-light-sm.svg' : '/svg/app-logo-on-light.svg'" style="height: 25px;"
-            alt="logo" />
-        <button class="btn btn-light toggle-btn" (click)="toggleSidebar()">
-            <i class="pi pi-bars" style="font-size: 1rem"></i>
-        </button>
+    <div class="sidebar text-white p-3" style="background-color: #0f8e80;">
+        <img *ngIf="!isCollapsed" src="/svg/app-logo-on-light.svg" style="height: 50px; cursor: pointer;" alt="logo" />
+        <img *ngIf="isCollapsed" src="/svg/app-logo-on-light-sm.svg" style="height: 50px;" alt="logo"
+            (click)="toggleSidebar()" />
+        <img src="/svg/menu.svg" (click)="toggleSidebar()" class="toggle-btn" *ngIf="!isCollapsed" />
+
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
-                <a [routerLink]="['/app/admin/dashBoard']" class="nav-link text-white"
+                <a [routerLink]="['/app/admin/dashBoard']" class="nav-link text-white fw-bold"
                     *ngIf="authService.hasPermission('dashboard')">
                     <i class="bi bi-speedometer2 me-2"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                <a class="nav-link text-white fw-bold d-flex justify-content-between align-items-center"
                     (click)="toggleSubMenu()" *ngIf="authService.hasPermission('mgmt')">
                     <div>
                         <i class="bi bi-gear me-2"></i>
@@ -24,25 +24,25 @@
                 </a>
                 <ul class="nav flex-column ms-3" *ngIf="isSubMenuOpen">
                     <li *ngIf="authService.hasPermission('mgmt.role')" class="nav-item">
-                        <a [routerLink]="['/app/admin/roles']" class="nav-link text-white">
+                        <a [routerLink]="['/app/admin/roles']" class="nav-link text-white fw-bold">
                             <i class="bi bi-person-badge me-2"></i>
                             <span>Vai trò</span>
                         </a>
                     </li>
                     <li *ngIf="authService.hasPermission('mgmt.user')" class="nav-item">
-                        <a [routerLink]="['/app/admin/users']" class="nav-link text-white">
+                        <a [routerLink]="['/app/admin/users']" class="nav-link text-white fw-bold">
                             <i class="bi bi-people me-2"></i>
                             <span>Người dùng</span>
                         </a>
                     </li>
                     <li *ngIf="authService.hasPermission('mgmt.activity')" class="nav-item">
-                        <a [routerLink]="['/app/admin/auditLogs']" class="nav-link text-white">
+                        <a [routerLink]="['/app/admin/auditLogs']" class="nav-link text-white fw-bold">
                             <i class="bi bi-journal-text me-2"></i>
                             <span>Nhật ký kiểm tra</span>
                         </a>
                     </li>
                     <li *ngIf="authService.hasPermission('mgmt.setting')" class="nav-item">
-                        <a [routerLink]="['/app/admin/tenantSettings']" class="nav-link text-white">
+                        <a [routerLink]="['/app/admin/tenantSettings']" class="nav-link text-white fw-bold">
                             <i class="bi bi-sliders me-2"></i>
                             <span>Cài đặt</span>
                         </a>

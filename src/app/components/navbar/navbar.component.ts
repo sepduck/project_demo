@@ -9,11 +9,15 @@ import { LOGIN } from '../../constants/path-valiable';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { AlertService } from '../../services/alert.service';
-
+import { Toolbar } from 'primeng/toolbar';
+import { AvatarModule } from 'primeng/avatar';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { DialogModule } from 'primeng/dialog';
+import { PasswordModule } from 'primeng/password';
 
 @Component({
   selector: 'app-navbar',
-  imports: [CommonModule, FormsModule, FormInputComponent, ButtonModule],
+  imports: [CommonModule, FormsModule, FormInputComponent, ButtonModule, Toolbar, AvatarModule, OverlayPanelModule, DialogModule, PasswordModule],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
@@ -57,12 +61,23 @@ export class NavbarComponent implements OnInit {
     confirmPassword?: string
   } = {}
 
+  visible: boolean = false;
+
+  showDialog() {
+    this.visible = true;
+  }
 
   constructor(private http: HttpClient, private authService: AuthService, private router: Router, private userService: UserService, private alertService: AlertService) { }
   ngOnInit(): void {
     this.getUserDetail();
+
   }
 
+  get avatarImage(): string {
+    return typeof this.previewImageUrl === 'string'
+      ? this.previewImageUrl
+      : this.defaultImageUrl;
+  }
   getUserDetail(): void {
     this.userService.getCurrentUser().subscribe({
       next: (res) => {
@@ -154,7 +169,6 @@ export class NavbarComponent implements OnInit {
         this.router.navigate([LOGIN])
       },
       error: err => {
-        console.error('Logout failed:', err);
         localStorage.removeItem('token');
         this.router.navigate([LOGIN]);
       }
