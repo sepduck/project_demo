@@ -13,6 +13,7 @@ import { ForgotPasswordComponent } from './pages/account/forgot-password/forgot-
 import { CreateUserComponent } from './pages/user/create-user/create-user.component';
 import { AuthGuard } from './guards/auth.guard';
 import { CreateNewPasswordComponent } from './pages/account/create-new-password/create-new-password.component';
+import { GoogleCallbackComponent } from './pages/account/google-callback/google-callback.component';
 
 export const routes: Routes = [
     { path: 'account/login', component: LoginComponent },
@@ -21,6 +22,7 @@ export const routes: Routes = [
     { path: 'account/email-validation', component: EmailActivationComponent },
     { path: 'account/forgot-password', component: ForgotPasswordComponent },
     { path: 'account/create-new-password/:email', component: CreateNewPasswordComponent },
+    { path: 'account/google/callback', component: GoogleCallbackComponent },
 
     {
         path: 'app/admin',

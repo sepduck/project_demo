@@ -1,8 +1,7 @@
-<div class="d-flex justify-content-center align-items-center mt-4"
-    *ngIf="authService.hasPermission('mgmt.setting')">
+<div class="d-flex justify-content-center align-items-center mt-4" *ngIf="authService.hasPermission('mgmt.setting')">
     <div style="width: 60vw; max-width: 1000px; background-color: #fff; padding: 30px;">
         <h5 style="font-size: 1.3rem;">Cài đặt</h5>
-       
+
         <div class="mb-2 mt-5">
             <div class="d-flex align-items-center gap-2">
                 <p-checkbox [(ngModel)]="selfRegister" [id]="selfRegister" binary="true"></p-checkbox>
@@ -23,6 +22,40 @@
                 * Nếu bạn tắt chức năng này, người dùng mới sẽ không được kích hoạt (và không thể đăng nhập) cho đến khi
                 quản trị viên kích hoạt tài khoản theo cách thủ công.
             </i>
+        </div>
+
+        <p class="header-setting mt-3">Hình ảnh Bảo mật</p>
+        <div class="mb-2">
+            <div class="d-flex align-items-center gap-2">
+                <p-checkbox [(ngModel)]="useCaptchaOnRegister" [id]="useCaptchaOnRegister"
+                    binary="true"></p-checkbox>
+                <label for="useCaptchaOnRegister" class="ml-2">Sử dụng câu hỏi hình ảnh bảo mật (captcha) khi đăng
+                    ký.</label>
+            </div>
+        </div>
+        <div class="mb-2">
+            <div class="d-flex align-items-center gap-2">
+                <p-checkbox [(ngModel)]="useCaptchaOnResetPassword" [id]="useCaptchaOnResetPassword"
+                    binary="true"></p-checkbox>
+                <label for="useCaptchaOnResetPassword" class="ml-2">Sử dụng câu hỏi hình ảnh bảo mật (captcha) khi đặt
+                    lại mật khẩu.</label>
+            </div>
+        </div>
+        <div class="mb-2">
+            <div class="d-flex align-items-center gap-2">
+                <p-checkbox [(ngModel)]="useCaptchaOnEmailActivation" [id]="useCaptchaOnEmailActivation"
+                    binary="true"></p-checkbox>
+                <label for="useCaptchaOnEmailActivation" class="ml-2">Sử dụng câu hỏi hình ảnh bảo mật (captcha) khi kích
+                    hoạt email.</label>
+            </div>
+        </div>
+        <div class="mb-2">
+            <div class="d-flex align-items-center gap-2">
+                <p-checkbox [(ngModel)]="useCaptchaOnLogin" [id]="useCaptchaOnLogin"
+                    binary="true"></p-checkbox>
+                <label for="useCaptchaOnLogin" class="ml-2">Sử dụng câu hỏi hình ảnh bảo mật (captcha) khi đăng
+                    nhập.</label>
+            </div>
         </div>
 
         <p class="header-setting mt-3">Các thiết lập khác</p>

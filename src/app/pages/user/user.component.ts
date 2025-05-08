@@ -25,10 +25,11 @@ import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
 import { RoleService } from '../../services/role.service';
 import { AlertService } from '../../services/alert.service';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 
 @Component({
   selector: 'app-user',
-  imports: [DialogModule, PermissionTreeComponent, AvatarModule, CommonModule, NgIf, FormsModule, DialogModule, TreeModule, NgxPaginationModule, MenuModule, DropdownModule, PanelModule, SelectModule, PaginatorModule, InputGroupAddonModule, TableModule, ButtonModule, BadgeModule, InputGroupModule],
+  imports: [DialogModule, AutoCompleteModule, PermissionTreeComponent, AvatarModule, CommonModule, NgIf, FormsModule, DialogModule, TreeModule, NgxPaginationModule, MenuModule, DropdownModule, PanelModule, SelectModule, PaginatorModule, InputGroupAddonModule, TableModule, ButtonModule, BadgeModule, InputGroupModule],
   templateUrl: './user.component.html',
   styleUrl: './user.component.css'
 })
@@ -55,7 +56,6 @@ export class UserComponent {
   isRandomPassword: boolean = false;
   isPasswordVisible: boolean = false;
   first = 0;
-  baseImageUrl: string = 'http://localhost:5293/api/v1/images/view/';
 
   // Permissions and Roles
   roles: any[] = [];
@@ -71,6 +71,7 @@ export class UserComponent {
   visible: boolean = false;
   items: MenuItem[] | undefined;
   excelOperations: MenuItem[] = [];
+  
   constructor(private userService: UserService, private router: Router, public authService: AuthService, private roleService: RoleService, private alertService: AlertService) { }
 
   ngOnInit(): void {

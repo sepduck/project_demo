@@ -65,6 +65,13 @@ export class UserService {
       API_V1_USER + `/${id}`, { firstName, lastName, email, username, phoneNumber, isSendEmail, thumbnail, roles, isAction, isLockedOut }, { headers }
     )
   }
+
+  updateProfile(id: number, firstName: string, lastName: string, email: string, username: string, phoneNumber: string, isSendEmail: boolean, thumbnail: string, roles: number[], isAction: boolean, isLockedOut: boolean) {
+    const headers = AuthUtils.getAuthHeaders();
+    return this.http.put<{ code: number, message: string }>(
+      API_V1_USER_PROFILE + `/${id}`, { firstName, lastName, email, username, phoneNumber, isSendEmail, thumbnail, roles, isAction, isLockedOut }, { headers }
+    )
+  }
   deleteUser(id: number) {
     const headers = AuthUtils.getAuthHeaders();
     return this.http.delete<{ code: number, message: string }>(API_V1_USER + `/${id}`, { headers })

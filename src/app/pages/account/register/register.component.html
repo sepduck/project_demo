@@ -6,11 +6,12 @@
         <form-input placeholder="Tên truy cập" [(value)]="username" [error]="errors.username!" isInput="no-label" />
         <form-input placeholder="Mật khẩu" [(value)]="password" [error]="errors.password!" type="password"
             isInput="no-label-password" />
-        <!-- <form-button (backClick)="goToLogin()" (submitClick)="register()" /> -->
+        <re-captcha *ngIf="useCaptchaOnRegister" #captchaRef siteKey="6LdSNCwrAAAAAHEIqV1izQYp74bOx41VAiyFsaPV"
+            (resolved)="onCaptchaResolved($event)" class="mt-3 mb-3 d-block"></re-captcha>
         <div class="d-flex justify-content-start gap-2 mt-5">
             <p-button [label]="'Trở lại'" icon="bi bi-arrow-left" severity="secondary" (click)="goToLogin()" />
             <p-button (click)="register()" [label]="isSubmitting ? 'Đang xử lý...' : 'Gửi đi'" icon="bi bi-check-lg"
-                [disabled]="isSubmitting" icon="pi pi-save" severity="info" />
+                [disabled]="isSubmitting" icon="pi pi-save" severity="success" />
         </div>
     </account-form>
 </div>

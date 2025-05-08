@@ -94,7 +94,7 @@
                             {{ (first + rowIndex + 1) }}
                         </td>
                         <td class="text-center">
-                            <p-avatar *ngIf="user.thumbnail; else defaultAvatar" [image]="baseImageUrl + user.thumbnail"
+                            <p-avatar *ngIf="user.thumbnail; else defaultAvatar" [image]="user.thumbnail"
                                 class="mr-2 custom-avatar-fit" size="large" shape="circle" />
                             <ng-template #defaultAvatar>
                                 <p-avatar icon="pi pi-user" class="mr-2" size="large" shape="circle" />

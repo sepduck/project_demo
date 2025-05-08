@@ -26,7 +26,14 @@ export interface ApiResponse {
         pageSize: number;
     }
 }
-
+interface Providers {
+    avatar: string;
+    provider: string;
+    providerEmail: string;
+    providerUserId: string;
+    firstName: string;
+    lastName: string;
+}
 export interface UserDetail {
     id: number;
     firstName: string;
@@ -42,6 +49,7 @@ export interface UserDetail {
     isAction: boolean;
     isLockedOut: boolean;
     isSendEmail: boolean;
+    providers: Providers[]
 }
 export interface ApiResponseUserDetail {
     code: number;

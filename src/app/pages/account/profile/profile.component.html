@@ -1,0 +1,63 @@
+<div class="px-3">
+    <div class="mt-5 row">
+        <div class="col-md-3">
+            <label for="password" style="font-weight: 500;">Ảnh đại diện</label>
+        </div>
+        <div class="col-md-9">
+            <div style="width: 100%; max-width: 130px; aspect-ratio: 1; border-radius: 10%; cursor: pointer; background-color: #f9f9f6; display: flex; align-items: center; justify-content: center; position: relative;"
+                (click)="onImageClick()">
+                <ng-container *ngIf="previewImageUrl else placeholder">
+                    <img [src]="previewImageUrl || placeholder"
+                        style="width: 100%; height: 100%; border-radius: 10%; object-fit: cover;" alt="profile image" />
+                </ng-container>
+
+                <ng-template #placeholder>
+                    <span style="font-size: 2rem; color: #000;">+</span>
+                </ng-template>
+            </div>
+
+            <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" hidden />
+
+            <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" hidden />
+        </div>
+    </div>
+    <form-input label="Họ" placeholder="Nhập họ" [(value)]="firstName" [error]="errors.firstName!" isInput="col" />
+    <form-input label="Tên" placeholder="Nhập tên" [(value)]="lastName" [error]="errors.lastName!" isInput="col" />
+    <form-input label="Địa chỉ Email" placeholder="Nhập địa chỉ email" [(value)]="email" [error]="errors.email!"
+        isInput="col" type="email" [disabled]="true" />
+    <form-input label="Số điện thoại" placeholder="Nhập số điện thoại" [(value)]="phoneNumber" [error]="errors.phone!"
+        isInput="col" type="phoneNumber" />
+    <form-input label="Tên truy cập" placeholder="Nhập tên truy cập" [disabled]="true" [(value)]="username"
+        [error]="errors.username!" isInput="col" />
+
+    <button pButton type="button" class="mt-5 align-self-start me-3" severity="secondary" [raised]="true"
+        (click)="googleProvider ? unlinkOutbound('google') : linkOutbound('google', 'true')">
+        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" width="24" height="24"
+            class="me-2" />
+        <div class="d-flex flex-column text-start">
+            <span class="fw-bold" *ngIf="googleProvider">Gỡ liên kết</span>
+            <span class="fw-bold">
+                {{ googleProvider ? (googleFirstName + ' ' + googleLastName) : 'Liên kết với Google' }}
+            </span>
+        </div>
+    </button>
+
+
+    <button pButton type="button" severity="info" class="align-self-start mt-3" [raised]="true"
+        (click)="facebookProvider ? unlinkOutbound('facebook') : linkOutbound('facebook', 'true')">
+        <img src="https://www.svgrepo.com/show/303112/facebook-icon-white-logo.svg" alt="Facebook" width="24"
+            height="24" class="me-2" />
+        <div class="d-flex flex-column text-start">
+            <span class="fw-bold" *ngIf="facebookProvider">Gỡ liên kết</span>
+            <span class="fw-bold">
+                {{ facebookProvider ? (facebookFirstName + ' ' + facebookLastName): 'Liên kết với Facebook' }}
+            </span>
+        </div>
+    </button>
+    <div class="d-flex justify-content-end mt-5 mb-5">
+        <p-button [label]="'Hủy bỏ'" icon="pi pi-times" severity="secondary" (onClick)="onCancelEmit()"
+            class="w-1/3 p-button-rounded me-2" />
+        <p-button (click)="updateProfile()" [label]="'Lưu thông tin'" [disabled]="isSubmitting" icon="pi pi-save"
+            severity="success" class="w-1/3 p-button-rounded" />
+    </div>
+</div>

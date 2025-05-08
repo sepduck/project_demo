@@ -74,3 +74,50 @@
     text-decoration: none;
     color: #1B84FF;
 }
+
+.recaptcha-error {
+    border: 2px solid red !important;
+    /* Viền đỏ */
+}
+
+.btn-google {
+    background-color: #fff;
+    color: #757575;
+    border: 1px solid #ddd;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.btn-google:hover {
+    background-color: #f1f1f1;
+}
+
+.divider-text {
+    position: relative;
+    text-align: center;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.divider-text span {
+    padding: 0 15px;
+}
+
+.divider-text:before,
+.divider-text:after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background-color: #ddd;
+}
+
+.divider-text:before {
+    left: 0;
+}
+
+.divider-text:after {
+    right: 0;
+}

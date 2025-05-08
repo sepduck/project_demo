@@ -3,6 +3,8 @@
     <form-input placeholder="Email" [(value)]="email" isInput="no-label" [readOnly]="emailReadOnly"
         [error]="errors.email!" />
     <form-input placeholder="Mã kích hoạt" [(value)]="token" isInput="no-label" [error]="errors.token!" />
+    <re-captcha *ngIf="useCaptchaOnEmailActivation" #captchaRef siteKey="6LdSNCwrAAAAAHEIqV1izQYp74bOx41VAiyFsaPV"
+        (resolved)="onCaptchaResolved($event)" class="mt-3 mb-3 d-block"></re-captcha>
 
     <form-button (backClick)="goToRegister()" (submitClick)="emailConfirm()" />
 </account-form>

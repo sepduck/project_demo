@@ -51,7 +51,7 @@ export class RoleComponent {
   isSubmitting: boolean = false;
   selectedRoleId: number | null = null;
 
-  description = 'Nếu bạn đang thay đổi quyền của riêng bạn, bạn sẽ phải đăng nhập lại để có hiệu lực của các thay đổi quyền trên màn hình của riêng bạn!'
+  description = 'Nếu bạn 78đan78                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         g thay đổi quyền của riêng bạn, bạn sẽ phải đăng nhập lại để có hiệu lực của các thay đổi quyền trên màn hình của riêng bạn!'
   errors: {
     name?: string
   } = {}

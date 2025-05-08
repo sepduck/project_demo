@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FormInputComponent } from "../../../components/common/form-input/form-input.component";
@@ -10,11 +10,12 @@ import { EMAIL_VALIDATION, LOGIN } from '../../../constants/path-valiable';
 import { AuthService } from '../../../services/auth.service';
 import { SettingServiceService } from '../../../services/setting-service.service';
 import { AlertService } from '../../../services/alert.service';
+import { RecaptchaComponent, RecaptchaModule } from 'ng-recaptcha';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, FormInputComponent, FormInputComponent, AccountFormComponent, ButtonModule],
+  imports: [CommonModule, FormsModule, FormInputComponent, FormInputComponent, AccountFormComponent, ButtonModule, RecaptchaModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
@@ -27,6 +28,7 @@ export class RegisterComponent implements OnInit {
   password: string = '';
   username: string = '';
   errorMessage: string = '';
+  captchaToken: string | null = null;
 
   // Khai báo Error
   errors: {
@@ -45,10 +47,11 @@ export class RegisterComponent implements OnInit {
   hasUppercase: boolean = false;
   hasNumber: boolean = false;
   minPasswordLength: number = 0;
-
+  useCaptchaOnRegister: boolean = false;
   isSubmitting: boolean = false
 
-  constructor(private authService: AuthService, private router: Router, private settingService: SettingServiceService, private alertService: AlertService) { }
+  constructor(private authService: AuthService, private router: Router, private route: ActivatedRoute, private settingService: SettingServiceService, private alertService: AlertService) { }
+  @ViewChild('captchaRef') captchaRef!: RecaptchaComponent;
 
   ngOnInit(): void {
     this.settingService.getSetting().subscribe({
@@ -56,12 +59,25 @@ export class RegisterComponent implements OnInit {
         if (res.code === 200) {
           const setting = res.result;
           this.selfRegister = setting.selfRegister
+          this.useCaptchaOnRegister = setting.useCaptchaOnRegister
         }
       },
       error: (err) => {
         console.error('Lỗi lấy setting trong Register:', err);
       }
     });
+
+
+  }
+
+  onCaptchaResolved(captchaResponse: string | null) {
+    if (captchaResponse) {
+      console.log('Captcha token:', captchaResponse);
+      this.captchaToken = captchaResponse;
+    } else {
+      console.warn('Captcha không hợp lệ');
+      this.captchaToken = null;
+    }
   }
 
   goToLogin() {
@@ -69,7 +85,7 @@ export class RegisterComponent implements OnInit {
   }
 
   validate(): boolean {
-    this.errors = {}; // reset lỗi
+    this.errors = {};
 
     const firstNameError = validateFirstName(this.firstName);
     if (firstNameError) this.errors.firstName = firstNameError;
@@ -83,7 +99,6 @@ export class RegisterComponent implements OnInit {
     const usernameError = validateUsername(this.username);
     if (usernameError) this.errors.username = usernameError;
 
-    // Xử lý password
     if (!this.password || this.password.trim() === '') {
       this.errors.password = 'Vui lòng nhập mật khẩu';
     } else {
@@ -124,30 +139,57 @@ export class RegisterComponent implements OnInit {
 
     this.isSubmitting = true
 
-    this.authService.register(this.firstName, this.lastName, this.email, this.username, this.password).subscribe({
+    if (!this.captchaToken && this.useCaptchaOnRegister) {
+      this.alertService.error("Please complete the CAPTCHA.");
+      return;
+    }
+
+    this.authService.register(this.firstName, this.lastName, this.email, this.username, this.password, this.captchaToken).subscribe({
       next: (res: { code: number, message: string }) => {
         if (res.code === 200) {
           this.alertService.success(res?.message)
           this.router.navigate([EMAIL_VALIDATION(this.email)]);
         } else if (res.code === 4001) {
           this.errors.email = res.message
+          if (this.useCaptchaOnRegister) {
+            this.captchaRef.reset();
+          }
         } else if (res.code === 4002) {
           this.errors.username = res.message
+          if (this.useCaptchaOnRegister) {
+            this.captchaRef.reset();
+          }
         } else if (res.code === 4011) {
           this.errorMessage = res.message
+          if (this.useCaptchaOnRegister) {
+            this.captchaRef.reset();
+          }
         } else if (res.code === 400) {
           this.errors.password = res.message;
+          if (this.useCaptchaOnRegister) {
+            this.captchaRef.reset();
+          }
         } else {
           console.log(res.message);
-
+          if (this.useCaptchaOnRegister) {
+            this.captchaRef.reset();
+          }
         }
         this.isSubmitting = false
       },
       error: (error: any) => {
         this.isSubmitting = false
+        if (this.useCaptchaOnRegister) {
+          this.captchaRef.reset();
+        }
         this.errorMessage = error.error?.message || "Đã xảy ra lỗi!";
       }
     });
   }
+
+
+
+
+
 
 }

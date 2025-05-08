@@ -5,7 +5,7 @@
                 <p class="header-container me-2">Vai trò</p>
                 <p class="header-description">Sử dụng vai trò để nhóm quyền</p>
             </div>
-            <p-button label="Tạo người dùng mới" [raised]="true" icon="pi pi-plus"
+            <p-button label="Tạo vai trò mới" [raised]="true" icon="pi pi-plus"
                 *ngIf="authService.hasPermission('mgmt.user.create')" (onClick)="openCreateModal()"
                 styleClass="custom-create-button" />
 

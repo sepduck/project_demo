@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -11,11 +11,13 @@ import { EmailActivationService } from '../../../services/email-activation.servi
 import { AlertService } from '../../../services/alert.service';
 import { E_LOGIN, E_REGISTER, MUST_CHANGE_PASSWORD } from '../../../constants/status-enum';
 import { AUTHENTICATION_FAILED } from '../../../constants/error-message';
+import { RecaptchaComponent, RecaptchaModule } from 'ng-recaptcha';
+import { SettingServiceService } from '../../../services/setting-service.service';
 
 
 @Component({
   selector: 'app-email-activation',
-  imports: [FormsModule, CommonModule, AccountFormComponent, FormInputComponent, FormButtonComponent],
+  imports: [FormsModule, CommonModule, AccountFormComponent, FormInputComponent, FormButtonComponent, RecaptchaModule],
   templateUrl: './email-activation.component.html',
   styleUrls: ['./email-activation.component.css'],
 })
@@ -27,16 +29,30 @@ export class EmailActivationComponent implements OnInit {
     token?: string
     email?: string
   } = {}
+  captchaToken: string | null = null;
+  useCaptchaOnEmailActivation: boolean = false;
 
   description: string = 'Một liên kết sẽ được gửi đến email của bạn để kích hoạt địa chỉ email của bạn. Nếu bạn không nhận được email trong vòng vài phút, vui lòng thử lại.'
 
   constructor(
     private emailService: EmailActivationService,
-    private route: ActivatedRoute,
+    private route: ActivatedRoute, private settingService: SettingServiceService,
     private router: Router, private alertService: AlertService
   ) { }
+  @ViewChild('captchaRef') captchaRef!: RecaptchaComponent;
 
   ngOnInit(): void {
+    this.settingService.getSetting().subscribe({
+      next: (res) => {
+        if (res.code === 200) {
+          const setting = res.result;
+          this.useCaptchaOnEmailActivation = setting.useCaptchaOnEmailActivation
+        }
+      },
+      error: (err) => {
+        console.error('Lỗi lấy setting trong Register:', err);
+      }
+    });
     const emailParam = this.route.snapshot.paramMap.get('email') || '';
     if (emailParam) {
       this.email = emailParam;
@@ -45,7 +61,15 @@ export class EmailActivationComponent implements OnInit {
       this.emailReadOnly = false;
     }
   }
-
+  onCaptchaResolved(captchaResponse: string | null) {
+    if (captchaResponse) {
+      console.log('Captcha token:', captchaResponse);
+      this.captchaToken = captchaResponse;
+    } else {
+      console.warn('Captcha không hợp lệ');
+      this.captchaToken = null;
+    }
+  }
   validate(): boolean {
     this.errors = {}
 
@@ -60,7 +84,10 @@ export class EmailActivationComponent implements OnInit {
 
   emailConfirm() {
     if (!this.validate()) return;
-
+    if (!this.captchaToken && this.useCaptchaOnEmailActivation) {
+      this.alertService.error("Please complete the CAPTCHA.");
+      return;
+    }
     this.emailService.emailConfirmation(this.email, this.token).subscribe({
       next: (res) => {
         if (res.code === 200, res.result?.actionType === E_LOGIN) {
@@ -76,16 +103,28 @@ export class EmailActivationComponent implements OnInit {
           this.router.navigate([LOGIN]);
         } else if (res.code === 4006) {
           this.errors.email = res?.message;
+          if (this.useCaptchaOnEmailActivation) {
+            this.captchaRef.reset();
+          }
         } else if (res.code === 4007) {
           this.errors.token = res?.message;
+          if (this.useCaptchaOnEmailActivation) {
+            this.captchaRef.reset();
+          }
         } else if (res.code === 4008) {
           this.errors.token = res?.message;
+          if (this.useCaptchaOnEmailActivation) {
+            this.captchaRef.reset();
+          }
         } else {
           this.alertService.error(AUTHENTICATION_FAILED)
         }
       },
       error: (error) => {
         this.alertService.error(AUTHENTICATION_FAILED)
+        if (this.useCaptchaOnEmailActivation) {
+          this.captchaRef.reset();
+        }
       }
     });
   }

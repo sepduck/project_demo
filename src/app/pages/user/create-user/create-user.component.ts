@@ -40,7 +40,6 @@ export class CreateUserComponent implements OnInit {
   errorMessage: string = '';
   isSubmitting: boolean = false;
   previewImageUrl: string | ArrayBuffer | null = null;
-  defaultImageUrl: string = '/images/default-profile-picture.png';
 
   rolesSelect: any[] = [];
   roles: number[] = [];

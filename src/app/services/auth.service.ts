@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthUtils } from '../utils/api/auth-utils';
-import { API_V1_AUTH_LOGIN, API_V1_AUTH_CREATE_NEW_PASSWORD, API_V1_AUTH_FORGOT_PASSWORD, API_V1_AUTH_LOGOUT, API_V1_AUTH_REFRESH_TOKEN, API_V1_AUTH_REGISTER } from '../constants/api-endpoints';
+import { API_V1_AUTH_LOGIN, API_V1_AUTH_CREATE_NEW_PASSWORD, API_V1_AUTH_FORGOT_PASSWORD, API_V1_AUTH_LOGOUT, API_V1_AUTH_REFRESH_TOKEN, API_V1_AUTH_REGISTER, API_V1_AUTH_LOGIN_GOOGLE, API_V1_AUTH_LOGIN_FACEBOOK, API_V1_AUTH_UNLINK_OUTBOUND, API_V1_AUTH_LINK_GOOGLE } from '../constants/api-endpoints';
 
 @Injectable({
   providedIn: 'root'
@@ -10,8 +10,8 @@ import { API_V1_AUTH_LOGIN, API_V1_AUTH_CREATE_NEW_PASSWORD, API_V1_AUTH_FORGOT_
 export class AuthService {
   constructor(private http: HttpClient) { this.loadUserFromToken() }
 
-  login(email: string, password: string): Observable<any> {
-    return this.http.post<any>(API_V1_AUTH_LOGIN, { email, password });
+  login(email: string, password: string, captchaToken: string | null): Observable<any> {
+    return this.http.post<any>(API_V1_AUTH_LOGIN, { email, password, captchaToken });
   }
 
   saveToken(token: string) { localStorage.setItem('jwtToken', token) }
@@ -22,9 +22,9 @@ export class AuthService {
     return this.http.post(API_V1_AUTH_LOGOUT, {}, { headers })
   }
 
-  register(firstName: string, lastName: string, email: string, username: string, password: string) {
+  register(firstName: string, lastName: string, email: string, username: string, password: string, captchaToken: string | null) {
     return this.http.post<{ code: number, message: string }>(
-      API_V1_AUTH_REGISTER, { firstName, lastName, email, username, password }
+      API_V1_AUTH_REGISTER, { firstName, lastName, email, username, password , captchaToken}
     )
   }
 
@@ -96,4 +96,23 @@ export class AuthService {
       API_V1_AUTH_CREATE_NEW_PASSWORD, { email, password }
     )
   }
+
+  loginWithGoogle(code: string): Observable<any> {
+    return this.http.post(API_V1_AUTH_LOGIN_GOOGLE, { code });
+  }
+
+  loginWithFacebook(code: string): Observable<any> {
+    return this.http.post(API_V1_AUTH_LOGIN_FACEBOOK, { code });
+  }
+
+  unlinkOutbound(provider: string): Observable<any> {
+    const headers = AuthUtils.getAuthHeaders();
+    return this.http.delete<{code: number, message: string }>(API_V1_AUTH_UNLINK_OUTBOUND + `/${provider}`, {headers})
+  }
+
+  linkGoogle(code: string): Observable<any> {
+    const headers = AuthUtils.getAuthHeaders();
+    return this.http.post<{code: number, message: string }>(API_V1_AUTH_LINK_GOOGLE, {code}, {headers})
+  }
+
 }

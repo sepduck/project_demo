@@ -1,32 +1,31 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { CommonModule, NgIf } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { PanelModule } from 'primeng/panel';
-import { CheckboxModule } from 'primeng/checkbox';
-import { ActivatedRoute, Router } from '@angular/router';
+import { JwtPayload } from './../../../models/auth.model';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { FormInputComponent } from '../../../components/common/form-input/form-input.component';
+import { ButtonModule } from 'primeng/button';
 import { UserService } from '../../../services/user.service';
-import { validateEmail, validateFirstName, validateLastName, validatePhoneNumber, validateUsername } from '../../../utils/validators';
-import { AlertService } from '../../../services/alert.service';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
+import { RoleService } from '../../../services/role.service';
+import { AlertService } from '../../../services/alert.service';
 import { USERS } from '../../../constants/path-valiable';
-import { TabsModule } from 'primeng/tabs';
-import { PasswordModule } from 'primeng/password';
-
+import { validateEmail, validateFirstName, validateLastName, validatePhoneNumber, validateUsername } from '../../../utils/validators';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { jwtDecode } from 'jwt-decode';
+import { OAuthConfig, OAuthFacebookConfig } from '../../../constants/oauth-config';
 
 @Component({
-  selector: 'app-update-user',
-  standalone: true,
-  imports: [CommonModule, FormsModule, FormInputComponent, ButtonModule, PanelModule, CheckboxModule, TabsModule, PasswordModule],
-  templateUrl: './update-user.component.html',
-  styleUrl: './update-user.component.css'
+  selector: 'profile',
+  imports: [FormInputComponent, ButtonModule, CommonModule, FormsModule],
+  templateUrl: './profile.component.html',
+  styleUrl: './profile.component.css'
 })
-export class UpdateUserComponent implements OnInit {
+export class ProfileComponent {
   userId: number | null = null;
   rolesSelect: any[] = [];
   activeTab: string = 'tab1';
 
+  @Input() isProfile: boolean = false;
   firstName: string = '';
   lastName: string = '';
   email: string = '';
@@ -41,7 +40,12 @@ export class UpdateUserComponent implements OnInit {
   roles: number[] = [];
   isSendEmail: boolean = false;
   isSubmitting: boolean = false;
-
+  googleProvider: string | null = null;
+  googleFirstName: string | null = null;
+  googleLastName: string | null = null;
+  facebookProvider: string | null = null;
+  facebookFirstName: string | null = null;
+  facebookLastName: string | null = null;
   errors: {
     firstName?: string;
     lastName?: string;
@@ -49,41 +53,42 @@ export class UpdateUserComponent implements OnInit {
     phone?: string;
     username?: string;
   } = {}
-
+  @Output() updateSuccess = new EventEmitter<void>();
+  @Output() cancel = new EventEmitter<void>();
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
+  getToken(): string | null {
+    return localStorage.getItem('jwtToken');
+  }
+
+  onCancelEmit() {
+    this.cancel.emit();
+  }
+  getCurrentUserId(): number | null {
+    const token = this.getToken();
+    if (!token) return null
+    try {
+      const decoded = jwtDecode<JwtPayload>(token);
+      return parseInt(decoded.nameid);
+    } catch (e) {
+      return null;
+    }
+  }
+  ngOnInit(): void {
+    const currentUser = this.getCurrentUserId();
+    if (currentUser) {
+      this.userId = currentUser;
+      if (this.userId != null) {
+        this.getUserDetail(this.userId);
+      }
+    } else {
+      this.router.navigate([USERS]);
+    }
+  }
 
   constructor(private userService: UserService, private router: Router, private route: ActivatedRoute, private alertService: AlertService, public authService: AuthService) { }
   setActiveTab(tab: string): void {
     this.activeTab = tab;
-  }
-
-  ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      const idParam = params.get('id');
-      if (idParam) {
-        this.userId = +idParam;
-        this.loadRolesSelect();
-        this.getUserDetail(this.userId);
-      } else {
-        this.router.navigate([USERS]);
-      }
-    });
-  }
-
-  loadRolesSelect(): void {
-    this.userService.getRolesSelect().subscribe({
-      next: (res) => {
-        if (res.code === 200) {
-          this.rolesSelect = res.result;
-          if (this.userId !== null) {
-            this.getUserDetail(this.userId);
-          }
-        }
-      },
-      error: (err) => {
-        this.errorMessage = 'Không thể tải danh sách vai trò: ' + err.message;
-      }
-    });
   }
 
 
@@ -94,6 +99,8 @@ export class UpdateUserComponent implements OnInit {
     this.userService.getFindUserById(id).subscribe({
       next: (res) => {
         if (res.code === 200) {
+          console.log(res);
+
           const user = res.result;
           this.firstName = user.firstName;
           this.lastName = user.lastName;
@@ -105,13 +112,16 @@ export class UpdateUserComponent implements OnInit {
           this.isAction = user.isAction;
           this.isLockedOut = user.isLockedOut;
           this.isSendEmail = user.isSendEmail;
-
+          const facebook = user.providers.find(p => p.provider === 'facebook')
+          const google = user.providers.find(p => p.provider === 'google')
+          this.googleProvider = google ? google.providerEmail : null;
+          this.googleFirstName = google?.firstName ?? '';
+          this.googleLastName = google?.lastName ?? '';
+          this.facebookProvider = facebook ? facebook.providerEmail : null;
+          this.facebookFirstName = facebook?.firstName ?? '';
+          this.facebookLastName = facebook?.lastName ?? '';
           if (user.thumbnail) {
             this.previewImageUrl = user.thumbnail;
-          }
-
-          if (user.roleName && this.rolesSelect.length > 0) {
-            this.updateSelectedRoles(user.roleName);
           }
         }
       },
@@ -120,19 +130,6 @@ export class UpdateUserComponent implements OnInit {
       }
     });
   }
-
-  updateSelectedRoles(roleName?: string | null): void {
-    if (this.rolesSelect.length > 0) {
-      if (!roleName) {
-        this.rolesSelect.forEach(role => { role.isSelected = false });
-      } else {
-        const roleNames = roleName.split(',');
-        this.rolesSelect.forEach(role => { role.isSelected = roleNames.includes(role.name) });
-      }
-      this.onRoleChange();
-    }
-  }
-
   onImageClick(): void {
     this.fileInput.nativeElement.click();
   }
@@ -157,10 +154,6 @@ export class UpdateUserComponent implements OnInit {
     }
   }
 
-  onRoleChange(): void {
-    this.roles = this.rolesSelect.filter(role => role.isSelected).map(role => role.id);
-  }
-
   validateForm(): boolean {
     this.errors = {}
     this.errorMessage = '';
@@ -180,20 +173,11 @@ export class UpdateUserComponent implements OnInit {
     const usernameError = validateUsername(this.username)
     if (usernameError) this.errors.username = usernameError
 
-    if (this.roles.length === 0) {
-      this.errorMessage = 'Vui lòng chọn ít nhất một vai trò';
-    }
     return Object.keys(this.errors).length === 0 && !this.errorMessage;
   }
 
-  updateUser(): void {
-    if (!this.validateForm()) {
-      if (this.activeTab === 'tab2' && Object.keys(this.errors).length > 0) {
-        this.setActiveTab('tab1');
-        return;
-      }
-      return;
-    }
+  updateProfile(): void {
+
 
     this.isSubmitting = true;
     const input = this.fileInput.nativeElement;
@@ -225,6 +209,10 @@ export class UpdateUserComponent implements OnInit {
 
   private _processFormSubmission(): void {
     if (!this.userId) return;
+    if (!this.validateForm()) {
+      this.isSubmitting = false;
+      return;
+    }
 
     this.userService.updateUser(
       this.userId,
@@ -242,10 +230,12 @@ export class UpdateUserComponent implements OnInit {
       next: (res) => {
         if (res.code === 200) {
           this.alertService.success(res.message)
-          this.router.navigate([USERS]);
+          this.isProfile = false
+          this.updateSuccess.emit();
         } else if (res.code === 4018) {
           this.errors.phone = res.message
         } else {
+          this.isSubmitting = false;
           this.errorMessage = 'Cập nhật tài khoản thất bại!';
         }
         this.isSubmitting = false;
@@ -257,7 +247,53 @@ export class UpdateUserComponent implements OnInit {
     });
   }
 
-  cancel(): void {
-    this.router.navigate([USERS]);
+
+
+  unlinkOutbound(provider: string): void {
+    this.authService.unlinkOutbound(provider).subscribe({
+      next: (res) => {
+        if (res.code === 200) {
+          if (provider === 'google') 
+            this.googleProvider = null;
+          if (provider === 'facebook') 
+            this.facebookProvider = null;
+          
+          this.alertService.success(res.message)
+        } else if (res.code === 4019) {
+          this.alertService.error(res.message)
+        }
+        this.errorMessage = res.message;
+      },
+      error: (err) => {
+        console.error('Lỗi xoá người dùng:', err);
+        this.alertService.error("Không thể xoá người dùng. Vui lòng thử lại sau.")
+      }
+    });
   }
+
+  linkOutbound(provider: 'google' | 'facebook', link: 'true' | 'false') {
+    let authUrl = '';
+    let authUri = '';
+    let callbackUrl = '';
+    let clientId = '';
+    const state = JSON.stringify({ provider, link });
+    const encodeState = encodeURIComponent(state)
+
+
+    if (provider === 'google') {
+      authUri = OAuthConfig.authUri;
+      callbackUrl = OAuthConfig.redirectUri;
+      clientId = OAuthConfig.clientId;
+      authUrl = `${authUri}?redirect_uri=${encodeURIComponent(callbackUrl)}&response_type=code&client_id=${clientId}&scope=openid%20profile%20email&state=${encodeState}`;
+
+    } else if (provider === 'facebook') {
+      callbackUrl = OAuthFacebookConfig.redirectUri;
+      clientId = OAuthFacebookConfig.clientId;
+      authUri = OAuthFacebookConfig.authUri;
+      authUrl = `${authUri}?client_id=${clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&response_type=code&scope=email,public_profile&state=${encodeState}`;
+
+    }
+    window.location.href = authUrl;
+  }
+
 }

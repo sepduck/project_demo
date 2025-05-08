@@ -14,10 +14,12 @@ import { AvatarModule } from 'primeng/avatar';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { DialogModule } from 'primeng/dialog';
 import { PasswordModule } from 'primeng/password';
+import { ChangePasswordComponent } from '../../pages/account/change-password/change-password.component';
+import { ProfileComponent } from '../../pages/account/profile/profile.component';
 
 @Component({
   selector: 'app-navbar',
-  imports: [CommonModule, FormsModule, FormInputComponent, ButtonModule, Toolbar, AvatarModule, OverlayPanelModule, DialogModule, PasswordModule],
+  imports: [ProfileComponent, ChangePasswordComponent, CommonModule, FormsModule, ButtonModule, Toolbar, AvatarModule, OverlayPanelModule, DialogModule, PasswordModule],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
@@ -61,18 +63,23 @@ export class NavbarComponent implements OnInit {
     confirmPassword?: string
   } = {}
 
+  isProfile: boolean = false;
   visible: boolean = false;
 
-  showDialog() {
-    this.visible = true;
-  }
+  showDialog() { this.visible = true; }
+  showProfile() { this.isProfile = true }
 
   constructor(private http: HttpClient, private authService: AuthService, private router: Router, private userService: UserService, private alertService: AlertService) { }
   ngOnInit(): void {
     this.getUserDetail();
+    console.log();
+
 
   }
-
+  onProfileUpdateSuccess() {
+    this.isProfile = false;
+    this.getUserDetail(); 
+  }
   get avatarImage(): string {
     return typeof this.previewImageUrl === 'string'
       ? this.previewImageUrl
@@ -96,7 +103,10 @@ export class NavbarComponent implements OnInit {
           this.isAction = user.isAction;
           this.isLockedOut = user.isLockedOut;
           this.roleName = user.roleName
-          if (user.thumbnail) { this.previewImageUrl = this.baseImageUrl + user.thumbnail; }
+          if (user.thumbnail) {
+            const isFullUrl = user.thumbnail.startsWith('https://') || user.thumbnail.startsWith('http://');
+            this.previewImageUrl = isFullUrl ? user.thumbnail : this.baseImageUrl + user.thumbnail;
+          }
         }
       },
       error: (err) => {
