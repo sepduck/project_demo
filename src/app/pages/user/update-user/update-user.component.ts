@@ -13,6 +13,7 @@ import { AlertService } from '../../../services/alert.service';
 import { AuthService } from '../../../services/auth.service';
 import { USERS } from '../../../constants/path-valiable';
 import { TabsModule } from 'primeng/tabs';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { PasswordModule } from 'primeng/password';
 import { IMAGE_FILE_TOO_LARGE, ONLY_IMAGE_FILES_ALLOWED, UPDATE_USER_FAILED, UPLOAD_IMAGE_FAILED } from '../../../constants/error-message';
 
@@ -20,7 +21,7 @@ import { IMAGE_FILE_TOO_LARGE, ONLY_IMAGE_FILES_ALLOWED, UPDATE_USER_FAILED, UPL
 @Component({
   selector: 'app-update-user',
   standalone: true,
-  imports: [CommonModule, FormsModule, FormInputComponent, ButtonModule, PanelModule, CheckboxModule, TabsModule, PasswordModule],
+  imports: [CommonModule, FormsModule, FormInputComponent, ButtonModule, PanelModule, CheckboxModule, TabsModule, PasswordModule, ToggleSwitchModule],
   templateUrl: './update-user.component.html',
   styleUrl: './update-user.component.css'
 })

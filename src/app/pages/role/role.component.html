@@ -1,5 +1,5 @@
 <div class="p-4">
-    <p-panel styleClass="shadow-0; border-0" *ngIf="authService.hasPermission('mgmt.role')">
+    <p-panel styleClass="shadow-0 border-0" *ngIf="authService.hasPermission('mgmt.role')">
         <div class="d-flex justify-content-between">
             <div class="d-flex align-items-center">
                 <p class="header-container me-2">Vai trò</p>
@@ -8,7 +8,6 @@
             <p-button label="Tạo vai trò mới" [raised]="true" icon="pi pi-plus"
                 *ngIf="authService.hasPermission('mgmt.user.create')" (onClick)="openCreateModal()"
                 styleClass="custom-create-button" />
-
         </div>
 
         <div class="mt-3 table-container">
@@ -69,56 +68,48 @@
     </p-panel>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
-    *ngIf="isEditMode ? authService.hasPermission('mgmt.role.edit') :  authService.hasPermission('mgmt.role.create') ">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel" style="font-size: 1.1rem;">
-                    {{ isEditMode ? 'Chỉnh sửa vai trò' : 'Tạo vai trò mới' }}
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p-tabs [(value)]="activeTab">
-                    <p-tablist>
-                        <p-tab value="0" class="custom-bold-tab">Tên vai trò</p-tab>
-                        <p-tab value="1" class="custom-bold-tab">Quyền</p-tab>
-                    </p-tablist>
-                    <p-tabpanels>
-                        <p-tabpanel value="0">
-                            <form-input label="Tên vai trò" [(value)]="newRole.name" [error]="errors.name!"
-                                [placeholder]="'Nhập tên vai trò'" isInput="label" />
-                            <div class="d-flex items-center gap-2 mt-2">
-                                <p-checkbox [(ngModel)]="newRole.status" inputId="status" binary="true" />
-                                <label for="status">Kích hoạt</label>
-                                <p class="mb-0" style="color: #99a187; font-size: 0.9rem;">
-                                    (Mặc định gán cho tài khoản được tạo mới)
-                                </p>
-                            </div>
-                            <div style="padding: 10px; border: 1px solid #f6c000; background-color: #fff8dd; color: #f6c215; border-radius: 10px;"
-                                class="mt-5 mb-3">
-                                <p>{{description}}</p>
-                            </div>
-                        </p-tabpanel>
-                        <p-tabpanel value="1">
-                            <div class="card">
-                                <permission-tree [permissions]="permissions"
-                                    [selectedPermissionIds]="newRole.permissions"
-                                    (permissionsChange)="onPermissionsChange($event)">
-                                </permission-tree>
-                            </div>
+<!-- PrimeNG Dialog thay thế cho Modal Bootstrap -->
+<p-dialog [(visible)]="dialogVisible" [header]="dialogHeader" [style]="{width: '80%', maxWidth: '900px'}" [modal]="true"
+    [draggable]="false" [resizable]="false" (onHide)="onHideDialog()"
+    *ngIf="isEditMode ? authService.hasPermission('mgmt.role.edit') : authService.hasPermission('mgmt.role.create')">
 
-                        </p-tabpanel>
-                    </p-tabpanels>
-                </p-tabs>
-            </div>
-            <div class="modal-footer">
-                <p-button [label]="'Hủy bỏ'" icon="pi pi-times" severity="secondary" data-bs-dismiss="modal" />
-                <p-button (click)="saveRole()" [label]="isSubmitting ? 'Đang xử lý...' : 'Lưu thông tin'"
-                    [disabled]="isSubmitting" icon="pi pi-save" severity="success" />
-            </div>
-        </div>
+    <div class="dialog-content">
+        <p-tabs [(value)]="activeTab">
+            <p-tablist>
+                <p-tab value="0" class="custom-bold-tab">Tên vai trò</p-tab>
+                <p-tab value="1" class="custom-bold-tab">Quyền</p-tab>
+            </p-tablist>
+            <p-tabpanels>
+                <p-tabpanel value="0">
+                    <form-input label="Tên vai trò" [(value)]="newRole.name" [error]="errors.name!"
+                        [placeholder]="'Nhập tên vai trò'" isInput="label" />
+                    <div class="d-flex items-center gap-2 mt-3">
+                        <p-toggleswitch [(ngModel)]="newRole.status" inputId="status" binary="true" />
+                        <label for="status">Kích hoạt</label>
+                        <p class="mb-0" style="color: #99a187; font-size: 0.9rem;">
+                            (Mặc định gán cho tài khoản được tạo mới)
+                        </p>
+                    </div>
+                    <div class="mt-5 mb-3 description-message">
+                        <p>{{description}}</p>
+                    </div>
+                </p-tabpanel>
+                <p-tabpanel value="1">
+                    <div class="card">
+                        <permission-tree [permissions]="permissions" [selectedPermissionIds]="newRole.permissions"
+                            (permissionsChange)="onPermissionsChange($event)">
+                        </permission-tree>
+                    </div>
+                </p-tabpanel>
+            </p-tabpanels>
+        </p-tabs>
     </div>
-</div>
+
+    <ng-template pTemplate="footer">
+        <p-button label="Hủy bỏ" icon="pi pi-times" severity="secondary" (onClick)="dialogVisible = false" />
+        <p-button (onClick)="saveRole()" [label]="isSubmitting ? 'Đang xử lý...' : 'Lưu thông tin'"
+            [disabled]="isSubmitting" icon="pi pi-save" severity="success" styleClass="ml-2" />
+    </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

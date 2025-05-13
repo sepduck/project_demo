@@ -60,3 +60,25 @@ body,
     color: #333;
 }
 
+.theme-toggle-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--text-color);
+}
+
+:host ::ng-deep .custom-toolbar {
+    background-color: #ffffff !important;
+    color: #000 !important;
+}
+
+:host-context(.dark-theme) ::ng-deep .custom-toolbar {
+    background-color: #262932 !important;
+    color: #fff !important;
+}
+
+.custom-toolbar {
+    border: none !important;
+    box-shadow: none !important;
+}

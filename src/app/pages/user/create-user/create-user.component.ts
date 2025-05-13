@@ -11,6 +11,7 @@ import { validateConfirmPassword, validateEmail, validateFirstName, validateLast
 import { AlertService } from '../../../services/alert.service';
 import { AuthService } from '../../../services/auth.service';
 import { USERS } from '../../../constants/path-valiable';
+import { ToggleSwitchModule} from 'primeng/toggleswitch'
 import { TabsModule } from 'primeng/tabs';
 import { PasswordModule } from 'primeng/password';
 import { CREATE_USER_FAILED, IMAGE_FILE_TOO_LARGE, LOAD_ROLE_LIST_FAILED, ONLY_IMAGE_FILES_ALLOWED, UPLOAD_IMAGE_FAILED } from '../../../constants/error-message';
@@ -18,7 +19,7 @@ import { CREATE_USER_FAILED, IMAGE_FILE_TOO_LARGE, LOAD_ROLE_LIST_FAILED, ONLY_I
 @Component({
   selector: 'app-create-user',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonModule, CheckboxModule, FormInputComponent, TabsModule, PasswordModule, CheckboxModule],
+  imports: [CommonModule, FormsModule, ButtonModule, CheckboxModule, FormInputComponent, TabsModule, PasswordModule, CheckboxModule, ToggleSwitchModule],
   templateUrl: './create-user.component.html',
   styleUrl: './create-user.component.css'
 })

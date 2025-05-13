@@ -9,14 +9,15 @@
     transition: width 0.3s;
     position: relative;
 
-    background: linear-gradient(-43deg,
-            rgb(13, 164, 135) 0%,
-            rgb(0, 146, 137) 60%,
-            rgb(0, 146, 137) 80%,
-            rgb(235, 177, 110) 100%);
+    background: var(--sidebar-bg);
     background-size: 300% 300%;
     background-repeat: no-repeat;
-    animation: gradientScroll 20s ease-in-out infinite;
+    animation: var(--sidebar-animation, gradientScroll 20s ease-in-out infinite);
+}
+
+.dark-theme .sidebar {
+    background: #121212 !important;
+    animation: none;
 }
 
 @keyframes gradientScroll {
@@ -49,14 +50,12 @@
     z-index: 100;
 }
 
-/* Ẩn phần text trong chế độ thu gọn */
 .collapsed .sidebar .nav-link span,
 .collapsed .sidebar .nav-link i.bi-chevron-down,
 .collapsed .sidebar .nav-link i.bi-chevron-up {
     display: none;
 }
 
-/* Định dạng cho tất cả các liên kết trong chế độ thu gọn */
 .collapsed .sidebar .nav-link {
     display: flex;
     justify-content: center;
@@ -65,7 +64,6 @@
     text-align: center;
 }
 
-/* Đảm bảo tất cả các icon có kích thước và căn chỉnh đồng nhất */
 .collapsed .sidebar .bi {
     font-size: 1.25rem;
     margin: 0 !important;
@@ -77,7 +75,6 @@
     padding-left: 0;
 }
 
-/* Điều chỉnh căn chỉnh cho thẻ div bọc icon và text */
 .collapsed .sidebar .nav-link div {
     display: flex;
     justify-content: center;

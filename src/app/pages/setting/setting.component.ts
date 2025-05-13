@@ -10,10 +10,10 @@ import { SettingServiceService } from '../../services/setting-service.service';
 import { AuthService } from '../../services/auth.service';
 import { AlertService } from '../../services/alert.service';
 import { UPDATE_SETTING_FAILED, UPDATE_SETTING_SUCCESS } from '../../constants/error-message';
-
+import { ToggleSwitchModule } from 'primeng/toggleswitch'
 @Component({
   selector: 'app-setting',
-  imports: [CommonModule, FormsModule, PanelModule, CheckboxModule, InputNumberModule, ButtonModule],
+  imports: [CommonModule, FormsModule, PanelModule, CheckboxModule, InputNumberModule, ButtonModule, ToggleSwitchModule],
   templateUrl: './setting.component.html',
   styleUrl: './setting.component.css'
 })

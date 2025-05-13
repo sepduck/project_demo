@@ -26,13 +26,16 @@ import { AlertService } from '../../services/alert.service';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TabsModule } from 'primeng/tabs';
 import { CANNOT_DELETE_OWN_ROLE, CONFIRM_DELETE_ROLE_WITH_USERS, CREATE_ROLE_FAILED, CREATE_ROLE_SUCCESS, CURRENT_ROLE_CHANGED, DELETE_ROLE_SUCCESS, DELETE_USER_ERROR, DELETE_USER_FAILED, GET_ROLE_INFO_INVALID_DATA, ROLE_NAME_ALREADY_EXISTS, ROLE_NOT_FOUND, SELF_ROLE_CHANGE_RELOGIN_WARNING, SYSTEM_ROLE_ACTION_FORBIDDEN, UPDATE_ROLE_ERROR, UPDATE_ROLE_SUCCESS } from '../../constants/error-message';
-
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
+import { ToggleSwitchModule } from 'primeng/toggleswitch'
 @Component({
   selector: 'app-role',
   standalone: true,
-  imports: [FormsModule, TabsModule, CommonModule, CheckboxModule, FormInputComponent, CommonModule, NgIf, FormsModule, DialogModule, NgxPaginationModule, MenuModule, DropdownModule, PanelModule, SelectModule, PaginatorModule, InputGroupAddonModule, TableModule, ButtonModule, BadgeModule, InputGroupModule, PermissionTreeComponent],
+  imports: [ToggleSwitchModule, FormsModule, TabsModule, CommonModule, CheckboxModule, FormInputComponent, CommonModule, NgIf, FormsModule, DialogModule, NgxPaginationModule, MenuModule, DropdownModule, PanelModule, SelectModule, PaginatorModule, InputGroupAddonModule, TableModule, ButtonModule, BadgeModule, InputGroupModule, PermissionTreeComponent, ConfirmDialogModule],
   templateUrl: './role.component.html',
-  styleUrl: './role.component.css'
+  styleUrl: './role.component.css',
+  providers: [ConfirmationService]
 })
 export class RoleComponent {
   roles: any[] = [];
@@ -56,21 +59,24 @@ export class RoleComponent {
   errors: {
     name?: string
   } = {}
-  visible: boolean = false;
+
+  // Dialog visibility control
+  dialogVisible: boolean = false;
+  dialogHeader: string = '';
+
   first = 0;
 
-  showDialog() { this.visible = true; }
-  constructor(private roleService: RoleService, public authService: AuthService, private router: Router, private alertService: AlertService) { }
+  constructor(
+    private roleService: RoleService,
+    public authService: AuthService,
+    private router: Router,
+    private alertService: AlertService,
+    private confirmationService: ConfirmationService
+  ) { }
 
   ngOnInit(): void {
     this.loadRole();
     this.loadPermissions();
-    const modalElement = document.getElementById('exampleModal');
-    if (modalElement) {
-      modalElement.addEventListener('hidden.bs.modal', () => {
-        this.onHideModal();
-      });
-    }
   }
 
   onPageChange(event: any) {
@@ -89,7 +95,8 @@ export class RoleComponent {
       this.totalRecords = res.result.totalRecords;
     });
   }
-  onHideModal(): void {
+
+  onHideDialog(): void {
     this.errors = {};
     this.resetForm();
   }
@@ -123,26 +130,23 @@ export class RoleComponent {
     this.newRole.permissions = permissions;
   }
 
-  // Phương thức để mở modal tạo mới vai trò
+  // Phương thức để mở dialog tạo mới vai trò
   openCreateModal(): void {
     this.resetForm();
     this.isEditMode = false;
     this.selectedRoleId = null;
     this.setActiveTab('0');
-    // Mở modal bằng Bootstrap
-    const modalElement = document.getElementById('exampleModal');
-    if (modalElement) {
-      const bsModal = new (window as any).bootstrap.Modal(modalElement);
-      bsModal.show();
-    }
+    this.dialogHeader = 'Tạo vai trò mới';
+    this.dialogVisible = true;
   }
 
-  // Phương thức để mở modal chỉnh sửa vai trò
+  // Phương thức để mở dialog chỉnh sửa vai trò
   openEditModal(roleId: number): void {
     this.resetForm();
     this.isEditMode = true;
     this.selectedRoleId = roleId;
     this.setActiveTab('0');
+    this.dialogHeader = 'Chỉnh sửa vai trò';
 
     // Lấy thông tin vai trò cần chỉnh sửa
     this.roleService.getRoleById(roleId).subscribe({
@@ -161,11 +165,9 @@ export class RoleComponent {
         } else {
           this.newRole.permissions = [];
         }
-        const modalElement = document.getElementById('exampleModal');
-        if (modalElement) {
-          const bsModal = new (window as any).bootstrap.Modal(modalElement);
-          bsModal.show();
-        }
+
+        // Hiển thị dialog sau khi có dữ liệu
+        this.dialogVisible = true;
       },
       error: (error) => {
         let errorMessage = "Không xác định";
@@ -217,14 +219,9 @@ export class RoleComponent {
           if (res.code === 200) {
             this.alertService.success(UPDATE_ROLE_SUCCESS)
             this.loadRole();
-            // Đóng modal
-            const modalElement = document.getElementById('exampleModal');
-            if (modalElement) {
-              const bsModal = (window as any).bootstrap.Modal.getInstance(modalElement);
-              if (bsModal) {
-                bsModal.hide();
-              }
-            }
+            // Đóng dialog
+            this.dialogVisible = false;
+
             const currentUser = this.authService.getCurrentUser();
 
             let userRoles = [];
@@ -271,16 +268,8 @@ export class RoleComponent {
           if (res.code === 200) {
             this.alertService.success(CREATE_ROLE_SUCCESS)
             this.loadRole();
-
-            // Đóng modal
-            const modalElement = document.getElementById('exampleModal');
-            if (modalElement) {
-              const bsModal = (window as any).bootstrap.Modal.getInstance(modalElement);
-              if (bsModal) {
-                bsModal.hide();
-              }
-            }
-
+            // Đóng dialog
+            this.dialogVisible = false;
           } else if (res.code === 4015) {
             this.errors.name = ROLE_NAME_ALREADY_EXISTS;
             this.isSubmitting = false;
@@ -295,15 +284,13 @@ export class RoleComponent {
   }
 
   deleteRole(roleId: number): void {
-    const confirmDelete = confirm(CONFIRM_DELETE_ROLE_WITH_USERS);
-    if (!confirmDelete) return;
-
     const currentUser = this.authService.getCurrentUser();
     const roleToDelete = this.roles.find(role => role.id === roleId);
 
     if (!currentUser || !roleToDelete) {
       return;
     }
+
     let userHasRole = false;
 
     if (currentUser.role) {
@@ -316,24 +303,33 @@ export class RoleComponent {
         console.log("Role object:", currentUser.role);
       }
     }
+
     if (userHasRole) {
       this.alertService.error(CANNOT_DELETE_OWN_ROLE);
       return;
     }
 
-    this.roleService.deleteRole(roleId).subscribe({
-      next: (res) => {
-        if (res.code === 200) {
-          this.loadRole();
-          this.alertService.success(DELETE_ROLE_SUCCESS)
-        } else if (res.code === 4012) {
-          this.alertService.error(ROLE_NOT_FOUND)
-        } else if (res.code === 4016) {
-          this.alertService.error(SYSTEM_ROLE_ACTION_FORBIDDEN)
-        }
-      },
-      error: (err) => {
-        this.alertService.error(DELETE_USER_FAILED)
+    // Sử dụng ConfirmationService của PrimeNG
+    this.confirmationService.confirm({
+      message: CONFIRM_DELETE_ROLE_WITH_USERS,
+      header: 'Xác nhận xóa vai trò',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.roleService.deleteRole(roleId).subscribe({
+          next: (res) => {
+            if (res.code === 200) {
+              this.loadRole();
+              this.alertService.success(DELETE_ROLE_SUCCESS)
+            } else if (res.code === 4012) {
+              this.alertService.error(ROLE_NOT_FOUND)
+            } else if (res.code === 4016) {
+              this.alertService.error(SYSTEM_ROLE_ACTION_FORBIDDEN)
+            }
+          },
+          error: (err) => {
+            this.alertService.error(DELETE_USER_FAILED)
+          }
+        });
       }
     });
   }

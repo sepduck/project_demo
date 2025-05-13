@@ -16,6 +16,7 @@ import { DialogModule } from 'primeng/dialog';
 import { PasswordModule } from 'primeng/password';
 import { ChangePasswordComponent } from '../../pages/account/change-password/change-password.component';
 import { ProfileComponent } from '../../pages/account/profile/profile.component';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-navbar',
@@ -65,20 +66,28 @@ export class NavbarComponent implements OnInit {
 
   isProfile: boolean = false;
   visible: boolean = false;
-
+  isDarkMode = false;
   showDialog() { this.visible = true; }
   showProfile() { this.isProfile = true }
 
-  constructor(private http: HttpClient, private authService: AuthService, private router: Router, private userService: UserService, private alertService: AlertService) { }
+  constructor(private http: HttpClient, private authService: AuthService, private router: Router, private userService: UserService, private alertService: AlertService, private themeService: ThemeService) { }
   ngOnInit(): void {
     this.getUserDetail();
-    console.log();
+    this.themeService.initializeTheme();
+    this.isDarkMode = this.themeService.getIsDarkMode();
+  }
 
-
+  toggleTheme(): void {
+    this.isDarkMode = !this.isDarkMode;
+    if (this.isDarkMode) {
+      document.body.classList.add('dark-theme');
+    } else {
+      document.body.classList.remove('dark-theme');
+    }
   }
   onProfileUpdateSuccess() {
     this.isProfile = false;
-    this.getUserDetail(); 
+    this.getUserDetail();
   }
   get avatarImage(): string {
     return typeof this.previewImageUrl === 'string'

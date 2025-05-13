@@ -131,16 +131,18 @@ th {
 }
 
 ::ng-deep .row-light {
-    background-color: #ffffff !important;
+    color: var(--text-color) !important;
+    background-color: var(--element-color) !important;
 }
 
 ::ng-deep .row-dark {
-    background-color: #f8f8f8 !important;
+    color: var(--text-color) !important;
+    background-color: var(--background-color) !important;
 }
 
 ::ng-deep .p-datatable .p-datatable-thead>tr>th {
-    background-color: #f3f3f3 !important;
-    color: #000 !important;
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
     font-weight: 600;
 }
 
@@ -173,4 +175,16 @@ th {
 :host ::ng-deep .p-datatable.no-border-table .p-paginator {
     border: none !important;
     border-width: 0 !important;
+}
+
+::ng-deep .p-paginator {
+    background-color: var(--background-bg) !important;
+    color: var(--text-color) !important;
+    border: none !important;
+    padding: 0.5rem;
+}
+
+.bg-element-color {
+    background-color: var(--element-color) !important;
+    color: var(--text-color) !important;
 }

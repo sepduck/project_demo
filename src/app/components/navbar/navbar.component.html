@@ -1,7 +1,11 @@
-<p-toolbar [style]="{'padding': '1rem 1rem 1rem 1.5rem' }">
+<p-toolbar [style]="{'padding': '1rem 1rem 1rem 1.5rem' }" class="custom-toolbar">
     <ng-template #start>
     </ng-template>
     <ng-template #end>
+        <div (click)="toggleTheme()">
+            <i class="pi" [ngClass]="isDarkMode ? 'pi-sun' : 'pi-moon'"></i>
+        </div>
+
         <div class="d-flex align-items-center gap-2">
             <p-avatar #avatar [image]="avatarImage" shape="circle" size="xlarge"
                 [style]="{ width: '50px', height: '50px', marginLeft: '1rem', objectFit: 'cover' }" class="me-2"

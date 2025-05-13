@@ -94,3 +94,37 @@ h5 {
 .role-label-text[style*="color: #99a1b7"] {
     color: var(--text-color) !important;
 }
+
+:host ::ng-deep .p-tabs .p-tabpanels {
+    background-color: var(--element-color) !important;
+    color: var(--input-text) !important;
+}
+
+.bg-element-color {
+    background-color: var(--element-color) !important;
+    color: var(--text-color) !important;
+}
+
+.image-form {
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
+    width: 100%;
+    max-width: 130px;
+    aspect-ratio: 1;
+    border-radius: 10%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border: 1px solid var(--border-image);
+}
+
+.text-color {
+    color: var(--light-text-color) !important;
+}
+
+:host ::ng-deep .p-tablist-tab-list {
+    background-color: var(--element-color) !important;
+    color: var(--text-color);
+}

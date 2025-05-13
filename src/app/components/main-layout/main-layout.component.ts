@@ -3,6 +3,7 @@ import { SidebarComponent } from "../sidebar/sidebar.component";
 import { RouterModule } from '@angular/router';
 import { NavbarComponent } from "../navbar/navbar.component";
 import { ToastModule } from 'primeng/toast'
+import { ThemeService } from '../../services/theme.service';
 @Component({
   selector: 'app-main-layout',
   imports: [SidebarComponent, RouterModule, NavbarComponent, ToastModule],
@@ -11,5 +12,8 @@ import { ToastModule } from 'primeng/toast'
 
 })
 export class MainLayoutComponent {
-
+  constructor(public themeService: ThemeService) { }
+  ngOnInit(): void {
+    this.themeService.initializeTheme();
+  }
 }

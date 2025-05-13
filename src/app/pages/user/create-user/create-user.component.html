@@ -1,7 +1,6 @@
 <div class="d-flex justify-content-center align-items-center mt-4"
     *ngIf="authService.hasPermission('mgmt.user.create')">
-    <div style="width: 60vw; max-width: 1000px; background-color: #fff; padding: 30px; border-radius: 10px;"
-        class="mb-5">
+    <div style="width: 60vw; max-width: 1000px; padding: 30px; border-radius: 10px;" class="mb-5 bg-element-color">
         <h5 style="font-size: 1.3rem;">Tạo người dùng mới</h5>
         <p-tabs [(value)]="activeTab">
             <p-tablist>
@@ -16,8 +15,7 @@
                             <label for="password" style="font-weight: 500;">Ảnh đại diện</label>
                         </div>
                         <div class="col-md-9">
-                            <div style="width: 100%; max-width: 130px; aspect-ratio: 1; border-radius: 10%; cursor: pointer; background-color: #f9f9f6; display: flex; align-items: center; justify-content: center; position: relative;"
-                                (click)="onImageClick()">
+                            <div class="image-form" (click)="onImageClick()">
                                 <ng-container *ngIf="previewImageUrl else placeholder">
                                     <img [src]="previewImageUrl || placeholder"
                                         style="width: 100%; height: 100%; border-radius: 10%; object-fit: cover;"
@@ -25,7 +23,7 @@
                                 </ng-container>
 
                                 <ng-template #placeholder>
-                                    <span style="font-size: 2rem; color: #000;">+</span>
+                                    <i class="pi pi-plus text-color" style="font-size: 1.5rem;" ></i>
                                 </ng-template>
                             </div>
 
@@ -61,25 +59,25 @@
 
 
                         <div class="d-flex items-center gap-2 mt-5">
-                            <p-checkbox [(ngModel)]="isRandomPassword" inputId="isRandomPassword" binary="true" />
+                            <p-toggleswitch [(ngModel)]="isRandomPassword" inputId="isRandomPassword" binary="true" />
                             <label for="isRandomPassword">Đặt mật khẩu ngẫu nhiên.</label>
                         </div>
                     </div>
 
                     <div class="d-flex items-center gap-2 mt-2">
-                        <p-checkbox [(ngModel)]="isAction" inputId="isAction" binary="true" />
+                        <p-toggleswitch [(ngModel)]="isAction" inputId="isAction" binary="true" />
                         <label for="isAction">Kích hoạt</label>
                     </div>
                     <div class="d-flex items-center gap-2 mt-2">
-                        <p-checkbox [(ngModel)]="isSendEmail" inputId="isSendEmail" binary="true" />
+                        <p-toggleswitch [(ngModel)]="isSendEmail" inputId="isSendEmail" binary="true" />
                         <label for="isSendEmail">Gửi email kích hoạt.</label>
                     </div>
                     <div class="d-flex items-center gap-2 mt-2">
-                        <p-checkbox [(ngModel)]="mustChangePassword" inputId="mustChangePassword" binary="true" />
+                        <p-toggleswitch [(ngModel)]="mustChangePassword" inputId="mustChangePassword" binary="true" />
                         <label for="mustChangePassword">Cần thay đổi mật khẩu vào lần đăng nhập tiếp theo.</label>
                     </div>
                     <div class="d-flex items-center gap-2 mt-2">
-                        <p-checkbox [(ngModel)]="isLockedOut" inputId="isLockedOut" binary="true" />
+                        <p-toggleswitch [(ngModel)]="isLockedOut" inputId="isLockedOut" binary="true" />
                         <label for="isLockedOut">Khóa tài khoản</label>
                     </div>
                     <div *ngIf="errorMessage" class="alert alert-danger mt-3">

@@ -1,0 +1,141 @@
+/* themes.scss */
+:root {
+    --primary-color: #1976d2;
+    --element-color: #ffffff;
+    --background-color: #f9f9f6;
+    --text-color: #000000;
+    --input-border: #ccc;
+    --dropdown-border: #ccc;
+    --pagination-bg: #ffffff;
+    --pagination-text: #000000;
+    --switch-color: #e9e9ea;
+    --border-image: #ccc;
+    --light-text-color: #000;
+    --warning-bg: #fff8dd;
+    --warning-border: #f6c000;
+    --warning-text: #f6c215;
+    --sidebar-bg: linear-gradient(-43deg,
+            rgb(13, 164, 135) 0%,
+            rgb(0, 146, 137) 60%,
+            rgb(0, 146, 137) 80%,
+            rgb(235, 177, 110) 100%);
+}
+
+.dark-theme {
+    --primary-color: #90caf9;
+    --element-color: #1c2128;
+    --background-color: #0b141d;
+    --text-color: #dddddd;
+    --input-border: #1e1f27;
+    --pagination-bg: #262932;
+    --pagination-text: #ffffff;
+    --hover-bg-color: #1d1e26;
+    --switch-color: #39393d;
+    --border-image: #1d3436;
+    --light-text-color: #4a5568;
+    --warning-bg: #3a3a3a;
+    --warning-border: #f3c200;
+    --warning-text: #ecbe02;
+    --sidebar-bg: #0f1820;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        color-scheme: light;
+    }
+}
+
+.p-toolbar {
+    background-color: var(--element-color) !important;
+    color: var(--text-color) !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.p-panel {
+    background-color: var(--element-color) !important;
+    color: var(--text-color) !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+input.p-inputtext {
+    background-color: var(--background-color) !important;
+    color: var(--input-text) !important;
+    border: 1px solid var(--input-border);
+}
+
+.p-dropdown {
+    background-color: var(--background-color) !important;
+    color: var(--input-text) !important;
+    border: 1px solid var(--input-border) !important;
+}
+
+.p-dropdown-panel {
+    background-color: var(--background-color) !important;
+    color: var(--input-text) !important;
+}
+
+.p-dropdown-item {
+    color: var(--input-text) !important;
+}
+
+:root {
+    --dropdown-bg: #f9f9f6;
+    --dropdown-text: #000000;
+}
+
+body.dark-theme .p-tabs,
+body.dark-theme .p-tablist,
+body.dark-theme .p-tabpanel {
+    background-color: var(--background-color) !important;
+    color: var(--input-text) !important;
+}
+
+.p-tabview {
+    background-color: var(--background-color) !important;
+    color: var(--input-text) !important;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+}
+
+.p-tabview-nav {
+    background-color: var(--background-color) !important;
+    border-bottom: 1px solid var(--input-border) !important;
+}
+
+.p-tabview-nav li {
+    background-color: var(--background-color) !important;
+    color: var(--input-text) !important;
+}
+
+.p-tabview-nav li.p-highlight {
+    background-color: var(--primary-color) !important;
+    color: #fff !important;
+}
+
+.p-tabview-panel {
+    background-color: var(--background-color) !important;
+    color: var(--input-text) !important;
+    padding: 1rem;
+}
+
+.p-toggleswitch {
+    height: 1.5rem;
+}
+
+.p-toggleswitch .p-toggleswitch-slider {
+    background: var(--switch-color);
+    border: 1px solid var(--switch-color);
+}
+
+.dark-mode .p-toggleswitch .p-toggleswitch-slider {
+    background: var(--switch-color);
+    border: 1px solid var(--switch-color);
+}
+
+.p-dialog {
+    background-color: var(--element-color) !important;
+    color: var(--text-color) !important;
+    border: none !important;
+}

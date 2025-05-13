@@ -1,0 +1,27 @@
+:host ::ng-deep .p-tree {
+    background-color: var(--element-color) !important;
+    color: var(--text-color) !important;
+}
+
+:host ::ng-deep .p-tree .p-tree-container .p-treenode-content {
+    color: var(--text-color) !important;
+    background-color: transparent !important;
+}
+
+:host ::ng-deep .p-tree .p-treenode-content:hover {
+    background-color: var(--hover-bg-color, #3a3a3a) !important;
+}
+
+:host ::ng-deep .p-tree .p-tree-checkbox-box {
+    background-color: var(--checkbox-bg, #2c2c2c) !important;
+    border: 1px solid #999 !important;
+}
+
+:host ::ng-deep .p-tree .p-tree-checkbox-box.p-highlight {
+    background-color: #0da487 !important;
+    border-color: #0da487 !important;
+}
+
+:host ::ng-deep .p-tree .p-tree-toggler {
+    color: var(--text-color) !important;
+}

@@ -1,6 +1,7 @@
 .header-container {
     font-size: calc(1.1rem + .12vw) !important;
     font-weight: bold !important;
+    color: var(--text-color);
 }
 
 .header-description {
@@ -9,7 +10,6 @@
     color: #99A1B7;
 }
 
-/* Match original color scheme if needed */
 .custom-header {
     font-weight: bold;
     font-size: 1.2rem;
@@ -80,16 +80,18 @@
 }
 
 ::ng-deep .row-light {
-    background-color: #ffffff !important;
+    color: var(--text-color) !important;
+    background-color: var(--element-color) !important;
 }
 
 ::ng-deep .row-dark {
-    background-color: #f8f8f8 !important;
+    color: var(--text-color) !important;
+    background-color: var(--background-color) !important;
 }
 
 ::ng-deep .p-datatable .p-datatable-thead>tr>th {
-    background-color: #f3f3f3 !important;
-    color: #000 !important;
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
     font-weight: 600;
 }
 
@@ -97,6 +99,11 @@
 :host ::ng-deep .p-datatable.no-border-table,
 :host ::ng-deep .p-datatable.no-border-table * {
     border-collapse: collapse !important;
+}
+
+.bg-element-color {
+    background-color: var(--element-color) !important;
+    color: var(--text-color) !important;
 }
 
 :host ::ng-deep .p-datatable.no-border-table .p-datatable-wrapper,
@@ -118,8 +125,18 @@
     box-shadow: none !important;
 }
 
-/* Loại bỏ viền cho phân trang */
 :host ::ng-deep .p-datatable.no-border-table .p-paginator {
     border: none !important;
     border-width: 0 !important;
+}
+
+::ng-deep .p-paginator {
+    background-color: var(--background-bg) !important;
+    color: var(--text-color) !important;
+    border: none !important;
+    padding: 0.5rem;
+}
+
+:host ::ng-deep .p-fileupload-basic input[type="file"] {
+  display: none !important;
 }

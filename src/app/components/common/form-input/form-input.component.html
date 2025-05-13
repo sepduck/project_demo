@@ -54,11 +54,11 @@
 <!-- Row Col ---------------------------------------------------------------------------------------------------------------- -->
 <div *ngIf="isInput === 'col'" class="mt-3 row">
     <div class="col-md-3 mt-2">
-        <label [for]="value" style="font-weight: 500; color: #000;" *ngIf="required" [pTooltip]="requiredTooltip"
-            tooltipPosition="top" tooltipStyleClass="custom-tooltip">
+        <label [for]="value" class="text-form" *ngIf="required" [pTooltip]="requiredTooltip" tooltipPosition="top"
+            tooltipStyleClass="custom-tooltip">
             {{ label }} <span style="color: red;">*</span>
         </label>
-        <label *ngIf="!required" [for]="value" style="font-weight: 500; color: #000;">
+        <label *ngIf="!required" [for]="value" class="label-form">
             {{ label }}
         </label>
     </div>
@@ -71,11 +71,11 @@
 
 <div *ngIf="isInput === 'col-password'" class="mt-3 row">
     <div class="col-md-3 mt-2">
-        <label [for]="value" style="font-weight: 500; color: #000;" *ngIf="required" [pTooltip]="requiredTooltip"
-            tooltipPosition="top" tooltipStyleClass="custom-tooltip">
+        <label [for]="value" class="label-form" *ngIf="required" [pTooltip]="requiredTooltip" tooltipPosition="top"
+            tooltipStyleClass="custom-tooltip">
             {{ label }} <span style="color: red;">*</span>
         </label>
-        <label *ngIf="!required" [for]="value" style="font-weight: 500; color: #000;">
+        <label *ngIf="!required" [for]="value" class="label-form">
             {{ label }}
         </label>
     </div>

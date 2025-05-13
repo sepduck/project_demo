@@ -1,10 +1,10 @@
 <div class="d-flex justify-content-center align-items-center mt-4" *ngIf="authService.hasPermission('mgmt.setting')">
-    <div style="width: 60vw; max-width: 1000px; background-color: #fff; padding: 30px;">
+    <div style="width: 60vw; max-width: 1000px; padding: 30px; border-radius: 10px;" class="mb-5 bg-element-color">
         <h5 style="font-size: 1.3rem;">Cài đặt</h5>
 
         <div class="mb-2 mt-5">
             <div class="d-flex align-items-center gap-2">
-                <p-checkbox [(ngModel)]="selfRegister" [id]="selfRegister" binary="true"></p-checkbox>
+                <p-toggleswitch [(ngModel)]="selfRegister" [id]="selfRegister" binary="true"></p-toggleswitch>
                 <label for="selfRegister" class="ml-2">Cho phép người dùng tự đăng ký.</label>
             </div>
             <i style="font-size: 0.75rem; margin-left: 1.5rem; color: gray;">
@@ -15,7 +15,7 @@
 
         <div class="mb-2">
             <div class="d-flex align-items-center gap-2">
-                <p-checkbox [(ngModel)]="defaultUserActivation" [id]="defaultUserActivation" binary="true"></p-checkbox>
+                <p-toggleswitch [(ngModel)]="defaultUserActivation" [id]="defaultUserActivation" binary="true"></p-toggleswitch>
                 <label for="selfRegister" class="ml-2">Người dùng đăng ký mới mặc định sẽ được kích hoạt.</label>
             </div>
             <i style="font-size: 0.75rem; margin-left: 1.5rem; color: gray;">
@@ -27,32 +27,31 @@
         <p class="header-setting mt-3">Hình ảnh Bảo mật</p>
         <div class="mb-2">
             <div class="d-flex align-items-center gap-2">
-                <p-checkbox [(ngModel)]="useCaptchaOnRegister" [id]="useCaptchaOnRegister"
-                    binary="true"></p-checkbox>
+                <p-toggleswitch [(ngModel)]="useCaptchaOnRegister" [id]="useCaptchaOnRegister" binary="true"></p-toggleswitch>
                 <label for="useCaptchaOnRegister" class="ml-2">Sử dụng câu hỏi hình ảnh bảo mật (captcha) khi đăng
                     ký.</label>
             </div>
         </div>
         <div class="mb-2">
             <div class="d-flex align-items-center gap-2">
-                <p-checkbox [(ngModel)]="useCaptchaOnResetPassword" [id]="useCaptchaOnResetPassword"
-                    binary="true"></p-checkbox>
+                <p-toggleswitch [(ngModel)]="useCaptchaOnResetPassword" [id]="useCaptchaOnResetPassword"
+                    binary="true"></p-toggleswitch>
                 <label for="useCaptchaOnResetPassword" class="ml-2">Sử dụng câu hỏi hình ảnh bảo mật (captcha) khi đặt
                     lại mật khẩu.</label>
             </div>
         </div>
         <div class="mb-2">
             <div class="d-flex align-items-center gap-2">
-                <p-checkbox [(ngModel)]="useCaptchaOnEmailActivation" [id]="useCaptchaOnEmailActivation"
-                    binary="true"></p-checkbox>
-                <label for="useCaptchaOnEmailActivation" class="ml-2">Sử dụng câu hỏi hình ảnh bảo mật (captcha) khi kích
+                <p-toggleswitch [(ngModel)]="useCaptchaOnEmailActivation" [id]="useCaptchaOnEmailActivation"
+                    binary="true"></p-toggleswitch>
+                <label for="useCaptchaOnEmailActivation" class="ml-2">Sử dụng câu hỏi hình ảnh bảo mật (captcha) khi
+                    kích
                     hoạt email.</label>
             </div>
         </div>
         <div class="mb-2">
             <div class="d-flex align-items-center gap-2">
-                <p-checkbox [(ngModel)]="useCaptchaOnLogin" [id]="useCaptchaOnLogin"
-                    binary="true"></p-checkbox>
+                <p-toggleswitch [(ngModel)]="useCaptchaOnLogin" [id]="useCaptchaOnLogin" binary="true"></p-toggleswitch>
                 <label for="useCaptchaOnLogin" class="ml-2">Sử dụng câu hỏi hình ảnh bảo mật (captcha) khi đăng
                     nhập.</label>
             </div>
@@ -61,8 +60,8 @@
         <p class="header-setting mt-3">Các thiết lập khác</p>
         <div class="mb-2">
             <div class="d-flex align-items-center gap-2">
-                <p-checkbox [(ngModel)]="emailConfirmationRequired" [id]="emailConfirmationRequired"
-                    binary="true"></p-checkbox>
+                <p-toggleswitch [(ngModel)]="emailConfirmationRequired" [id]="emailConfirmationRequired"
+                    binary="true"></p-toggleswitch>
                 <label for="emailConfirmationRequired" class="ml-2">Yêu cầu xác nhận email để đăng nhập.</label>
             </div>
         </div>
@@ -71,7 +70,7 @@
             <p class="header-setting mt-3">Hồ sơ</p>
             <div class="mb-2">
                 <div class="d-flex align-items-center gap-2">
-                    <p-checkbox [(ngModel)]="allowGravatar" [id]="allowGravatar" binary="true"></p-checkbox>
+                    <p-toggleswitch [(ngModel)]="allowGravatar" [id]="allowGravatar" binary="true"></p-toggleswitch>
                     <label for="allowGravatar" class="ml-2">Allow users to use Gravatar profile picture</label>
                 </div>
             </div>
@@ -80,8 +79,8 @@
         <p class="header-setting mt-3">Mật khẩu phức tạp</p>
         <div class="mb-2">
             <div class="d-flex align-items-center gap-2">
-                <p-checkbox [(ngModel)]="userDefaultSetting" [id]="userDefaultSetting" binary="true"
-                    (ngModelChange)="onDefaultSettingChange()"></p-checkbox>
+                <p-toggleswitch [(ngModel)]="userDefaultSetting" [id]="userDefaultSetting" binary="true"
+                    (ngModelChange)="onDefaultSettingChange()"></p-toggleswitch>
                 <label for="userDefaultSetting" class="ml-2">Sử dụng các cài đặt mặc định</label>
             </div>
         </div>
@@ -89,29 +88,29 @@
         <div class="ms-3">
             <div class="mb-2">
                 <div class="d-flex align-items-center gap-2">
-                    <p-checkbox [(ngModel)]="hasNumber" [id]="hasNumber" binary="true"
-                        (ngModelChange)="onDefaultSettingChange()" [disabled]="userDefaultSetting"></p-checkbox>
+                    <p-toggleswitch [(ngModel)]="hasNumber" [id]="hasNumber" binary="true"
+                        (ngModelChange)="onDefaultSettingChange()" [disabled]="userDefaultSetting"></p-toggleswitch>
                     <label for="hasNumber" class="ml-2">Yêu cầu phải bao gồm chữ số</label>
                 </div>
             </div>
             <div class="mb-2">
                 <div class="d-flex align-items-center gap-2">
-                    <p-checkbox [(ngModel)]="hasLowercase" [id]="hasLowercase" binary="true"
-                        (ngModelChange)="onDefaultSettingChange()" [disabled]="userDefaultSetting"></p-checkbox>
+                    <p-toggleswitch [(ngModel)]="hasLowercase" [id]="hasLowercase" binary="true"
+                        (ngModelChange)="onDefaultSettingChange()" [disabled]="userDefaultSetting"></p-toggleswitch>
                     <label for="hasLowercase" class="ml-2">Yêu cầu phải bao gồm chữ thường</label>
                 </div>
             </div>
             <div class="mb-2">
                 <div class="d-flex align-items-center gap-2">
-                    <p-checkbox [(ngModel)]="hasSpecialChar" [id]="hasSpecialChar" binary="true"
-                        (ngModelChange)="onDefaultSettingChange()" [disabled]="userDefaultSetting"></p-checkbox>
+                    <p-toggleswitch [(ngModel)]="hasSpecialChar" [id]="hasSpecialChar" binary="true"
+                        (ngModelChange)="onDefaultSettingChange()" [disabled]="userDefaultSetting"></p-toggleswitch>
                     <label for="hasSpecialChar" class="ml-2">Yêu cầu phải bao gồm ký tự đặc biệt</label>
                 </div>
             </div>
             <div class="mb-2">
                 <div class="d-flex align-items-center gap-2">
-                    <p-checkbox [(ngModel)]="hasUppercase" [id]="hasUppercase" binary="true"
-                        (ngModelChange)="onDefaultSettingChange()" [disabled]="userDefaultSetting"></p-checkbox>
+                    <p-toggleswitch [(ngModel)]="hasUppercase" [id]="hasUppercase" binary="true"
+                        (ngModelChange)="onDefaultSettingChange()" [disabled]="userDefaultSetting"></p-toggleswitch>
                     <label for="hasUppercase" class="ml-2">Yêu cầu phải bao gồm chữ hoa</label>
                 </div>
             </div>
@@ -128,7 +127,7 @@
         </div>
 
         <div class="d-flex justify-content-end mt-5">
-            <p-button (onClick)="updateSetting()" icon="pi pi-save" severity="info"
+            <p-button (onClick)="updateSetting()" icon="pi pi-save" severity="success"
                 [label]="isSubmitting ? 'Đang xử lý...' : 'Lưu thông tin'" [disabled]="isSubmitting" />
         </div>
     </div>

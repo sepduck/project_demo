@@ -15,6 +15,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { PanelModule } from 'primeng/panel';
 import { MenuModule } from 'primeng/menu';
 import { DialogModule } from 'primeng/dialog';
+import { FileUploadModule } from 'primeng/fileupload';
 import { MenuItem } from 'primeng/api';
 import * as XLSX from 'xlsx';
 import { AvatarModule } from 'primeng/avatar';
@@ -24,13 +25,14 @@ import { AuthService } from '../../services/auth.service';
 import { RoleService } from '../../services/role.service';
 import { AlertService } from '../../services/alert.service';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { ACCOUNT_NOT_ACTIVATED, DELETE_USER_ERROR, DELETE_USER_FAILED, DELETE_USER_SUCCESS, EXPORT_USER_DATA_FAILED, EXPORT_USER_DATA_SUCCESS, FILE_READ_ERROR, FILE_READ_SUCCESS, IMPORT_NO_DATA, IMPORT_USERS_SUCCESS, LOAD_USER_DATA_FAILED, LOGIN_FAILED, LOGIN_USER_FAILED, TEMPLATE_DOWNLOAD_SUCCESS, USER_NOT_FOUND } from '../../constants/error-message';
+import { ACCOUNT_NOT_ACTIVATED, DELETE_USER_ERROR, DELETE_USER_FAILED, DELETE_USER_SUCCESS, EMAIL_INVALID, EMAIL_REQUIRED, EXPORT_USER_DATA_FAILED, EXPORT_USER_DATA_SUCCESS, FILE_READ_ERROR, FILE_READ_SUCCESS, FIRST_NAME_REQUIRED, IMPORT_NO_DATA, IMPORT_USERS_SUCCESS, LAST_NAME_REQUIRED, LOAD_USER_DATA_FAILED, LOGIN_FAILED, LOGIN_USER_FAILED, PASSWORD_REQUIRED, PHONE_NUMBER_REQUIRED, ROLE_NAME_REQUIRED, TEMPLATE_DOWNLOAD_SUCCESS, USER_NOT_FOUND, USERNAME_REQUIRED } from '../../constants/error-message';
 import { InputTextModule } from 'primeng/inputtext';
+import { validateEmail, validateFirstName, validateLastName, validatePassword, validatePhoneNumber, validateUsername } from '../../utils/validators';
 
 
 @Component({
   selector: 'app-user',
-  imports: [DialogModule, InputTextModule, AutoCompleteModule, AvatarModule, CommonModule, NgIf, FormsModule, DialogModule, NgxPaginationModule, MenuModule, DropdownModule, PanelModule, SelectModule, PaginatorModule, InputGroupAddonModule, TableModule, ButtonModule, BadgeModule, InputGroupModule],
+  imports: [DialogModule, FileUploadModule, InputTextModule, AutoCompleteModule, AvatarModule, CommonModule, NgIf, FormsModule, DialogModule, NgxPaginationModule, MenuModule, DropdownModule, PanelModule, SelectModule, PaginatorModule, InputGroupAddonModule, TableModule, ButtonModule, BadgeModule, InputGroupModule],
   templateUrl: './user.component.html',
   styleUrl: './user.component.css'
 })
@@ -261,7 +263,6 @@ export class UserComponent {
           const workbook = XLSX.utils.book_new();
           XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
 
-          // Xuất file
           XLSX.writeFile(workbook, 'UserList.xlsx');
           this.alertService.success(EXPORT_USER_DATA_SUCCESS);
         } else {
@@ -323,8 +324,8 @@ export class UserComponent {
   totalImportItems: number = 0;
   processedItems: number = 0;
 
-  onFileSelected(event: any): void {
-    const file = event.target.files[0];
+  onFileUpload(event: any): void {
+    const file = event.files[0];
     if (file) {
       this.importFile = file;
       const reader = new FileReader();
@@ -341,8 +342,8 @@ export class UserComponent {
 
           this.importData = excelData.map((row: any) => {
             return {
-              firstName: row['Tên'] || '',
-              lastName: row['Họ'] || '',
+              firstName: row['Họ'] || '',
+              lastName: row['Tên'] || '',
               email: row['Email'] || '',
               username: row['Tên đăng nhập'] || '',
               password: row['Mật khẩu'] || '',
@@ -367,22 +368,18 @@ export class UserComponent {
     }
   }
   importUsers(): void {
-    // Kiểm tra dữ liệu trước khi import
     if (this.importData.length === 0) {
       this.alertService.error('Không có dữ liệu để import');
       return;
     }
 
-    // Validate toàn bộ dữ liệu trước khi gửi
     this.importErrors = this.validateImportData(this.importData);
 
-    // Nếu có lỗi, hiển thị chi tiết lỗi
     if (this.importErrors.length > 0) {
       this.displayImportErrors();
       return;
     }
 
-    // Nếu không có lỗi, thực hiện import
     this.userService.createUsers(this.importData).subscribe({
       next: (res) => {
         if (res.code === 200) {
@@ -393,8 +390,7 @@ export class UserComponent {
         }
       },
       error: (err) => {
-        // Xử lý lỗi từ server
-        const errorMessage = err?.error?.message || 'Lỗi không xác định';
+        const errorMessage = err?.error?.message;
         this.alertService.error(errorMessage);
       }
     });
@@ -404,48 +400,29 @@ export class UserComponent {
     const errorSet = new Set<string>();
 
     data.forEach((user, index) => {
-      // Validate vai trò
       if (!user.role || user.role.trim() === '') {
-        errorSet.add('Vai trò không được để trống');
+        errorSet.add(ROLE_NAME_REQUIRED);
       }
+      const emailError = validateEmail(user.email || '');
+      if (emailError) errorSet.add(emailError);
 
-      // Validate email
-      if (!user.email) {
-        errorSet.add('Email không được để trống');
-      } else {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(user.email)) {
-          errorSet.add('Email không đúng định dạng');
-        }
-      }
+      const lastNameError = validateLastName(user.lastName || '');
+      if (lastNameError) errorSet.add(lastNameError);
 
-      // Validate tên
-      if (!user.firstName || user.firstName.trim() === '') {
-        errorSet.add('Tên không được để trống');
-      }
+      const firstNameError = validateFirstName(user.firstName || '');
+      if (firstNameError) errorSet.add(firstNameError);
 
-      // Validate họ
-      if (!user.lastName || user.lastName.trim() === '') {
-        errorSet.add('Họ không được để trống');
-      }
+      const passwordError = validatePassword(user.password || '');
+      if (passwordError) errorSet.add(passwordError);
 
-      // Validate mật khẩu
-      if (!user.password || user.password.trim() === '') {
-        errorSet.add('Mật khẩu không được để trống');
-      }
+      const usernameError = validateUsername(user.username || '');
+      if (usernameError) errorSet.add(usernameError);
 
-      // Validate tên người dùng
-      if (!user.username || user.username.trim() === '') {
-        errorSet.add('Tên người dùng không được để trống');
-      }
+      const phoneError = validatePhoneNumber(user.phoneNumber || '')
+      if (phoneError) errorSet.add(phoneError)
 
-      // Validate số điện thoại
-      if (!user.phone || user.phone.trim() === '') {
-        errorSet.add('Số điện thoại không được để trống');
-      }
     });
 
-    // Chuyển Set thành mảng
     return Array.from(errorSet);
   }
   displayImportErrors(): void {
@@ -456,15 +433,13 @@ export class UserComponent {
     this.alertService.error(errorMessage);
   }
 
-  // Reset trạng thái import
+
   resetImport(): void {
     this.showImportPreview = false;
     this.importData = [];
     this.importFile = null;
     this.importErrors = [];
   }
-
-
 
   cancelImport(): void {
     this.showImportPreview = false;

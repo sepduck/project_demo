@@ -1,5 +1,5 @@
 <div class="d-flex justify-content-center align-items-center mt-4" *ngIf="authService.hasPermission('mgmt.user.edit')">
-    <div style="width: 60vw; max-width: 1000px; background-color: #fff; padding: 30px;">
+    <div style="width: 60vw; max-width: 1000px; padding: 30px; border-radius: 10px;" class="mb-5 bg-element-color">
         <h5 style="font-size: 1.3rem;">Cập nhật thông tin {{ username }}</h5>
         <p-tabs [(value)]="activeTab">
             <p-tablist>
@@ -53,15 +53,15 @@
 
 
                     <div class="d-flex items-center gap-2 mt-5">
-                        <p-checkbox [(ngModel)]="isAction" inputId="isAction" binary="true" />
+                        <p-toggleswitch [(ngModel)]="isAction" inputId="isAction" binary="true" />
                         <label for="isAction">Kích hoạt</label>
                     </div>
                     <div class="d-flex items-center gap-2 mt-2" *ngIf="!(verifyToken && isSendEmail)">
-                        <p-checkbox [(ngModel)]="isSendEmail" inputId="isSendEmail" binary="true" />
+                        <p-toggleswitch [(ngModel)]="isSendEmail" inputId="isSendEmail" binary="true" />
                         <label for="isSendEmail">Gửi email kích hoạt.</label>
                     </div>
                     <div class="d-flex items-center gap-2 mt-2">
-                        <p-checkbox [(ngModel)]="isLockedOut" inputId="isLockedOut" binary="true" />
+                        <p-toggleswitch [(ngModel)]="isLockedOut" inputId="isLockedOut" binary="true" />
                         <label for="isLockedOut">Khóa tài khoản</label>
                     </div>
                     <div *ngIf="errorMessage" class="alert alert-danger mt-3">

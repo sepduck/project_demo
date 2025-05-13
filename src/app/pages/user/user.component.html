@@ -27,20 +27,18 @@
                     class="full-width-input" />
             </div>
             <div class="w-50">
-                <p-inputGroup>
-                    <p-select [options]="rolesSelect" [(ngModel)]="selectedRoleId" optionLabel="name" optionValue="id"
-                        placeholder="Chọn một vai trò" class="w-100 md:w-50" />
-                </p-inputGroup>
+                <p-dropdown [options]="rolesSelect" [(ngModel)]="selectedRoleId" optionLabel="name" optionValue="id"
+                    placeholder="Chọn một vai trò" class="w-100 md:w-50" />
             </div>
         </div>
-        <div class="mt-4 d-flex justify-content-between mb-3">
+        <div class="mt-4 d-flex justify-content-between">
             <p-button label="Làm tươi" icon="bi bi-arrow-repeat" styleClass="custom-create-button"
                 (click)="refreshData()"></p-button>
             <p-button label="Tìm kiếm" styleClass="custom-create-button" (click)="loadUsers()"></p-button>
 
         </div>
 
-        <div class="mt-3 table-container">
+        <div class="mt-5 table-container">
             <p-table [value]="users" [paginator]="true" [rows]="pageSize" [first]="(pageNumber - 1) * pageSize"
                 [totalRecords]="totalRecords" [lazy]="true" (onLazyLoad)="onPageChange($event)"
                 [rowsPerPageOptions]="[5, 10, 25, 50, 100, 250, 500]" styleClass="no-border-table">
@@ -113,14 +111,14 @@
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
                     <tr>
-                        <td colspan="11" class="text-center text-muted py-5">
+                        <td colspan="11" class="text-center bg-element-color py-5">
                             <i class="pi pi-info-circle" style="margin-right: 6px;"></i>
                             Không có dữ liệu.
                         </td>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="paginatorleft">
-                    <div class="flex align-items-center justify-content-between w-full">
+                    <div class="flex align-items-center justify-content-between w-full ">
                         <span>Page {{pageNumber}} of {{totalPages}}</span>
                     </div>
                 </ng-template>
@@ -133,15 +131,16 @@
     [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }" [draggable]="false"
     [resizable]="false">
 
-    <div class="card">
+    <div class="card bg-element-color">
         <div *ngIf="!showImportPreview" class="p-3">
             <div class="mb-3">
-                <i class="text-muted">File phải đúng định dạng như tệp mẫu. Có thể tải tệp mẫu từ menu "Download tệp
+                <i class="text-color">File phải đúng định dạng như tệp mẫu. Có thể tải tệp mẫu từ menu "Download tệp
                     nhập mẫu".</i>
                 <div class="mt-3">
-                    <input type="file" class="form-control" accept=".xlsx, .xls" (change)="onFileSelected($event)" />
+                    <p-fileUpload mode="basic" chooseLabel="Chọn file Excel" [auto]="true" accept=".xlsx, .xls"
+                        [maxFileSize]="1000000" (onSelect)="onFileUpload($event)" [customUpload]="true"
+                        styleClass="p-button-primary w-100" />
                 </div>
-
             </div>
         </div>
 
@@ -152,8 +151,8 @@
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
-                            <th>Tên</th>
                             <th>Họ</th>
+                            <th>Tên</th>
                             <th>Tên đăng nhập</th>
                             <th>Email</th>
                             <th>Số điện thoại</th>
@@ -171,7 +170,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <p *ngIf="importData.length > 5" class="text-muted">Hiển thị 5 bản ghi đầu tiên...</p>
+                <p *ngIf="importData.length > 5" class="text-color">Hiển thị 5 bản ghi đầu tiên...</p>
             </div>
 
             <div *ngIf="importProgress > 0" class="mt-3">

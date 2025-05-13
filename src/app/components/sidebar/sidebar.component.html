@@ -1,5 +1,5 @@
 <div class="d-flex" [ngClass]="{ 'collapsed': isCollapsed }">
-    <div class="sidebar text-white p-3" style="background-color: #0f8e80;">
+    <div class="sidebar text-white p-3">
         <img *ngIf="!isCollapsed" src="/images/logo/full-white.png" style="height: 35px; cursor: pointer;" alt="" />
         <img *ngIf="isCollapsed" src="/images/logo/1-white.png" style="height: 35px;" alt=""
             (click)="toggleSidebar()" />

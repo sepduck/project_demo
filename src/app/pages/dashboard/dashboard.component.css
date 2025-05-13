@@ -6,3 +6,8 @@
 .card-header {
     background-color: white;
 }
+
+.bg-element-color {
+    background-color: var(--element-color);
+    color: var(--text-color);
+}
