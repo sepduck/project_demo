@@ -1,3 +1,4 @@
+import { CHANGE_PASSWORD_FAILED, CHANGE_PASSWORD_SUCCESS, CURRENT_PASSWORD_REQUIRED, NEW_PASSWORD_CONFIRM_MISMATCH, NEW_PASSWORD_NOT_SAME_AS_OLD, NEW_PASSWORD_REQUIRED } from './../../../constants/error-message';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormInputComponent } from '../../../components/common/form-input/form-input.component';
 import { ButtonModule } from 'primeng/button';
@@ -44,20 +45,20 @@ export class ChangePasswordComponent {
           if (closeButton) {
             closeButton.click();
           }
-          this.alertService.success("Thay đổi mật khẩu thành công!")
+          this.alertService.success(CHANGE_PASSWORD_SUCCESS)
           this.router.navigate([LOGIN]);
         } else if (res.code === 4004) {
           this.errors.currentPassword = res.message
         } else if (res.code === 400) {
           this.errors.newPassword = res.message
         } else {
-          this.alertService.error('Thay đổi mật khẩu thất bại!');
+          this.alertService.error(CHANGE_PASSWORD_FAILED);
           console.log(res.message);
 
         }
       },
       error: (err) => {
-        this.errorMessage = 'Lỗi thay đổi mật khẩu : ' + err.message;
+        this.errorMessage = CHANGE_PASSWORD_FAILED;
       }
     });
   }
@@ -65,22 +66,22 @@ export class ChangePasswordComponent {
   validatePasswords(): boolean {
     if (this.newPassword !== this.confirmPassword) {
       this.passwordMismatch = true;
-      this.errors.confirmPassword = 'Mật khẩu mới và nhập lại mật khẩu không khớp';
+      this.errors.confirmPassword = NEW_PASSWORD_CONFIRM_MISMATCH;
       return false;
     }
 
     if (!this.currentPassword) {
-      this.errors.currentPassword = 'Vui lòng nhập mật khẩu hiện tại';
+      this.errors.currentPassword = CURRENT_PASSWORD_REQUIRED;
       return false;
     }
 
     if (!this.newPassword) {
-      this.errors.newPassword = 'Vui lòng nhập mật khẩu mới';
+      this.errors.newPassword = NEW_PASSWORD_REQUIRED;
       return false;
     }
 
     if (this.currentPassword === this.newPassword) {
-      this.errors.newPassword = 'Mật khẩu mới không được trùng với mật khẩu hiện tại';
+      this.errors.newPassword = NEW_PASSWORD_NOT_SAME_AS_OLD;
       return false;
     }
 

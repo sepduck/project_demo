@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { validateEmail } from '../../../utils/validators';
 import { EMAIL_VALIDATION, LOGIN } from '../../../constants/path-valiable';
 import { AuthService } from '../../../services/auth.service';
-import { AUTHENTICATION_FAILED } from '../../../constants/error-message';
+import { AUTHENTICATION_FAILED, RESET_PASSWORD_LINK_INSTRUCTION } from '../../../constants/error-message';
 
 @Component({
   selector: 'app-forgot-password',
@@ -16,7 +16,7 @@ import { AUTHENTICATION_FAILED } from '../../../constants/error-message';
 })
 export class ForgotPasswordComponent {
   constructor(private router: Router, private authService: AuthService) { }
-  description: string = "Liên kết đặt lại mật khẩu sẽ được gửi đến email của bạn để đặt lại mật khẩu của bạn. Nếu bạn không nhận được email trong vòng vài phút, vui lòng thử lại."
+  description: string = RESET_PASSWORD_LINK_INSTRUCTION;
   email: string = '';
   errors: {
     email?: string

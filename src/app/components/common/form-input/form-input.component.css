@@ -80,3 +80,11 @@
     width: 100%;
     background-color: #f9f9f6 !important;
 }
+
+::ng-deep .custom-tooltip {
+    max-width: 250px;
+    white-space: normal;
+    font-size: 0.85rem;
+    padding: 8px;
+    line-height: 1.4;
+}

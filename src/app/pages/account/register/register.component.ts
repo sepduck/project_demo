@@ -11,6 +11,7 @@ import { AuthService } from '../../../services/auth.service';
 import { SettingServiceService } from '../../../services/setting-service.service';
 import { AlertService } from '../../../services/alert.service';
 import { RecaptchaComponent, RecaptchaModule } from 'ng-recaptcha';
+import { CAPTCHA_REQUIRED, LOWERCASE_REQUIRED, MIN_6_CHAR, NUMBER_REQUIRED, PASSWORD_MIN_LENGTH_MESSAGE, PASSWORD_REQUIRED, SPECIAL_CHAR_REQUIRED, UPPERCASE_REQUIRED } from '../../../constants/error-message';
 
 @Component({
   selector: 'app-register',
@@ -100,29 +101,29 @@ export class RegisterComponent implements OnInit {
     if (usernameError) this.errors.username = usernameError;
 
     if (!this.password || this.password.trim() === '') {
-      this.errors.password = 'Vui lòng nhập mật khẩu';
+      this.errors.password = PASSWORD_REQUIRED;
     } else {
       const requirements: string[] = [];
 
       if (!this.userDefaultSetting) {
         if (this.hasLowercase && !/[a-z]/.test(this.password)) {
-          requirements.push('chữ thường');
+          requirements.push(LOWERCASE_REQUIRED);
         }
         if (this.hasUppercase && !/[A-Z]/.test(this.password)) {
-          requirements.push('chữ hoa');
+          requirements.push(UPPERCASE_REQUIRED);
         }
         if (this.hasNumber && !/[0-9]/.test(this.password)) {
-          requirements.push('chữ số');
+          requirements.push(NUMBER_REQUIRED);
         }
         if (this.hasSpecialChar && !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(this.password)) {
-          requirements.push('ký tự đặc biệt');
+          requirements.push(SPECIAL_CHAR_REQUIRED);
         }
         if (this.password.length < this.minPasswordLength) {
-          requirements.push(`ít nhất ${this.minPasswordLength} ký tự`);
+          requirements.push(PASSWORD_MIN_LENGTH_MESSAGE(this.minPasswordLength));
         }
       } else {
         if (this.password.length < 6) {
-          requirements.push('ít nhất 6 ký tự');
+          requirements.push(MIN_6_CHAR);
         }
       }
 
@@ -140,7 +141,7 @@ export class RegisterComponent implements OnInit {
     this.isSubmitting = true
 
     if (!this.captchaToken && this.useCaptchaOnRegister) {
-      this.alertService.error("Please complete the CAPTCHA.");
+      this.alertService.error(CAPTCHA_REQUIRED);
       return;
     }
 
@@ -182,7 +183,7 @@ export class RegisterComponent implements OnInit {
         if (this.useCaptchaOnRegister) {
           this.captchaRef.reset();
         }
-        this.errorMessage = error.error?.message || "Đã xảy ra lỗi!";
+        this.errorMessage = error.error?.message;
       }
     });
   }

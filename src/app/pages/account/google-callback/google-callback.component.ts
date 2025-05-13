@@ -29,15 +29,11 @@ export class GoogleCallbackComponent implements OnInit {
 
     try {
       stateData = JSON.parse(decodeURIComponent(rawState));
-      console.log("state " + stateData);
-
     } catch (e) {
       console.error('Invalid state data', e);
     }
     const { provider, link } = stateData;
     if (link === 'true') {
-      console.log("da vao day");
-
       const loginFn = provider === 'google'
         ? this.authService.linkGoogle(code)
         : this.authService.loginWithFacebook(code)
@@ -48,11 +44,10 @@ export class GoogleCallbackComponent implements OnInit {
           this.alertService[res.code === 200 ? 'success' : 'error'](res.message)
         },
         error: (err) => {
-          console.error('OAuth login failed', err);
+          console.error(err);
         }
       });
     } else {
-      console.log("dddd");
       const loginFn = provider === 'google'
         ? this.authService.loginWithGoogle(code)
         : this.authService.loginWithFacebook(code)
@@ -64,7 +59,7 @@ export class GoogleCallbackComponent implements OnInit {
           this.alertService[res.code === 200 ? 'success' : 'error'](res.message)
         },
         error: (err) => {
-          console.error('OAuth login failed', err);
+          console.error(err);
         }
       });
     }

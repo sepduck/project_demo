@@ -7,7 +7,8 @@
         </div>
 
         <div class="mt-4 mb-4 d-flex justify-content-between">
-            <p-button label="Làm tươi" icon="bi bi-arrow-repeat" styleClass="custom-create-button" (click)="refreshData()"></p-button>
+            <p-button label="Làm tươi" icon="bi bi-arrow-repeat" styleClass="custom-create-button"
+                (click)="refreshData()"></p-button>
 
             <p-button label="Tìm kiếm" icon="bi bi-search" styleClass="custom-create-button"
                 (click)="loadActivityLogs()"></p-button>
@@ -99,6 +100,14 @@
                         <td></td>
                         <td class="browser-default">{{activityLog.browser}}</td>
                         <td>{{ activityLog.createdAt | date:'HH:mm:ss dd/M/yyyy' }}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="11" class="text-center text-muted py-5">
+                            <i class="pi pi-info-circle" style="margin-right: 6px;"></i>
+                            Không có dữ liệu.
+                        </td>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="paginatorleft">

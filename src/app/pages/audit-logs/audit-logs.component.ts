@@ -74,7 +74,7 @@ export class AuditLogsComponent {
   onPageChange(event: any) {
     this.pageNumber = Math.floor((event.first || 0) / (event.rows || 10)) + 1;
     this.pageSize = event.rows || 10;
-    this.applyCurrentFilter();
+    this.applyCurrentFilter(false);
   }
 
   get totalPages(): number {
@@ -110,8 +110,8 @@ export class AuditLogsComponent {
     }
   }
 
-  applyCurrentFilter(): void {
-    this.loadActivityLogs();
+  applyCurrentFilter(resetPage: boolean = true): void {
+    this.loadActivityLogs(resetPage);
 
   }
 

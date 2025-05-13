@@ -25,11 +25,12 @@ import { AuthService } from '../../services/auth.service';
 import { AlertService } from '../../services/alert.service';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TabsModule } from 'primeng/tabs';
+import { CANNOT_DELETE_OWN_ROLE, CONFIRM_DELETE_ROLE_WITH_USERS, CREATE_ROLE_FAILED, CREATE_ROLE_SUCCESS, CURRENT_ROLE_CHANGED, DELETE_ROLE_SUCCESS, DELETE_USER_ERROR, DELETE_USER_FAILED, GET_ROLE_INFO_INVALID_DATA, ROLE_NAME_ALREADY_EXISTS, ROLE_NOT_FOUND, SELF_ROLE_CHANGE_RELOGIN_WARNING, SYSTEM_ROLE_ACTION_FORBIDDEN, UPDATE_ROLE_ERROR, UPDATE_ROLE_SUCCESS } from '../../constants/error-message';
 
 @Component({
   selector: 'app-role',
   standalone: true,
-  imports: [FormsModule, TabsModule, CommonModule,CheckboxModule, FormInputComponent, CommonModule, NgIf, FormsModule, DialogModule, NgxPaginationModule, MenuModule, DropdownModule, PanelModule, SelectModule, PaginatorModule, InputGroupAddonModule, TableModule, ButtonModule, BadgeModule, InputGroupModule, PermissionTreeComponent],
+  imports: [FormsModule, TabsModule, CommonModule, CheckboxModule, FormInputComponent, CommonModule, NgIf, FormsModule, DialogModule, NgxPaginationModule, MenuModule, DropdownModule, PanelModule, SelectModule, PaginatorModule, InputGroupAddonModule, TableModule, ButtonModule, BadgeModule, InputGroupModule, PermissionTreeComponent],
   templateUrl: './role.component.html',
   styleUrl: './role.component.css'
 })
@@ -46,12 +47,12 @@ export class RoleComponent {
     permissions: []
   };
 
-  activeTab: string = 'tab1';
+  activeTab: string | number = '0';
   isEditMode: boolean = false;
   isSubmitting: boolean = false;
   selectedRoleId: number | null = null;
 
-  description = 'Nếu bạn 78đan78                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         g thay đổi quyền của riêng bạn, bạn sẽ phải đăng nhập lại để có hiệu lực của các thay đổi quyền trên màn hình của riêng bạn!'
+  description = SELF_ROLE_CHANGE_RELOGIN_WARNING
   errors: {
     name?: string
   } = {}
@@ -127,7 +128,7 @@ export class RoleComponent {
     this.resetForm();
     this.isEditMode = false;
     this.selectedRoleId = null;
-    this.setActiveTab('tab1');
+    this.setActiveTab('0');
     // Mở modal bằng Bootstrap
     const modalElement = document.getElementById('exampleModal');
     if (modalElement) {
@@ -141,13 +142,13 @@ export class RoleComponent {
     this.resetForm();
     this.isEditMode = true;
     this.selectedRoleId = roleId;
-    this.setActiveTab('tab1');
+    this.setActiveTab('0');
 
     // Lấy thông tin vai trò cần chỉnh sửa
     this.roleService.getRoleById(roleId).subscribe({
       next: (response) => {
         if (!response || !response.result) {
-          this.alertService.error("Không thể lấy thông tin vai trò: Dữ liệu không hợp lệ")
+          this.alertService.error(GET_ROLE_INFO_INVALID_DATA)
           return;
         }
 
@@ -158,7 +159,6 @@ export class RoleComponent {
         if (Array.isArray(roleData.permissions)) {
           this.newRole.permissions = roleData.permissions.map((p: any) => p.id);
         } else {
-          console.warn("Permissions is not an array:", roleData.permissions);
           this.newRole.permissions = [];
         }
         const modalElement = document.getElementById('exampleModal');
@@ -194,7 +194,13 @@ export class RoleComponent {
   }
 
   saveRole(): void {
-    if (!this.validate()) return
+    if (!this.validate()) {
+      if (this.activeTab === '1' && Object.keys(this.errors).length > 0) {
+        this.setActiveTab('0');
+        return;
+      }
+      return;
+    }
 
     this.isSubmitting = true
 
@@ -209,7 +215,7 @@ export class RoleComponent {
       this.roleService.updateRole(this.selectedRoleId, roleData).subscribe({
         next: (res) => {
           if (res.code === 200) {
-            this.alertService.success("Vai trò đã được cập nhật thành công!")
+            this.alertService.success(UPDATE_ROLE_SUCCESS)
             this.loadRole();
             // Đóng modal
             const modalElement = document.getElementById('exampleModal');
@@ -233,7 +239,7 @@ export class RoleComponent {
             }
 
             if (userRoles.length > 0 && userRoles.includes(roleData.name)) {
-              this.alertService.warning("Vai trò hiện tại của bạn đã được thay đổi. Vui lòng đăng nhập lại để áp dụng quyền mới.")
+              this.alertService.warning(CURRENT_ROLE_CHANGED)
               this.authService.logout().subscribe({
                 next: () => {
                   localStorage.removeItem('jwtToken')
@@ -247,13 +253,15 @@ export class RoleComponent {
             }
           } else if (res.code === 4012) {
             this.alertService.error(res?.message)
+            this.isSubmitting = false;
           } else if (res.code === 4016) {
             this.alertService.error(res?.message)
+            this.isSubmitting = false;
           }
         },
         error: (error) => {
           this.isSubmitting = false;
-          this.alertService.error("Lỗi khi cập nhật vai trò")
+          this.alertService.error(UPDATE_ROLE_ERROR)
         }
       });
     } else {
@@ -261,7 +269,7 @@ export class RoleComponent {
       this.roleService.createRole(roleData).subscribe({
         next: (res) => {
           if (res.code === 200) {
-            this.alertService.success("Vai trò đã được tạo thành công!")
+            this.alertService.success(CREATE_ROLE_SUCCESS)
             this.loadRole();
 
             // Đóng modal
@@ -274,18 +282,20 @@ export class RoleComponent {
             }
 
           } else if (res.code === 4015) {
-            this.errors.name = "Tên người dùng đã tồn tại";
+            this.errors.name = ROLE_NAME_ALREADY_EXISTS;
+            this.isSubmitting = false;
           }
         },
         error: (error) => {
-          this.alertService.error("Lỗi khi tạo vai trò")
+          this.alertService.error(CREATE_ROLE_FAILED)
+          this.isSubmitting = false;
         }
       });
     }
   }
 
   deleteRole(roleId: number): void {
-    const confirmDelete = confirm('Nếu xóa vai trò này thì tất cả người dùng có vai trò cũng bị xóa, bạn có muốn xóa không?');
+    const confirmDelete = confirm(CONFIRM_DELETE_ROLE_WITH_USERS);
     if (!confirmDelete) return;
 
     const currentUser = this.authService.getCurrentUser();
@@ -307,7 +317,7 @@ export class RoleComponent {
       }
     }
     if (userHasRole) {
-      this.alertService.error("Bạn không thể xóa vai trò của chính mình!");
+      this.alertService.error(CANNOT_DELETE_OWN_ROLE);
       return;
     }
 
@@ -315,15 +325,15 @@ export class RoleComponent {
       next: (res) => {
         if (res.code === 200) {
           this.loadRole();
-          this.alertService.success("Xoá vai trò thành công!")
+          this.alertService.success(DELETE_ROLE_SUCCESS)
         } else if (res.code === 4012) {
-          this.alertService.error("Vai trò không tồn tại")
+          this.alertService.error(ROLE_NOT_FOUND)
         } else if (res.code === 4016) {
-          this.alertService.error("Không thể thực hiện với vai trò của hệ thống")
+          this.alertService.error(SYSTEM_ROLE_ACTION_FORBIDDEN)
         }
       },
       error: (err) => {
-        this.alertService.error("Không thể xoá người dùng. Vui lòng thử lại sau.")
+        this.alertService.error(DELETE_USER_FAILED)
       }
     });
   }

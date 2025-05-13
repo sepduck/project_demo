@@ -11,20 +11,14 @@ export class UserService {
   constructor(private http: HttpClient) {
 
   }
-  getUsers(permissionIds: number[], name: string, roleId: number | null, pageNumber: number, pageSize: number): Observable<ApiResponse> {
+  getUsers(name: string, roleId: number | null, pageNumber: number, pageSize: number): Observable<ApiResponse> {
     const headers = AuthUtils.getAuthHeaders();
     let params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString());
-
     if (name && name.trim() !== '') { params = params.set('name', name); }
     if (roleId && roleId > 0) { params = params.set('roleId', roleId.toString()); }
 
-    if (permissionIds && permissionIds.length > 0) {
-      permissionIds.forEach(id => {
-        params = params.append('permissionIds', id.toString());
-      });
-    }
     return this.http.get<ApiResponse>(API_V1_USER, { headers, params });
   }
   createUser(
@@ -35,7 +29,7 @@ export class UserService {
     password: string,
     phoneNumber: string,
     isSendEmail: boolean,
-    thumbnail: string,
+    thumbnail: string | null,
     isRandomPassword: boolean,
     roles: number[],
     mustChangePassword: boolean,

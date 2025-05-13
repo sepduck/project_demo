@@ -1,3 +1,4 @@
+import { LOAD_ROLE_LIST_FAILED, LOAD_USER_INFO_FAILED } from './../../../constants/error-message';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -7,12 +8,13 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormInputComponent } from '../../../components/common/form-input/form-input.component';
 import { UserService } from '../../../services/user.service';
-import { validateEmail, validateFirstName, validateLastName, validatePhoneNumber, validateUsername } from '../../../utils/validators';
+import { validateEmail, validateFirstName, validateLastName, validatePhoneNumber, validateRole, validateUsername } from '../../../utils/validators';
 import { AlertService } from '../../../services/alert.service';
 import { AuthService } from '../../../services/auth.service';
 import { USERS } from '../../../constants/path-valiable';
 import { TabsModule } from 'primeng/tabs';
 import { PasswordModule } from 'primeng/password';
+import { IMAGE_FILE_TOO_LARGE, ONLY_IMAGE_FILES_ALLOWED, UPDATE_USER_FAILED, UPLOAD_IMAGE_FAILED } from '../../../constants/error-message';
 
 
 @Component({
@@ -25,7 +27,7 @@ import { PasswordModule } from 'primeng/password';
 export class UpdateUserComponent implements OnInit {
   userId: number | null = null;
   rolesSelect: any[] = [];
-  activeTab: string = 'tab1';
+  activeTab: string | number = '0'
 
   firstName: string = '';
   lastName: string = '';
@@ -81,7 +83,7 @@ export class UpdateUserComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.errorMessage = 'Không thể tải danh sách vai trò: ' + err.message;
+        this.errorMessage = LOAD_ROLE_LIST_FAILED;
       }
     });
   }
@@ -116,7 +118,7 @@ export class UpdateUserComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.errorMessage = 'Không thể tải thông tin người dùng: ' + err.message;
+        this.errorMessage = LOAD_USER_INFO_FAILED;
       }
     });
   }
@@ -142,12 +144,12 @@ export class UpdateUserComponent implements OnInit {
     if (input.files && input.files[0]) {
       const file = input.files[0];
       if (file.size > 5 * 1024 * 1024) {
-        this.errorMessage = 'Kích thước file không được vượt quá 5MB';
+        this.errorMessage = IMAGE_FILE_TOO_LARGE
         return;
       }
 
       if (!file.type.match('image.*')) {
-        this.errorMessage = 'Chỉ chấp nhận file hình ảnh';
+        this.errorMessage = ONLY_IMAGE_FILES_ALLOWED;
         return;
       }
 
@@ -180,16 +182,18 @@ export class UpdateUserComponent implements OnInit {
     const usernameError = validateUsername(this.username)
     if (usernameError) this.errors.username = usernameError
 
-    if (this.roles.length === 0) {
-      this.errorMessage = 'Vui lòng chọn ít nhất một vai trò';
+    const rolesError = validateRole(this.roles);
+    if (rolesError) {
+      this.errorMessage = rolesError;
+      return false;
     }
     return Object.keys(this.errors).length === 0 && !this.errorMessage;
   }
 
   updateUser(): void {
     if (!this.validateForm()) {
-      if (this.activeTab === 'tab2' && Object.keys(this.errors).length > 0) {
-        this.setActiveTab('tab1');
+      if (this.activeTab === '1' && Object.keys(this.errors).length > 0) {
+        this.setActiveTab('0');
         return;
       }
       return;
@@ -209,12 +213,12 @@ export class UpdateUserComponent implements OnInit {
             this.thumbnail = res.result;
             this._processFormSubmission();
           } else {
-            this.errorMessage = 'Tải ảnh lên thất bại!';
+            this.errorMessage = UPLOAD_IMAGE_FAILED;
             this.isSubmitting = false;
           }
         },
         error: (err) => {
-          this.errorMessage = 'Lỗi tải ảnh lên: ' + err.message;
+          this.errorMessage = UPLOAD_IMAGE_FAILED;
           this.isSubmitting = false;
         }
       });
@@ -246,12 +250,12 @@ export class UpdateUserComponent implements OnInit {
         } else if (res.code === 4018) {
           this.errors.phone = res.message
         } else {
-          this.errorMessage = 'Cập nhật tài khoản thất bại!';
+          this.errorMessage = UPDATE_USER_FAILED;
         }
         this.isSubmitting = false;
       },
       error: (err) => {
-        this.errorMessage = 'Lỗi cập nhật tài khoản: ' + err.message;
+        this.errorMessage = UPDATE_USER_FAILED;
         this.isSubmitting = false;
       }
     });

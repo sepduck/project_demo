@@ -10,7 +10,7 @@ import { CREATE_NEW_PASSWORD, DASHBOARD, LOGIN } from '../../../constants/path-v
 import { EmailActivationService } from '../../../services/email-activation.service';
 import { AlertService } from '../../../services/alert.service';
 import { E_LOGIN, E_REGISTER, MUST_CHANGE_PASSWORD } from '../../../constants/status-enum';
-import { AUTHENTICATION_FAILED } from '../../../constants/error-message';
+import { AUTHENTICATION_FAILED, CAPTCHA_REQUIRED } from '../../../constants/error-message';
 import { RecaptchaComponent, RecaptchaModule } from 'ng-recaptcha';
 import { SettingServiceService } from '../../../services/setting-service.service';
 
@@ -50,7 +50,7 @@ export class EmailActivationComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error('Lỗi lấy setting trong Register:', err);
+        console.error(err);
       }
     });
     const emailParam = this.route.snapshot.paramMap.get('email') || '';
@@ -62,13 +62,11 @@ export class EmailActivationComponent implements OnInit {
     }
   }
   onCaptchaResolved(captchaResponse: string | null) {
-    if (captchaResponse) {
-      console.log('Captcha token:', captchaResponse);
+    if (captchaResponse)
       this.captchaToken = captchaResponse;
-    } else {
-      console.warn('Captcha không hợp lệ');
+    else
       this.captchaToken = null;
-    }
+
   }
   validate(): boolean {
     this.errors = {}
@@ -85,7 +83,7 @@ export class EmailActivationComponent implements OnInit {
   emailConfirm() {
     if (!this.validate()) return;
     if (!this.captchaToken && this.useCaptchaOnEmailActivation) {
-      this.alertService.error("Please complete the CAPTCHA.");
+      this.alertService.error(CAPTCHA_REQUIRED);
       return;
     }
     this.emailService.emailConfirmation(this.email, this.token).subscribe({
@@ -121,6 +119,8 @@ export class EmailActivationComponent implements OnInit {
         }
       },
       error: (error) => {
+        console.log("day va da");
+
         this.alertService.error(AUTHENTICATION_FAILED)
         if (this.useCaptchaOnEmailActivation) {
           this.captchaRef.reset();

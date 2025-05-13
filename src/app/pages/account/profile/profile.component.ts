@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { jwtDecode } from 'jwt-decode';
 import { OAuthConfig, OAuthFacebookConfig } from '../../../constants/oauth-config';
+import { DELETE_USER_FAILED, IMAGE_FILE_TOO_LARGE, LOAD_USER_INFO_FAILED, ONLY_IMAGE_FILES_ALLOWED, UPDATE_USER_FAILED, UPLOAD_IMAGE_FAILED } from '../../../constants/error-message';
 
 @Component({
   selector: 'profile',
@@ -126,7 +127,7 @@ export class ProfileComponent {
         }
       },
       error: (err) => {
-        this.errorMessage = 'Không thể tải thông tin người dùng: ' + err.message;
+        this.errorMessage = LOAD_USER_INFO_FAILED;
       }
     });
   }
@@ -139,12 +140,12 @@ export class ProfileComponent {
     if (input.files && input.files[0]) {
       const file = input.files[0];
       if (file.size > 5 * 1024 * 1024) {
-        this.errorMessage = 'Kích thước file không được vượt quá 5MB';
+        this.errorMessage = IMAGE_FILE_TOO_LARGE;
         return;
       }
 
       if (!file.type.match('image.*')) {
-        this.errorMessage = 'Chỉ chấp nhận file hình ảnh';
+        this.errorMessage = ONLY_IMAGE_FILES_ALLOWED;
         return;
       }
 
@@ -193,12 +194,12 @@ export class ProfileComponent {
             this.thumbnail = res.result;
             this._processFormSubmission();
           } else {
-            this.errorMessage = 'Tải ảnh lên thất bại!';
+            this.errorMessage = UPLOAD_IMAGE_FAILED;
             this.isSubmitting = false;
           }
         },
         error: (err) => {
-          this.errorMessage = 'Lỗi tải ảnh lên: ' + err.message;
+          this.errorMessage = this.errorMessage = UPLOAD_IMAGE_FAILED;;
           this.isSubmitting = false;
         }
       });
@@ -236,12 +237,12 @@ export class ProfileComponent {
           this.errors.phone = res.message
         } else {
           this.isSubmitting = false;
-          this.errorMessage = 'Cập nhật tài khoản thất bại!';
+          this.errorMessage = UPDATE_USER_FAILED;
         }
         this.isSubmitting = false;
       },
       error: (err) => {
-        this.errorMessage = 'Lỗi cập nhật tài khoản: ' + err.message;
+        this.errorMessage = UPDATE_USER_FAILED;
         this.isSubmitting = false;
       }
     });
@@ -253,11 +254,11 @@ export class ProfileComponent {
     this.authService.unlinkOutbound(provider).subscribe({
       next: (res) => {
         if (res.code === 200) {
-          if (provider === 'google') 
+          if (provider === 'google')
             this.googleProvider = null;
-          if (provider === 'facebook') 
+          if (provider === 'facebook')
             this.facebookProvider = null;
-          
+
           this.alertService.success(res.message)
         } else if (res.code === 4019) {
           this.alertService.error(res.message)
@@ -265,8 +266,7 @@ export class ProfileComponent {
         this.errorMessage = res.message;
       },
       error: (err) => {
-        console.error('Lỗi xoá người dùng:', err);
-        this.alertService.error("Không thể xoá người dùng. Vui lòng thử lại sau.")
+        this.alertService.error(DELETE_USER_FAILED)
       }
     });
   }

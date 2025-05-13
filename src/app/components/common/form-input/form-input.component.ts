@@ -4,10 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'form-input',
-  imports: [FormsModule, CommonModule, CheckboxModule, PasswordModule, InputTextModule, CheckboxModule],
+  imports: [FormsModule, CommonModule, CheckboxModule, PasswordModule, InputTextModule, CheckboxModule, TooltipModule],
   templateUrl: './form-input.component.html',
   styleUrl: './form-input.component.css'
 })
@@ -21,6 +22,8 @@ export class FormInputComponent {
   @Input() isInput: string = 'label';
   @Input() readOnly: boolean = false;
   @Input() label: string = '';
+  @Input() required: boolean = false;
+  @Input() requiredTooltip: string = "Trường này là bắt buộc"
   // Checkbox
   @Input() checked: boolean = false;
   @Input() disabled: boolean = false;

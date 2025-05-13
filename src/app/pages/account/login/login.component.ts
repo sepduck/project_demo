@@ -14,6 +14,7 @@ import { AlertService } from '../../../services/alert.service';
 import { MUST_CHANGE_PASSWORD } from '../../../constants/status-enum';
 import { RecaptchaComponent, RecaptchaModule } from 'ng-recaptcha'
 import { OAuthConfig, OAuthFacebookConfig } from '../../../constants/oauth-config';
+import { CAPTCHA_INVALID, CAPTCHA_REQUIRED } from '../../../constants/error-message';
 
 export interface LoginResult {
   token: string;
@@ -56,7 +57,7 @@ export class LoginComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error('Lỗi lấy setting trong Register:', err);
+        console.error(err);
       }
     });
 
@@ -65,10 +66,9 @@ export class LoginComponent implements OnInit {
 
   onCaptchaResolved(captchaResponse: string | null) {
     if (captchaResponse) {
-      console.log('Captcha token:', captchaResponse);
       this.captchaToken = captchaResponse;
     } else {
-      console.warn('Captcha không hợp lệ');
+      console.warn(CAPTCHA_INVALID);
       this.captchaToken = null;
     }
   }
@@ -89,7 +89,7 @@ export class LoginComponent implements OnInit {
     if (!this.validate()) return;
 
     if (!this.captchaToken && this.useCaptchaOnLogin) {
-      this.alertService.error("Please complete the CAPTCHA.");
+      this.alertService.error(CAPTCHA_REQUIRED);
       return;
     }
 

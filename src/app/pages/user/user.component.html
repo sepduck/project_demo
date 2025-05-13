@@ -10,7 +10,7 @@
                     <p-button (click)="menu.toggle($event)" styleClass="excel-button">
                         <ng-template pTemplate="content">
                             <i class="pi pi-file-excel me-2"></i>
-                            <span class="fw-semibold">Excel operations</span>
+                            <span class="fw-semibold">Quản lý dữ liệu Excel</span>
                         </ng-template>
                     </p-button>
                     <p-menu #menu [model]="excelOperations" [popup]="true"></p-menu>
@@ -21,53 +21,24 @@
 
             </div>
         </div>
-
-        <div class="mt-5 ">
-            <p-inputGroup>
-                <input pInputText placeholder="Tìm kiếm ..." class="w-100" [(ngModel)]="name" type="search" />
-                <p-button label="Search" styleClass="custom-create-button" (click)="loadUsers()"></p-button>
-            </p-inputGroup>
+        <div class="d-flex justify-content-center gap-2 mt-5">
+            <div class="w-50">
+                <input placeholder="Tìm kiếm ..." pInputText [(ngModel)]="name" type="search"
+                    class="full-width-input" />
+            </div>
+            <div class="w-50">
+                <p-inputGroup>
+                    <p-select [options]="rolesSelect" [(ngModel)]="selectedRoleId" optionLabel="name" optionValue="id"
+                        placeholder="Chọn một vai trò" class="w-100 md:w-50" />
+                </p-inputGroup>
+            </div>
         </div>
-
-        <div *ngIf="showAdvancedFilter" class="mt-4">
-            <div class="d-flex justify-content-center gap-2">
-                <div class="w-50">
-                    <div class="card flex justify-center">
-                        <p-button label="Select Permissions" styleClass="w-max" severity="secondary"
-                            (click)="showDialog()" />
-                        <p-dialog header="Chọn Quyền" [(visible)]="visible" [modal]="true"
-                            [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }"
-                            [draggable]="false" [resizable]="false">
-                            <div class="card">
-                                <permission-tree [permissions]="permissions"
-                                    [selectedPermissionIds]="selectedPermissionIds"
-                                    (permissionsChange)="onPermissionsChange($event)">
-                                </permission-tree>
-                            </div>
-                            <ng-template pTemplate="footer">
-                                <div class="flex justify-content-end gap-2">
-                                    <p-button label="Áp dụng" icon="pi pi-check" (click)="visible = false"></p-button>
-                                </div>
-                            </ng-template>
-                        </p-dialog>
-                    </div>
-                </div>
-                <div class="w-50">
-                    <p-inputGroup>
-                        <p-select [options]="rolesSelect" [(ngModel)]="selectedRoleId" optionLabel="name"
-                            optionValue="id" placeholder="Select a role" class="w-100 md:w-50" />
-                    </p-inputGroup>
-                </div>
-            </div>
-            <div class="mt-4 d-flex justify-content-end">
-                <p-button label="Làm tươi" icon="bi bi-arrow-repeat" styleClass="custom-create-button"
-                    (click)="refreshData()"></p-button>
-            </div>
+        <div class="mt-4 d-flex justify-content-between mb-3">
+            <p-button label="Làm tươi" icon="bi bi-arrow-repeat" styleClass="custom-create-button"
+                (click)="refreshData()"></p-button>
+            <p-button label="Tìm kiếm" styleClass="custom-create-button" (click)="loadUsers()"></p-button>
 
         </div>
-        <button class="btn btn-link mt-3 text-secondary" (click)="toggleAdvancedFilter()">
-            {{ showAdvancedFilter ? 'Ẩn bộ lọc nâng cao' : 'Hiển thị bộ lọc nâng cao' }}
-        </button>
 
         <div class="mt-3 table-container">
             <p-table [value]="users" [paginator]="true" [rows]="pageSize" [first]="(pageNumber - 1) * pageSize"
@@ -111,15 +82,14 @@
                                 [severity]="user.isAction ? 'success' : 'danger'"></p-badge></td>
                         <td class="text-center"> {{user.createdAt | date:'HH:mm:ss dd/M/yyyy'}}</td>
                         <td class="text-center">
-                            <ng-container *ngIf="user.role.includes('admin'); else showDropdown">
+                            <ng-container *ngIf="user.role === 'admin'; else showDropdown">
                                 <i class="bi bi-lock-fill"></i>
                             </ng-container>
 
                             <ng-template #showDropdown>
                                 <div class="dropdown">
                                     <p-button icon="pi pi-cog" label="Hành động" severity="info" id="dropdownMenuButton"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                    </p-button>
+                                        data-bs-toggle="dropdown" aria-expanded="false" />
                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                         <li>
                                             <button class="dropdown-item" (click)="loginAsUser(user.id)"
@@ -138,6 +108,14 @@
                                     </ul>
                                 </div>
                             </ng-template>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="11" class="text-center text-muted py-5">
+                            <i class="pi pi-info-circle" style="margin-right: 6px;"></i>
+                            Không có dữ liệu.
                         </td>
                     </tr>
                 </ng-template>
@@ -209,9 +187,11 @@
     </div>
 
     <ng-template pTemplate="footer">
-        <div class="flex justify-content-end gap-2">
+        <div class="d-flex justify-content-end gap-2">
             <p-button label="Hủy" icon="pi pi-times" severity="secondary"
-                (click)="cancelImport(); importDialogVisible = false"></p-button>
+                (click)="importDialogVisible = false"></p-button>
+            <p-button *ngIf="showImportPreview" label="Xóa dữ liệu" icon="pi pi-trash" severity="danger"
+                (click)="cancelImport()"></p-button>
             <p-button *ngIf="showImportPreview" label="Import" icon="pi pi-check" severity="success"
                 (click)="importUsers()"></p-button>
         </div>

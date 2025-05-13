@@ -13,7 +13,7 @@ export class AlertService {
      * @param title Tiêu đề thông báo (mặc định: "Thành công")
      * @param duration Thời gian hiển thị (ms, mặc định: 3000)
      */
-    success(message: string, title: string = 'Thành công', duration: number = 3000): void {
+    success(message: string, title: string = 'Thành công', duration: number = 5000): void {
         this.messageService.add({
             severity: 'success',
             summary: title,
@@ -28,7 +28,7 @@ export class AlertService {
      * @param title Tiêu đề thông báo (mặc định: "Lỗi")
      * @param duration Thời gian hiển thị (ms, mặc định: 5000)
      */
-    error(message: string, title: string = 'Lỗi', duration: number = 5000): void {
+    error(message: string, title: string = 'Lỗi', duration: number = 10000): void {
         this.messageService.add({
             severity: 'error',
             summary: title,
@@ -43,7 +43,7 @@ export class AlertService {
      * @param title Tiêu đề thông báo (mặc định: "Cảnh báo")
      * @param duration Thời gian hiển thị (ms, mặc định: 4000)
      */
-    warning(message: string, title: string = 'Cảnh báo', duration: number = 4000): void {
+    warning(message: string, title: string = 'Cảnh báo', duration: number = 5000): void {
         this.messageService.add({
             severity: 'warn',
             summary: title,
@@ -58,7 +58,7 @@ export class AlertService {
      * @param title Tiêu đề thông báo (mặc định: "Thông tin")
      * @param duration Thời gian hiển thị (ms, mặc định: 3000)
      */
-    info(message: string, title: string = 'Thông tin', duration: number = 3000): void {
+    info(message: string, title: string = 'Thông tin', duration: number = 5000): void {
         this.messageService.add({
             severity: 'info',
             summary: title,

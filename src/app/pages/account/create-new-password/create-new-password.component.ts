@@ -41,7 +41,7 @@ export class CreateNewPasswordComponent implements OnInit {
 
       },
       error: (err) => {
-        console.error('Lỗi lấy setting trong Register:', err);
+        console.error(err);
       }
     });
     this.email = this.route.snapshot.paramMap.get('email') || '';
@@ -61,10 +61,8 @@ export class CreateNewPasswordComponent implements OnInit {
   }
   onCaptchaResolved(captchaResponse: string | null) {
     if (captchaResponse) {
-      console.log('Captcha token:', captchaResponse);
       this.captchaToken = captchaResponse;
     } else {
-      console.warn('Captcha không hợp lệ');
       this.captchaToken = null;
     }
   }

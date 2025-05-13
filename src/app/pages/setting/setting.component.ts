@@ -9,6 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { SettingServiceService } from '../../services/setting-service.service';
 import { AuthService } from '../../services/auth.service';
 import { AlertService } from '../../services/alert.service';
+import { UPDATE_SETTING_FAILED, UPDATE_SETTING_SUCCESS } from '../../constants/error-message';
 
 @Component({
   selector: 'app-setting',
@@ -67,7 +68,7 @@ export class SettingComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error('Lỗi lấy setting trong Register:', err);
+        console.error(err);
       }
     });
   }
@@ -119,15 +120,15 @@ export class SettingComponent implements OnInit {
       next: (res) => {
         this.isSubmitting = false;
         if (res.code === 200) {
-          this.alertService.success("Sửa cài đặt thành công!")
+          this.alertService.success(UPDATE_SETTING_SUCCESS)
           this.settingService.getSetting()
         } else {
-          this.alertService.success("Sửa cài đặt thất bại!")
+          this.alertService.success(UPDATE_SETTING_FAILED)
         }
       },
       error: (err) => {
         this.isSubmitting = false;
-        this.alertService.success("Sửa cài đặt thất bại!")
+        this.alertService.success(UPDATE_SETTING_FAILED)
       }
     });
   }

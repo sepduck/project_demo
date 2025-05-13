@@ -13,6 +13,7 @@ import { AuthService } from '../../../services/auth.service';
 import { USERS } from '../../../constants/path-valiable';
 import { TabsModule } from 'primeng/tabs';
 import { PasswordModule } from 'primeng/password';
+import { CREATE_USER_FAILED, IMAGE_FILE_TOO_LARGE, LOAD_ROLE_LIST_FAILED, ONLY_IMAGE_FILES_ALLOWED, UPLOAD_IMAGE_FAILED } from '../../../constants/error-message';
 
 @Component({
   selector: 'app-create-user',
@@ -30,13 +31,13 @@ export class CreateUserComponent implements OnInit {
   confirmPassword: string = '';
   phoneNumber: string = '';
   isSendEmail: boolean = false;
-  thumbnail: string = '';
+  thumbnail: string | null = null;
   isRandomPassword: boolean = false;
   mustChangePassword: boolean = false;
   isAction: boolean = false;
   isLockedOut: boolean = false;
 
-  activeTab: string = 'tab1';
+  activeTab: string | number = '0';
   errorMessage: string = '';
   isSubmitting: boolean = false;
   previewImageUrl: string | ArrayBuffer | null = null;
@@ -70,7 +71,7 @@ export class CreateUserComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.errorMessage = 'Không thể tải danh sách vai trò: ' + err.message;
+        this.errorMessage = LOAD_ROLE_LIST_FAILED;
       }
     });
   }
@@ -88,12 +89,12 @@ export class CreateUserComponent implements OnInit {
     if (input.files && input.files[0]) {
       const file = input.files[0];
       if (file.size > 5 * 1024 * 1024) {
-        this.errorMessage = 'Kích thước file không được vượt quá 5MB';
+        this.errorMessage = IMAGE_FILE_TOO_LARGE;
         return;
       }
 
       if (!file.type.match('image.*')) {
-        this.errorMessage = 'Chỉ chấp nhận file hình ảnh';
+        this.errorMessage = ONLY_IMAGE_FILES_ALLOWED;
         return;
       }
 
@@ -133,15 +134,19 @@ export class CreateUserComponent implements OnInit {
     if (confirmPasswordError) this.errors.confirmPassword = confirmPasswordError;
 
     const rolesError = validateRole(this.roles);
-    if (rolesError) this.errorMessage = rolesError;
+    if (rolesError) {
+      this.errorMessage = rolesError;
+      return false;
+    }
+
 
     return Object.keys(this.errors).length === 0;
   }
 
   saveUser(): void {
     if (!this.validateForm()) {
-      if (this.activeTab === 'tab2' && Object.keys(this.errors).length > 0) {
-        this.setActiveTab('tab1');
+      if (this.activeTab === '1' && Object.keys(this.errors).length > 0) {
+        this.setActiveTab('0');
         return;
       }
       return;
@@ -161,16 +166,17 @@ export class CreateUserComponent implements OnInit {
             this.thumbnail = res.result;
             this._processFormSubmission();
           } else {
-            this.errorMessage = 'Tải ảnh lên thất bại!';
+            this.errorMessage = UPLOAD_IMAGE_FAILED;
             this.isSubmitting = false;
           }
         },
         error: (err) => {
-          this.errorMessage = 'Lỗi tải ảnh lên: ' + err.message;
+          this.errorMessage = UPLOAD_IMAGE_FAILED;
           this.isSubmitting = false;
         }
       });
     } else {
+      this.thumbnail = null;
       this._processFormSubmission();
     }
   }
@@ -193,24 +199,33 @@ export class CreateUserComponent implements OnInit {
     ).subscribe({
       next: (res) => {
         if (res.code === 200) {
+
           this.alertService.success(res?.message)
           this.router.navigate([USERS]);
         } else if (res.code === 4001) {
+
           this.errors.email = res?.message;
           this.isSubmitting = false;
+          if (this.activeTab === '1' && Object.keys(this.errors).length > 0) {
+            this.setActiveTab('0');
+            return;
+          }
         } else if (res.code === 4002) {
           this.errors.username = res.message;
           this.isSubmitting = false;
         } else if (res.code === 4018) {
           this.errors.phone = res.message;
           this.isSubmitting = false;
+        } else if (res.code === 4004) {
+          this.errors.password = res.message;
+          this.isSubmitting = false;
         } else {
-          this.errorMessage = res.message || 'Tạo tài khoản thất bại!';
+          this.errorMessage = res.message;
           this.isSubmitting = false;
         }
       },
       error: (err) => {
-        this.alertService.error("Tạo tài khoản thất bại!")
+        this.alertService.error(CREATE_USER_FAILED)
         this.isSubmitting = false;
       }
     });

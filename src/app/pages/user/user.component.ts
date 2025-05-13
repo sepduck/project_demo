@@ -15,8 +15,6 @@ import { DropdownModule } from 'primeng/dropdown';
 import { PanelModule } from 'primeng/panel';
 import { MenuModule } from 'primeng/menu';
 import { DialogModule } from 'primeng/dialog';
-import { TreeModule } from 'primeng/tree';
-import { PermissionTreeComponent } from '../../components/permission-tree/permission-tree.component';
 import { MenuItem } from 'primeng/api';
 import * as XLSX from 'xlsx';
 import { AvatarModule } from 'primeng/avatar';
@@ -26,15 +24,17 @@ import { AuthService } from '../../services/auth.service';
 import { RoleService } from '../../services/role.service';
 import { AlertService } from '../../services/alert.service';
 import { AutoCompleteModule } from 'primeng/autocomplete';
+import { ACCOUNT_NOT_ACTIVATED, DELETE_USER_ERROR, DELETE_USER_FAILED, DELETE_USER_SUCCESS, EXPORT_USER_DATA_FAILED, EXPORT_USER_DATA_SUCCESS, FILE_READ_ERROR, FILE_READ_SUCCESS, IMPORT_NO_DATA, IMPORT_USERS_SUCCESS, LOAD_USER_DATA_FAILED, LOGIN_FAILED, LOGIN_USER_FAILED, TEMPLATE_DOWNLOAD_SUCCESS, USER_NOT_FOUND } from '../../constants/error-message';
+import { InputTextModule } from 'primeng/inputtext';
+
 
 @Component({
   selector: 'app-user',
-  imports: [DialogModule, AutoCompleteModule, PermissionTreeComponent, AvatarModule, CommonModule, NgIf, FormsModule, DialogModule, TreeModule, NgxPaginationModule, MenuModule, DropdownModule, PanelModule, SelectModule, PaginatorModule, InputGroupAddonModule, TableModule, ButtonModule, BadgeModule, InputGroupModule],
+  imports: [DialogModule, InputTextModule, AutoCompleteModule, AvatarModule, CommonModule, NgIf, FormsModule, DialogModule, NgxPaginationModule, MenuModule, DropdownModule, PanelModule, SelectModule, PaginatorModule, InputGroupAddonModule, TableModule, ButtonModule, BadgeModule, InputGroupModule],
   templateUrl: './user.component.html',
   styleUrl: './user.component.css'
 })
 export class UserComponent {
-  // Khởi tạo
   users: any[] = [];
   rolesSelect: any[] = [];
   totalRecords = 0;
@@ -44,7 +44,6 @@ export class UserComponent {
   showAdvancedFilter: boolean = false;
   errorMessage: string = '';
 
-  // Form Variables
   firstName: string = '';
   lastName: string = '';
   email: string = '';
@@ -57,29 +56,22 @@ export class UserComponent {
   isPasswordVisible: boolean = false;
   first = 0;
 
-  // Permissions and Roles
   roles: any[] = [];
-  permissions: any[] = [];
   selectedPermissionIds: number[] = [];
 
-  // Search and Filter
   name: string = '';
   selectedRoleId: number = 0;
-  filterState: 'all' | 'search' | 'role' | 'permissions' = 'all'
-
-  // Dialog visibility
+  filterState: 'all' | 'search' | 'role' = 'all'
+  importErrors: string[] = [];
   visible: boolean = false;
   items: MenuItem[] | undefined;
   excelOperations: MenuItem[] = [];
-  
   constructor(private userService: UserService, private router: Router, public authService: AuthService, private roleService: RoleService, private alertService: AlertService) { }
 
   ngOnInit(): void {
     this.loadUsers();
     this.loadRolesSelect();
-    this.loadPermissions();
     this.setupExcelOperations()
-
   }
 
   setupExcelOperations(): void {
@@ -107,31 +99,20 @@ export class UserComponent {
 
   importDialogVisible: boolean = false;
 
-  showImportDialog(): void {
-    this.importDialogVisible = true;
-  }
-
+  showImportDialog(): void { this.importDialogVisible = true; }
   get totalPages(): number { return Math.ceil(this.totalRecords / this.pageSize); }
 
   loadUsers(resetPage: boolean = true): void {
     if (resetPage) this.pageNumber = 1;
 
-    // Xác định trạng thái filter dựa trên các tham số hiện tại
-    if (this.selectedPermissionIds && this.selectedPermissionIds.length > 0) {
-      this.filterState = 'permissions';
-    } else if (this.selectedRoleId && this.selectedRoleId > 0) {
+    if (this.selectedRoleId && this.selectedRoleId > 0)
       this.filterState = 'role';
-    } else if (this.name && this.name.trim() !== '') {
+    else if (this.name && this.name.trim() !== '')
       this.filterState = 'search';
-    } else {
+    else
       this.filterState = 'all';
-    }
 
-    const permissionIds = this.selectedPermissionIds ? [...this.selectedPermissionIds] : [];
-
-    // Sử dụng searchUser cho tất cả các trường hợp
     this.userService.getUsers(
-      permissionIds,
       this.name || '',
       this.selectedRoleId || 0,
       this.pageNumber,
@@ -144,13 +125,11 @@ export class UserComponent {
           this.pageNumber = res.result.pageNumber;
           this.pageSize = res.result.pageSize;
         } else {
-          this.errorMessage = 'Không thể tải dữ liệu người dùng';
-          this.alertService.error(res.message || 'Lỗi không xác định khi tải dữ liệu người dùng');
+          this.alertService.error(res.message);
         }
       },
       error: (err) => {
-        this.errorMessage = 'Lỗi kết nối khi tải dữ liệu người dùng';
-        this.alertService.error("Không thể tải dữ liệu người dùng. Vui lòng thử lại sau.");
+        this.alertService.error(LOAD_USER_DATA_FAILED);
       }
     });
   }
@@ -160,15 +139,14 @@ export class UserComponent {
       next: (res) => {
         if (res.code === 200) {
           this.loadUsers();
-          this.alertService.success("Xoá người dùng thành công!")
+          this.alertService.success(DELETE_USER_SUCCESS)
         } else if (res.code === 4022) {
           this.alertService.error(res.message)
         }
-        this.errorMessage = 'Xóa người dùng thất bại';
+        this.errorMessage = DELETE_USER_ERROR;
       },
       error: (err) => {
-        console.error('Lỗi xoá người dùng:', err);
-        this.alertService.error("Không thể xoá người dùng. Vui lòng thử lại sau.")
+        this.alertService.error(DELETE_USER_FAILED)
       }
     });
   }
@@ -180,14 +158,14 @@ export class UserComponent {
           this.authService.saveToken(res.result.token);
           this.router.navigate([DASHBOARD]).then(() => window.location.reload())
         } else if (res.code === 4014) {
-          this.alertService.error("Tài khoản chưa được kích hoạt")
+          this.alertService.error(ACCOUNT_NOT_ACTIVATED)
         } else if (res.code === 4009) {
-          this.alertService.error("Người dùng không tồn tại")
+          this.alertService.error(USER_NOT_FOUND)
         }
-        this.alertService.error("Đăng nhập người dùng thất bại")
+        this.alertService.error(LOGIN_USER_FAILED)
       },
       error: (err) => {
-        this.alertService.error("Không thể đăng nhập người dùng. Vui lòng thử lại sau.")
+        this.alertService.error(LOGIN_FAILED)
       }
     });
   }
@@ -220,27 +198,16 @@ export class UserComponent {
     });
   }
 
-  loadPermissions(): void {
-    this.roleService.getPermissions().subscribe(res => {
-      if (res.result && Array.isArray(res.result)) {
-        this.permissions = res.result;
-      } else {
-        this.permissions = [];
-      }
-    });
-  }
-
   setActiveTab(tab: string): void { this.activeTab = tab }
   showDialog() { this.visible = true }
   toggleAdvancedFilter(): void { this.showAdvancedFilter = !this.showAdvancedFilter }
   goToUpdate(id: string): void { this.router.navigate([USERS_ID(id)]) }
   goToCreate(): void { this.router.navigate([USERS_CREATE]) }
-  onPermissionsChange(permissions: number[]): void { this.selectedPermissionIds = [...permissions] }
-
-
 
   exportToExcel(): void {
-    this.userService.getUsers([], '', null, 1, 1000).subscribe({
+    const name = this.name || '';
+    const roleId = this.selectedRoleId || 0;
+    this.userService.getUsers(name, roleId, 1, this.totalRecords).subscribe({
       next: (res) => {
         if (res.code === 200) {
           const users = res.result.contents;
@@ -280,7 +247,6 @@ export class UserComponent {
             }
           }
 
-          // Set độ rộng từng cột (optional)
           worksheet['!cols'] = [
             { wch: 20 },
             { wch: 15 },
@@ -297,14 +263,13 @@ export class UserComponent {
 
           // Xuất file
           XLSX.writeFile(workbook, 'UserList.xlsx');
-          this.alertService.success('Xuất danh sách người dùng thành công!');
+          this.alertService.success(EXPORT_USER_DATA_SUCCESS);
         } else {
-          this.alertService.error('Không thể xuất dữ liệu người dùng!');
+          this.alertService.error(EXPORT_USER_DATA_FAILED);
         }
       },
       error: (err) => {
-        console.error('Lỗi khi xuất file Excel:', err);
-        this.alertService.error('Không thể xuất dữ liệu người dùng. Vui lòng thử lại sau.');
+        this.alertService.error(EXPORT_USER_DATA_FAILED);
       }
     });
   }
@@ -348,10 +313,9 @@ export class UserComponent {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Template');
 
     XLSX.writeFile(workbook, 'ImportUsersSampleFile.xlsx');
-    this.alertService.success('Tải xuống tệp mẫu thành công!');
+    this.alertService.success(TEMPLATE_DOWNLOAD_SUCCESS);
   }
 
-  // Biến để lưu trữ thông tin import
   importFile: File | null = null;
   importData: any[] = [];
   showImportPreview: boolean = false;
@@ -393,10 +357,9 @@ export class UserComponent {
           this.importProgress = 0;
           this.processedItems = 0;
 
-          this.alertService.success(`Đã đọc ${this.importData.length} bản ghi từ file.`);
+          this.alertService.success(FILE_READ_SUCCESS(this.importData.length));
         } catch (error) {
-          console.error('Lỗi khi đọc file Excel:', error);
-          this.alertService.error('Không thể đọc dữ liệu từ file. Vui lòng kiểm tra định dạng file.');
+          this.alertService.error(FILE_READ_ERROR);
         }
       };
 
@@ -404,29 +367,105 @@ export class UserComponent {
     }
   }
   importUsers(): void {
+    // Kiểm tra dữ liệu trước khi import
     if (this.importData.length === 0) {
-      this.alertService.error('Không có dữ liệu để import.');
+      this.alertService.error('Không có dữ liệu để import');
       return;
     }
 
+    // Validate toàn bộ dữ liệu trước khi gửi
+    this.importErrors = this.validateImportData(this.importData);
+
+    // Nếu có lỗi, hiển thị chi tiết lỗi
+    if (this.importErrors.length > 0) {
+      this.displayImportErrors();
+      return;
+    }
+
+    // Nếu không có lỗi, thực hiện import
     this.userService.createUsers(this.importData).subscribe({
       next: (res) => {
         if (res.code === 200) {
-          this.alertService.success(`Đã import ${this.importData.length} người dùng thành công.`);
+          this.alertService.success(`Đã import thành công ${this.importData.length} người dùng`);
+          this.resetImport();
         } else {
-          this.alertService.error(`${res.message}`);
+          this.alertService.error(res.message);
         }
       },
       error: (err) => {
-        console.log(err);
-        this.alertService.error(`${err?.error?.message || 'Lỗi không xác định'}`);
-      },
-      complete: () => {
-        this.showImportPreview = false;
-        this.loadUsers();
+        // Xử lý lỗi từ server
+        const errorMessage = err?.error?.message || 'Lỗi không xác định';
+        this.alertService.error(errorMessage);
       }
     });
   }
+
+  validateImportData(data: any[]): string[] {
+    const errorSet = new Set<string>();
+
+    data.forEach((user, index) => {
+      // Validate vai trò
+      if (!user.role || user.role.trim() === '') {
+        errorSet.add('Vai trò không được để trống');
+      }
+
+      // Validate email
+      if (!user.email) {
+        errorSet.add('Email không được để trống');
+      } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(user.email)) {
+          errorSet.add('Email không đúng định dạng');
+        }
+      }
+
+      // Validate tên
+      if (!user.firstName || user.firstName.trim() === '') {
+        errorSet.add('Tên không được để trống');
+      }
+
+      // Validate họ
+      if (!user.lastName || user.lastName.trim() === '') {
+        errorSet.add('Họ không được để trống');
+      }
+
+      // Validate mật khẩu
+      if (!user.password || user.password.trim() === '') {
+        errorSet.add('Mật khẩu không được để trống');
+      }
+
+      // Validate tên người dùng
+      if (!user.username || user.username.trim() === '') {
+        errorSet.add('Tên người dùng không được để trống');
+      }
+
+      // Validate số điện thoại
+      if (!user.phone || user.phone.trim() === '') {
+        errorSet.add('Số điện thoại không được để trống');
+      }
+    });
+
+    // Chuyển Set thành mảng
+    return Array.from(errorSet);
+  }
+  displayImportErrors(): void {
+    let errorMessage = 'Có lỗi trong quá trình import:\n';
+    this.importErrors.forEach(error => {
+      errorMessage += `• ${error}\n`;
+    });
+    this.alertService.error(errorMessage);
+  }
+
+  // Reset trạng thái import
+  resetImport(): void {
+    this.showImportPreview = false;
+    this.importData = [];
+    this.importFile = null;
+    this.importErrors = [];
+  }
+
+
+
   cancelImport(): void {
     this.showImportPreview = false;
     this.importData = [];

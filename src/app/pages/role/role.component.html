@@ -51,6 +51,14 @@
                         </td>
                     </tr>
                 </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="11" class="text-center text-muted py-5">
+                            <i class="pi pi-info-circle" style="margin-right: 6px;"></i>
+                            Không có dữ liệu.
+                        </td>
+                    </tr>
+                </ng-template>
                 <ng-template pTemplate="paginatorleft">
                     <div class="flex align-items-center justify-content-between w-full">
                         <span>Page {{pageNumber}} of {{totalPages}}</span>
@@ -73,7 +81,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p-tabs value="0">
+                <p-tabs [(value)]="activeTab">
                     <p-tablist>
                         <p-tab value="0" class="custom-bold-tab">Tên vai trò</p-tab>
                         <p-tab value="1" class="custom-bold-tab">Quyền</p-tab>
@@ -105,12 +113,6 @@
                         </p-tabpanel>
                     </p-tabpanels>
                 </p-tabs>
-
-
-
-
-
-
             </div>
             <div class="modal-footer">
                 <p-button [label]="'Hủy bỏ'" icon="pi pi-times" severity="secondary" data-bs-dismiss="modal" />
