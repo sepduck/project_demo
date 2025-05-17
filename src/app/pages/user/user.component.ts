@@ -173,8 +173,8 @@ export class UserComponent {
   }
 
   onPageChange(event: any) {
-    this.pageNumber = Math.floor((event.first || 0) / (event.rows || 10)) + 1;
-    this.pageSize = event.rows || 10;
+    this.pageNumber = Math.floor(event.first / event.rows) + 1;
+    this.pageSize = event.rows;
     this.loadUsers(false);
   }
 
@@ -188,7 +188,6 @@ export class UserComponent {
     this.name = '';
     this.selectedRoleId = 0;
     this.selectedPermissionIds = [];
-    this.pageNumber = 1;
     this.loadUsers();
   }
 
@@ -385,6 +384,7 @@ export class UserComponent {
         if (res.code === 200) {
           this.alertService.success(`Đã import thành công ${this.importData.length} người dùng`);
           this.resetImport();
+          this.loadUsers();
         } else {
           this.alertService.error(res.message);
         }

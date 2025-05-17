@@ -23,7 +23,7 @@
                                 </ng-container>
 
                                 <ng-template #placeholder>
-                                    <i class="pi pi-plus text-color" style="font-size: 1.5rem;" ></i>
+                                    <i class="pi pi-plus text-color" style="font-size: 1.5rem;"></i>
                                 </ng-template>
                             </div>
 
@@ -76,7 +76,7 @@
                         <p-toggleswitch [(ngModel)]="mustChangePassword" inputId="mustChangePassword" binary="true" />
                         <label for="mustChangePassword">Cần thay đổi mật khẩu vào lần đăng nhập tiếp theo.</label>
                     </div>
-                    <div class="d-flex items-center gap-2 mt-2">
+                    <div class="d-flex items-center gap-2 mt-2" *ngIf="false">
                         <p-toggleswitch [(ngModel)]="isLockedOut" inputId="isLockedOut" binary="true" />
                         <label for="isLockedOut">Khóa tài khoản</label>
                     </div>

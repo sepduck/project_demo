@@ -25,7 +25,7 @@ export const API_V1_USER = `${API_V1}/user`;
 export const API_V1_USER_PROFILE = `${API_V1_USER}/profile`;
 export const API_V1_USER_CHANGE_PASSWORD = `${API_V1_USER}/change-password`;
 export const API_V1_USER_SEARCH = `${API_V1_USER}/search`;
-export const API_V1_USER_CREATE_USER_LIST = `${API_V1_USER}/create-user-list`;
+export const API_V1_USER_IMPORT = `${API_V1_USER}/import`;
 
 export const API_V1_IMAGES = `${API_V1}/images`;
 export const API_V1_IMAGES_UPLOAD = `${API_V1_IMAGES}/upload`;

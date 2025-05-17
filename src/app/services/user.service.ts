@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthUtils } from '../utils/api/auth-utils';
 import { ApiResponse, ApiResponse2, ApiResponseRoles, ApiResponseUserDetail } from '../models/user.model';
-import { API_V1_AUTH_LOGIN_AS_USER, API_V1_IMAGES_UPLOAD, API_V1_ROLE_SELECT, API_V1_USER, API_V1_USER_CHANGE_PASSWORD, API_V1_USER_CREATE_USER_LIST, API_V1_USER_PROFILE, API_V1_USER_SEARCH } from '../constants/api-endpoints';
+import { API_V1_AUTH_LOGIN_AS_USER, API_V1_IMAGES_UPLOAD, API_V1_ROLE_SELECT, API_V1_USER, API_V1_USER_CHANGE_PASSWORD, API_V1_USER_IMPORT, API_V1_USER_PROFILE, API_V1_USER_SEARCH } from '../constants/api-endpoints';
 @Injectable({
   providedIn: 'root'
 })
@@ -87,7 +87,7 @@ export class UserService {
 
   createUsers(data: any[]): Observable<ApiResponse2<string>> {
     const headers = AuthUtils.getAuthHeaders();
-    return this.http.post<ApiResponse2<string>>(API_V1_USER_CREATE_USER_LIST, data, { headers });
+    return this.http.post<ApiResponse2<string>>(API_V1_USER_IMPORT, data, { headers });
   }
 
 }
